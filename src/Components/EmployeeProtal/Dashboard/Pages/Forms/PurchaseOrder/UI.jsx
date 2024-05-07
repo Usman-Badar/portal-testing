@@ -1179,6 +1179,7 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
     const [ RejectConfirm, setRejectConfirm ] = useState(false);
     const [ ApprovalConfirm, setApprovalConfirm ] = useState(false);
     const [ EditConfirm, setEditConfirm ] = useState(false);
+    const [ releasePaymentConfirmation, setReleasePaymentConfirmation ] = useState(false);
     const [ EditContent, setEditContent ] = useState(<></>);
     // const [ BackgroundPosition, setBackgroundPosition ] = useState("0% 0%");
 
@@ -1276,6 +1277,15 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
                             </form>
                         </>
                     } />
+                    <Modal show={ releasePaymentConfirmation } Hide={ () => setReleasePaymentConfirmation(false) } content={
+                        <>
+                            <div>
+                                <h6 className="mb-0">Confirm to release the payment?</h6>
+                                <hr />
+                                <button id="clearBtn" onClick={() => releasePayment(po_id, RequestDetails.requested_by, setReleasePaymentConfirmation)} className='btn d-block ml-auto submit'>Confirm</button>
+                            </div>
+                        </>
+                    } />
                     <Modal show={ CancelConfirm } Hide={ () => setCancelConfirm(false) } content={ <CancelConfirmation po_id={ po_id } CancelRequisition={ CancelRequisition } /> } />
                     <Modal show={ ApprovalConfirm } Hide={ () => setApprovalConfirm(false) } content={ <ApprovalConfirmation SubOrdinands={ SubOrdinands } loadSubOrdinands={ loadSubOrdinands } requested_by={ RequestDetails.requested_by } po_id={ po_id } ApproveRequisition={ ApproveRequisition } /> } />
                     <Modal show={ RejectConfirm } Hide={ () => setRejectConfirm(false) } content={ <RejectConfirmation RequestDetails={ RequestDetails } Specifications={ Specifications } po_id={ po_id } RejectRequisition={ RejectRequisition } /> } />
@@ -1290,7 +1300,7 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
                             {
                                 AdvanceCash.length === 0 && Cashier && RequestDetails?.payment_mode === 'Cash' && !RequestDetails?.cash_payment_dt
                                 ?
-                                <button id="clearBtn" className="btn submit ml-2" onClick={() => releasePayment(po_id, RequestDetails.requested_by)}>Release Payment</button>
+                                <button id="clearBtn" className="btn submit ml-2" onClick={() => setReleasePaymentConfirmation(true)}>Release Payment</button>
                                 :
                                 AdvanceCash.length > 0 && selectedAC.length === AdvanceCash.length && Cashier && RequestDetails?.payment_mode === 'Cash' && !RequestDetails?.cash_payment_dt
                                 ?

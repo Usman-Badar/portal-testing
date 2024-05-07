@@ -897,7 +897,7 @@ export const updatePaymentStatus = ( e, po_id, requested_by, setPaymentStatusMod
 
 }
 
-export const releasePayment = ( po_id, requested_by, setRequestDetails, setSpecifications, setAttachedBills, setAdditionalRows, setPRequestDetails, setPRSpecifications, setBills, setPR, setPRCode, setSPRSpecifications ) => {
+export const releasePayment = ( po_id, requested_by, setReleasePaymentConfirmation, setRequestDetails, setSpecifications, setAttachedBills, setAdditionalRows, setPRequestDetails, setPRSpecifications, setBills, setPR, setPRCode, setSPRSpecifications ) => {
 
     $('#clearBtn').prop('disabled', true);
     axios.post(
@@ -915,6 +915,7 @@ export const releasePayment = ( po_id, requested_by, setRequestDetails, setSpeci
             $('#clearBtn').prop('disabled', false);
             if ( res.data === 'success' )
             {
+                setReleasePaymentConfirmation(false);
                 openRequestDetails(po_id, false, setRequestDetails, setSpecifications, setAttachedBills, setAdditionalRows, setPRequestDetails, setPRSpecifications, setBills, setPR, setPRCode, setSPRSpecifications);
                 JSAlert.alert("Payment has been released!!");
             }
@@ -923,6 +924,7 @@ export const releasePayment = ( po_id, requested_by, setRequestDetails, setSpeci
     ).catch(
         err => {
 
+            setReleasePaymentConfirmation(false);
             $('#clearBtn').prop('disabled', false);
             console.log(err);
 
