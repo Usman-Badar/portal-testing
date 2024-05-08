@@ -98,6 +98,7 @@ const UI = ( { releasePayment, PaymentStatus, setPaymentStatus, PaymentMode, set
                                     UnAttachedAC={UnAttachedAC}
                                     AttachedAC={AttachedAC}
                                     AdvanceCash={AdvanceCash}
+                                    TotalACAdjustment={TotalACAdjustment}
                                     
                                     setAttachedAC={setAttachedAC}
                                     setUnAttachedAC={setUnAttachedAC}
@@ -789,14 +790,15 @@ const POForm = ( { TotalACAdjustment, setAttachedAC, AttachedAC, setUnAttachedAC
 
 }
 
-const POFormForEditing = ( { AdvanceCash, UnAttachedAC, AttachedAC, setUnAttachedAC, setAttachedAC, loadUnAttachedAdvanceCash, setPRCode, setPR, setSPRSpecifications, PRCode, SPRSpecifications, updatePO, AdditionalRows, RequestDetails, Specifications, openRequestDetails, onFooterContentInput, PR, addAdditionalRow, setPRAttachment, Vendors, history, Locations, Bills, Companies, SubmitPO, selectVendor, addRow, searchVendor, setShowBillModal, onContentInput } ) => {
+const POFormForEditing = ( { TotalACAdjustment, AdvanceCash, UnAttachedAC, AttachedAC, setUnAttachedAC, setAttachedAC, loadUnAttachedAdvanceCash, setPRCode, setPR, setSPRSpecifications, PRCode, SPRSpecifications, updatePO, AdditionalRows, RequestDetails, Specifications, openRequestDetails, onFooterContentInput, PR, addAdditionalRow, setPRAttachment, Vendors, history, Locations, Bills, Companies, SubmitPO, selectVendor, addRow, searchVendor, setShowBillModal, onContentInput } ) => {
 
+    const po_id = window.location.href.split('&&po_id=').pop();
     const [ ShowACModal, setShowACModal ] = useState(false);
 
     useEffect(
         () => {
             if (ShowACModal) {
-                loadUnAttachedAdvanceCash(RequestDetails.company_code, 'unapproved');
+                loadUnAttachedAdvanceCash(RequestDetails.company_code, 'current', po_id);
             }
         }, [ShowACModal]
     );
@@ -858,40 +860,41 @@ const POFormForEditing = ( { AdvanceCash, UnAttachedAC, AttachedAC, setUnAttache
                             <hr />
                             {
                                 UnAttachedAC.length === 0
-                                    ?
-                                    <h6 className="text-center">No Record</h6>
-                                    :
-                                    <table className='table table-sm'>
-                                        <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th>AC #</th>
-                                                <th>Co & Loc</th>
-                                                <th>Reason</th>
-                                                <th>Date</th>
-                                                <th>Amount</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {
-                                                UnAttachedAC.map((val, i) => {
-                                                    const code = val.company_code_name + '-' + val.series_year + '-' + val.serial_no;
-                                                    return (
-                                                        <tr key={i}>
-                                                            <td>
-                                                                <input type='checkbox' name="AC" onChange={(e) => onSelectAC(e, i, val.id)} />
-                                                            </td>
-                                                            <td>{code}</td>
-                                                            <td>{val.company_name} <br /> {val.location_name}</td>
-                                                            <td>{val.reason}</td>
-                                                            <td>{val.submit_date}</td>
-                                                            <td>{val.amount.toLocaleString('en')}</td>
-                                                        </tr>
-                                                    )
-                                                })
-                                            }
-                                        </tbody>
-                                    </table>
+                                ?
+                                <h6 className="text-center">No Record</h6>
+                                :
+                                <table className='table table-sm'>
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>AC #</th>
+                                            <th>Co & Loc</th>
+                                            <th>Reason</th>
+                                            <th>Date</th>
+                                            <th>Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {
+                                            UnAttachedAC.map((val, i) => {
+                                                const code = val.company_code_name + '-' + val.series_year + '-' + val.serial_no;
+                                                const checked = parseInt(val.attached_to_po) === parseInt(po_id);
+                                                return (
+                                                    <tr key={i}>
+                                                        <td>
+                                                            <input defaultChecked={checked} type='checkbox' name="AC" onChange={(e) => onSelectAC(e, i, val.id)} />
+                                                        </td>
+                                                        <td>{code}</td>
+                                                        <td>{val.company_name} <br /> {val.location_name}</td>
+                                                        <td>{val.reason}</td>
+                                                        <td>{val.submit_date}</td>
+                                                        <td>{val.amount.toLocaleString('en')}</td>
+                                                    </tr>
+                                                )
+                                            })
+                                        }
+                                    </tbody>
+                                </table>
                             }
                         </>
                     } />
@@ -1034,18 +1037,14 @@ const POFormForEditing = ( { AdvanceCash, UnAttachedAC, AttachedAC, setUnAttache
                                     <td className='text-center' id="sub_total_calculated_amount_label"><b>Sub Total</b></td>
                                     <td id="sub_total_calculated_amount">{RequestDetails.total_sub_value}</td>
                                 </tr>
-                                {
-                                    parseFloat(RequestDetails.total_ac_adjustments) > 0 && (
-                                        <tr id="specification_total_row">
-                                            <td className='border-0'></td>
-                                            <td className='border-0'></td>
-                                            <td className='border-0'></td>
-                                            <td className='border-0'></td>
-                                            <td className='text-center' id="ac_calculated_amount_label"><b>Adjust Advance Cash</b></td>
-                                            <td id="ac_calculated_amount">-{RequestDetails.total_ac_adjustments}</td>
-                                        </tr>
-                                    )
-                                }
+                                <tr id="specification_total_row">
+                                    <td className='border-0'></td>
+                                    <td className='border-0'></td>
+                                    <td className='border-0'></td>
+                                    <td className='border-0'></td>
+                                    <td className='text-center' id="ac_calculated_amount_label"><b>Adjust Advance Cash</b></td>
+                                    <td id="ac_calculated_amount">{TotalACAdjustment > 0 ? ('-' + parseFloat(TotalACAdjustment).toFixed(2)) : '0.00'}</td>
+                                </tr>
                                 {
                                     AdditionalRows && AdditionalRows.map(
                                         (val, index) => {
@@ -1088,7 +1087,7 @@ const POFormForEditing = ( { AdvanceCash, UnAttachedAC, AttachedAC, setUnAttache
                                         setPRAttachment();
                                     }}>Remove PR</button>
                                 }
-                                {/* <button className="btn submit" type='button' onClick={ () => setShowACModal(true) }>Adjust Advance Cash {AttachedAC.length > 0 && <>({ AttachedAC.length })</>}</button> */}
+                                <button className="btn light" type='button' onClick={ () => setShowACModal(true) }>Adjust Advance Cash {AttachedAC.length > 0 && <>({ AttachedAC.length })</>}</button>
                             </div>
                             <button className="btn submit" type='submit'>Update Purchase Order</button>
                         </div>

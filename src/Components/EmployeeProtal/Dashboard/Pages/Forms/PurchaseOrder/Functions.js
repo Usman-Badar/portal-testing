@@ -211,6 +211,7 @@ export const TotalCostCalculation = () => {
 
     let sub_total_value = document.getElementById('sub_total_calculated_amount')?.textContent;
     let ac_total = document.getElementById('ac_calculated_amount')?.textContent.split('-').pop();
+    console.log('ac_total', ac_total)
     let rows = document.getElementById('specifications_table_footer')?.childNodes;
     if (sub_total_value !== null && ac_total !== null && rows !== null) {
         let filtered_rows = Array.from(rows).filter(row => row.id.includes('additional_labels_'));
@@ -251,9 +252,15 @@ export const loadPRList = ( setPRList ) => {
 
 }
 
-export const loadUnAttachedAdvanceCash = ( company, unapproved, setState ) => {
-    // const unapprovedac = unapproved ? 1 : 0;
-    axios.get('/load_un_attached_requests/ac/' + company).then(
+export const loadUnAttachedAdvanceCash = ( company, current, po_id, setState ) => {
+    const currentAC = current ? 1 : 0;
+    axios.get(
+        currentAC === 1
+        ?
+        '/load_un_attached_requests/edit/ac/' + company + '&&po_id=' + po_id
+        : 
+        '/load_un_attached_requests/ac/' + company
+    ).then(
         res => {
             setState( res.data );
         }
@@ -330,7 +337,6 @@ export const GetCompanies = ( setCompanies ) => {
 
 export const GetAdvanceCash = ( setAdvanceCash ) => {
     const po_id = window.location.href.split('po_id=').pop();
-    console.log(po_id)
     axios.get('/po/get_advance_cash_request/'+po_id).then(res => {
         setAdvanceCash( res.data );
     }).catch(err => {
@@ -693,6 +699,11 @@ export const POSubmittion = ( e, history, Bills, Data, PR, Vendor, specification
     .then(
         res => {
                 
+            console.log(res.data)
+            if ( res.data === 'advance cash is already cleared' ) {
+                $('fieldset').prop('disabled', false);
+                JSAlert.alert('Please check the attached advance cash requests. Cleared advance cash cannot be attached with PO.', 'Failed to generate Purchase Order');
+            }else
             if ( res.data === 'success' )
             {
                 let draft_id = $('input#draft_id').val();
@@ -739,7 +750,7 @@ export const POSubmittion = ( e, history, Bills, Data, PR, Vendor, specification
     
 }
 
-export const POUpdate = ( e, history, Data, Vendor, specifications, Bills, RemovedBills, PR ) => {
+export const POUpdate = ( e, history, Data, Vendor, specifications, Bills, RemovedBills, PR, AttachedAC, TotalACAdjustment ) => {
 
     e.preventDefault();
     const FormFields = new FormData();
@@ -753,6 +764,8 @@ export const POUpdate = ( e, history, Data, Vendor, specifications, Bills, Remov
     FormFields.append( "requested_by", localStorage.getItem("EmpID") );
     FormFields.append( "po_id", window.location.href.split('&&po_id=').pop() );
     FormFields.append( "pr_id", PR);
+    FormFields.append( "totalACAdjustments", TotalACAdjustment);
+    FormFields.append( "attachedAC", JSON.stringify(AttachedAC));
     console.log(PR);
     Bills.forEach(
         file => {
@@ -859,7 +872,7 @@ export const loadSubOrdinands = ( setSubOrdinands ) => {
 
 }
 
-export const updatePaymentStatus = ( e, po_id, requested_by, setPaymentStatusModel, setRequestDetails, setSpecifications, setAttachedBills, setAdditionalRows, setPRequestDetails, setPRSpecifications, setBills, setPR, setPRCode, setSPRSpecifications ) => {
+export const updatePaymentStatus = ( e, po_id, requested_by, setPaymentStatusModel, AdvanceCash, setRequestDetails, setSpecifications, setAttachedBills, setAdditionalRows, setPRequestDetails, setPRSpecifications, setBills, setPR, setPRCode, setSPRSpecifications ) => {
 
     e.preventDefault();
     const payment_status = e.target['payment_status'].value;
@@ -871,6 +884,7 @@ export const updatePaymentStatus = ( e, po_id, requested_by, setPaymentStatusMod
             emp_id: localStorage.getItem('EmpID'),
             payment_status: payment_status,
             requested_by: requested_by,
+            ac: JSON.stringify(AdvanceCash)
         }
     )
     .then(
@@ -967,7 +981,7 @@ export const clearSelectedAC = ( po_id, selectedAC, setRequestDetails, setSpecif
 
 }
 
-export const ApproveRequisition = ( e, po_id, requested_by, history ) => {
+export const ApproveRequisition = ( e, po_id, requested_by, history, AdvanceCash ) => {
 
     e.preventDefault();
     const reason = e.target['reason'].value;
@@ -982,13 +996,17 @@ export const ApproveRequisition = ( e, po_id, requested_by, history ) => {
             submit_to: submit_to,
             payment_mode: payment_mode,
             po_id: po_id,
-            requested_by: requested_by
+            requested_by: requested_by,
+            ac_list: JSON.stringify(AdvanceCash),
         }
     )
     .then(
         res => 
         {
-                
+            if (res.data.includes('already cleared')) {
+                $('fieldset').prop('disabled', false);
+                $('#error_alert_approval').removeClass('d-none').removeClass('alert-success').addClass('alert-danger').text("Could not approve PO because advance cash with serial no: " + res.data.split('(').pop().split(')').shift());
+            }else
             if ( res.data === 'success' )
             {
                 setTimeout(() => {

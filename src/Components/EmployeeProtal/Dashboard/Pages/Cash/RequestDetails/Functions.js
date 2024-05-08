@@ -419,7 +419,7 @@ export const validateEmployee = ( e, requested_emp_name, Other, CNICFront, CNICB
     );
 }
 
-export const clearRequest = ( e, requested_emp_name, recorded_by, emp_id, amount, history ) => {
+export const clearRequest = ( e, requested_emp_name, recorded_by, emp_id, amount, attached_to_po, history ) => {
 
     e.preventDefault();
 
@@ -433,6 +433,7 @@ export const clearRequest = ( e, requested_emp_name, recorded_by, emp_id, amount
             employee: emp_id,
             amount: amount,
             recorded_by: recorded_by,
+            attached_to_po: attached_to_po ? attached_to_po : 'null',
             emp_id: localStorage.getItem('EmpID')
         }
     )
@@ -440,16 +441,20 @@ export const clearRequest = ( e, requested_emp_name, recorded_by, emp_id, amount
         res => 
         {
             $('fieldset').prop('disabled', false);
-            if ( res.data.message )
-            {
-                const message = requested_emp_name + " has cleared his advance cash for PKR (" + amount.toLocaleString('en') + ") - " + res.data.date + ' - ' + res.data.time;
-                socket.emit( 'admin_notification', { link: res.data.link, message: message, owner: res.data.owner });
-                JSAlert.alert("Success!!! Amount (" + amount + ") Has Been Cleared").dismissIn(1000 * 2);
-                history.replace('/cash/requests');
-            }else
-            {
-                console.log(res.data);
-                JSAlert.alert("Something Went Wrong!!!!").dismissIn(1000 * 2);
+            if (res.data === 'advance cash is attached with po and cannot be cleared') {
+                JSAlert.alert("Because this advance cash is attached with a Purchase Order.", "The advance cash cannot be cleared");
+            }else {
+                if ( res.data.message )
+                {
+                    const message = requested_emp_name + " has cleared his advance cash for PKR (" + amount.toLocaleString('en') + ") - " + res.data.date + ' - ' + res.data.time;
+                    socket.emit( 'admin_notification', { link: res.data.link, message: message, owner: res.data.owner });
+                    JSAlert.alert("Success!!! Amount (" + amount + ") Has Been Cleared").dismissIn(1000 * 2);
+                    history.replace('/cash/requests');
+                }else
+                {
+                    console.log(res.data);
+                    JSAlert.alert("Something Went Wrong!!!!").dismissIn(1000 * 2);
+                }
             }
         }
     ).catch(

@@ -233,10 +233,10 @@ function PurchaseOrder() {
 
                     releasePayment={(po_id, requested_by, setReleasePaymentConfirmation) => releasePayment(po_id, requested_by, setReleasePaymentConfirmation, setRequestDetails, setSpecifications, setAttachedBills, setAdditionalRows, setPRequestDetails, setPRSpecifications, setBills, setPR, setPRCode, setSPRSpecifications)}
                     clearSelectedAC={(po_id, selectedAC) => clearSelectedAC(po_id, selectedAC, setRequestDetails, setSpecifications, setAttachedBills, setAdditionalRows, setPRequestDetails, setPRSpecifications, setBills, setPR, setPRCode, setSPRSpecifications)}
-                    updatePaymentStatus={ (e, po_id, requested_by, setPaymentStatusModel) => updatePaymentStatus(e, po_id, requested_by, setPaymentStatusModel, setRequestDetails, setSpecifications, setAttachedBills, setAdditionalRows, setPRequestDetails, setPRSpecifications, setBills, setPR, setPRCode, setSPRSpecifications) }
+                    updatePaymentStatus={ (e, po_id, requested_by, setPaymentStatusModel) => updatePaymentStatus(e, po_id, requested_by, setPaymentStatusModel, AdvanceCash, setRequestDetails, setSpecifications, setAttachedBills, setAdditionalRows, setPRequestDetails, setPRSpecifications, setBills, setPR, setPRCode, setSPRSpecifications) }
                     setAttachedAC={setAttachedAC}
                     setUnAttachedAC={setUnAttachedAC}
-                    loadUnAttachedAdvanceCash={(company, unapproved) => loadUnAttachedAdvanceCash(company, unapproved, setUnAttachedAC)}
+                    loadUnAttachedAdvanceCash={(company, current, po_id) => loadUnAttachedAdvanceCash(company, current, po_id, setUnAttachedAC)}
                     setPRCode={ setPRCode }
                     setPR={ setPR }
                     setSPRSpecifications={ setSPRSpecifications }
@@ -264,7 +264,7 @@ function PurchaseOrder() {
                     addRow={ addRow }
                     openRequestDetails={ ( po_id, edit ) => openRequestDetails( po_id, edit, setRequestDetails, setSpecifications, setAttachedBills, setAdditionalRows, setPRequestDetails, setPRSpecifications, setBills, setPR, setPRCode, setSPRSpecifications ) }
                     POSubmittion={ ( e ) => POSubmittion( e, history, Bills, Data, PR, Vendor, Specifications, TotalACAdjustment, AttachedAC ) }
-                    POUpdate={ ( e ) => POUpdate( e, history, Data, Vendor, EditedSpecifications, Bills, RemovedBills, PR ) }
+                    POUpdate={ ( e ) => POUpdate( e, history, Data, Vendor, EditedSpecifications, Bills, RemovedBills, PR, AttachedAC, TotalACAdjustment ) }
                     SubmitPO={ ( e ) => SubmitPO( e, setData, setSubmitConfirmation, setSpecifications ) }
                     updatePO={ ( e ) => updatePO( e, setData, setEditConfirmation, setEditedSpecifications ) }
                     setSubmitConfirmation={ setSubmitConfirmation }
@@ -273,7 +273,7 @@ function PurchaseOrder() {
                     onContentInput={ onContentInput }
                     loadRequests={ () => loadRequests( Cashier, AccessControls.location_code, AccessControls.companies, CompanyViewer, Admin, setRequests ) }
                     CancelRequisition={ ( e, po_id ) => CancelRequisition( e, po_id, history, RequestDetails ) }
-                    ApproveRequisition={ ( e, po_id, requested_by ) => ApproveRequisition( e, po_id, requested_by, history ) }
+                    ApproveRequisition={ ( e, po_id, requested_by ) => ApproveRequisition( e, po_id, requested_by, history, AdvanceCash ) }
                     RejectRequisition={ ( e, po_id, requested_by, Specifications ) => RejectRequisition( e, po_id, requested_by, Specifications, history ) }
                 />
             </Suspense>
