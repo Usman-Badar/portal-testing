@@ -27,7 +27,6 @@ import socket from '../../../io';
 
 const SideBar = lazy( () => import('./Components/SideBar/SideBar') );
 const TopBar = lazy( () => import('./Components/TopBar/TopBar') );
-const Descussion = lazy( () => import('./Pages/Descussion/Descussion') );
 const Devices = lazy( () => import('./Pages/Attendance/Devices/Devices') );
 const EmployeeProfile = lazy( () => import('./Pages/EmployeeProfile/EmployeeProfile') );
 const DailyAttendance = lazy( () => import('./Pages/EmployeeProfile/DailyAttendance/DailyAttendance') );
@@ -83,7 +82,6 @@ const RepairRequest = lazy( () => import('./Pages/Forms/RepairRequest/RepairRequ
 
 const EmpTickets = lazy( () => import('./Pages/EmpTickets/EmpTickets') );
 const SelfAssessmentForm = lazy( () => import('./Pages/SelfAssessmentForm/SelfAssessmentForm') );
-const GrowthReview = lazy( () => import('./Pages/GrowthReview/GrowthReview') );
 const PeerReview = lazy( () => import('./Pages/PeerReview/PeerReview') );
 
 const PurchaseRequisition = lazy( () => import('./Pages/Forms/PurchaseRequisition/PurchaseRequisition') );
@@ -134,15 +132,12 @@ const Dashboard = () => {
     const Menu = useSelector( ( state ) => state.EmpAuth.Menu );
     
     const history = useHistory();
-    let key = 'real secret keys should be long and random';
-    const encryptor = require('simple-encryptor')(key);
 
     const dispatch = useDispatch();
     const [ ShowBar, setShowBar ] = useState( false );
 
     useEffect(
         () => {
-
             if ( localStorage.getItem("Token") === undefined || localStorage.getItem("Token") === null )
             {
                 history.replace("/login");
@@ -192,13 +187,11 @@ const Dashboard = () => {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     const SideBarClose = () => {
-
         dispatch( ShowSideBar( false ) );
-
     }
 
     // SIDEBAR LINKS
-    let content = useMemo(
+    const content = useMemo(
         () => {
 
             return (
@@ -316,17 +309,8 @@ const Dashboard = () => {
         }, [AccessControls, SideBarClose, Menu ]
     )
 
-    if ( localStorage.getItem("Token") )
-    {
-        if 
-        ( 
-            parseInt( encryptor.decrypt( localStorage.getItem("Token") ) )
-            !==
-            parseInt( localStorage.getItem('EmpID') )
-        )
-        {
-            history.replace("/login");
-        }
+    if (!localStorage.getItem("Token")) {
+        history.replace("/login");
     }
 
     const Load = <Loading 
@@ -345,54 +329,52 @@ const Dashboard = () => {
         }
         txt="Please Wait"
     />
+    const sidebar = useMemo(() => {
+        return <SideBar Data={ content } show={ ShowBar } SideBarClose={ SideBarClose } />
+    }, [ ShowBar, content, SideBarClose ])
+    const topbar = useMemo(() => {
+        const ShowSide = () => {
+            if ( ShowBar ){
+                setShowBar( false );
+            }else{
+                setShowBar( true );
+            }
+        }
+        return <TopBar sideBarTrue={ ShowSide } />
+    }, [ ShowBar ]);
 
     const Sus = ( props ) => {
-
         return <Suspense fallback={ Load }> { props.content } </Suspense>
+    }
 
+    if (Object.keys(AccessControls).length === 0 || Menu.length === 0) {
+        console.log('AccessControls', AccessControls);
+        console.log('Menu', Menu);
+        return <Loading
+            display={true}
+            styling={{
+                zIndex: 100000
+            }}
+            icon={
+                <img
+                    src={LoadingIcon}
+                    className="LoadingImg"
+                    alt="LoadingIcon"
+                />
+            }
+            txt="Loading Dashboard"
+        />
     }
 
     return (
         <>
             <div className="Dashboard">
-
                 {/* SideBar Start From Here */}
-                {
-                    // eslint-disable-next-line react-hooks/exhaustive-deps
-                    useMemo(
-                        () => {
-
-                            return <SideBar Data={ content } show={ ShowBar } SideBarClose={ SideBarClose } />
-
-                        }, [ ShowBar, content, SideBarClose ]
-                    )
-                }
+                {sidebar}
                 {/* SideBar End Here */}
-
                 <div className="Dashboard_main_content">
                     {/* TopBar Start From Here */}
-                    {
-                        useMemo(
-                            () => {
-
-                                const ShowSide = () => {
-
-                                    if ( ShowBar )
-                                    {
-                                        setShowBar( false );
-                                    }else
-                                    {
-                                        setShowBar( true );
-                                    }
-
-                                }
-
-                                return <TopBar sideBarTrue={ ShowSide } />
-
-                            }, [ ShowBar ]
-                        )
-                    }
-
+                    {topbar}
                     {/* TopBar End here */}
                     <div className="content" id="dashboard_content">
                         
@@ -575,9 +557,7 @@ const Dashboard = () => {
                             </div>
                         }
                     </div>
-
                 </div>
-
             </div>
         </>
     )

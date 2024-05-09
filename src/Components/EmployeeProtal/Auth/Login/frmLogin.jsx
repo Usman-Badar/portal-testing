@@ -33,7 +33,7 @@ function frmLogin(props) {
                     <h1 className="text-center">
                         <Typewriter
                             options={{
-                                strings: ["WELCOME", "SEABOARD"],
+                                strings: ["SEABOARD", "PORTAL"],
                                 autoStart: true,
                                 loop: true,
                                 delay: 200,
@@ -62,16 +62,16 @@ function frmLogin(props) {
                         </div>
                         <div className="PassDiv">
                             {
-                                props.Employee.emp_id
-                                    ?
-                                    <form onSubmit={props.OnUserLogin}>
-                                        <div className="w-100 mb-3 border bg-light passDiv_input">
-                                            <input autoFocus className="w-100 form-control" value={props.UserData.LoginPass} onChange={props.OnChangeHandler} name="LoginPass" id="password" required label="Password" type="password" autoComplete="current-password" variant="standard" />
-                                            <i className="las la-eye-slash" id="eye" title='Click To View The Entered Password' onClick={showPass} ></i>
-                                        </div>
-                                        <div className="w-100 text-right py-3"><button type="submit" variant="contained" className="w-100 btn submit">Login To Dashboard</button></div>
-                                    </form>
-                                    : null
+                                props.Employee
+                                ?
+                                <form onSubmit={props.OnUserLogin}>
+                                    <div className="w-100 mb-3 border bg-light passDiv_input">
+                                        <input autoFocus className="w-100 form-control" value={props.UserData.LoginPass} onChange={props.OnChangeHandler} name="LoginPass" id="password" required label="Password" type="password" autoComplete="current-password" variant="standard" />
+                                        <i className="las la-eye-slash" id="eye" title='Click To View The Entered Password' onClick={showPass} ></i>
+                                    </div>
+                                    <div className="w-100 text-right py-3"><button type="submit" variant="contained" className="w-100 btn submit">Login To Dashboard</button></div>
+                                </form>
+                                : null
                             }
                         </div>
                     </div>

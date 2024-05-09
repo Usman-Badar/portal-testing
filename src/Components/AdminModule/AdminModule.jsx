@@ -40,11 +40,9 @@ const AdminModule = () => {
 
     useEffect(
         () => {
-
             if (sessionStorage.getItem('UserID') === undefined || sessionStorage.getItem('UserID') === null) {
                 history.replace('/admin_login');
             }
-
         }, [history]
     );
 

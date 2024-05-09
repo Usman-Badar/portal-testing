@@ -176,7 +176,7 @@ export const loadData = ( setDataLoaded, setACNotCleared, setACCleared, setACDat
             {
                 const color = colors.filter(
                     val => {
-                        return val.status.includes(res.data[5][x].status.toLowerCase())
+                        return val.status.includes(res.data[5][x].status?.toLowerCase())
                     }
                 );
                 res.data[5][x].color = color[0] ? color[0].color : "#000";

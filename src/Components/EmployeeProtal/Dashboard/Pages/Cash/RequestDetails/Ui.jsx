@@ -214,7 +214,7 @@ function UI({ SlipDetails, loadSlipDetails, PRequestDetails, Specifications, loa
 
                                                             <tr>
                                                                 <td className='border-top-0'>
-                                                                    <h6 className='font-weight-bold'>Request Status</h6>
+                                                                    <h6 className='font-weight-bold mb-0'>Request Status</h6>
                                                                 </td>
                                                                 <td className='border-top-0'>
                                                                     <div className='d-flex align-items-center'>
@@ -280,7 +280,16 @@ function UI({ SlipDetails, loadSlipDetails, PRequestDetails, Specifications, loa
                                                                     <p className='mb-0 font-weight-bold'>
                                                                         <Link to={'/hr/employee/details/' + Details.emp_id} className='clickable'>{Details.requested_emp_name}</Link>
                                                                     </p>
-                                                                    <p>{Details.designation_name}</p>
+                                                                    <p className='mb-0'>{Details.designation_name}</p>
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr>
+                                                                <td >
+                                                                    <h6 className='font-weight-bold'>Requested Date</h6>
+                                                                </td>
+                                                                <td>
+                                                                    <p className='mb-0'>{Details.submit_date}{Details.submit_time ? ( " at " + moment(Details.submit_time,'h:mm:ss a').format('hh:mm A') ) : null}</p>
                                                                 </td>
                                                             </tr>
                                                             
@@ -314,7 +323,7 @@ function UI({ SlipDetails, loadSlipDetails, PRequestDetails, Specifications, loa
                                                                 </td>
                                                                 <td>
                                                                     <p className='mb-1'>{Details.company_name}</p>
-                                                                    <p>{Details.location_name}</p>
+                                                                    <p className='mb-0'>{Details.location_name}</p>
                                                                 </td>
                                                             </tr>
                                                             

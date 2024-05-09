@@ -24,7 +24,7 @@ const Employee_Login = () => {
         }
     );
 
-    const [ Employee, setEmployee ] = useState({});
+    const [ Employee, setEmployee ] = useState(false);
     const [ Text, setText ] = useState("Loading....");
     
     // To show loading on true : false condition
@@ -38,9 +38,7 @@ const Employee_Login = () => {
     
     useEffect(
         () => {
-
             setStartLoading( false );
-
         }, []
 
     )
@@ -61,166 +59,92 @@ const Employee_Login = () => {
         setText("Processing");
         setStartLoading( true );
 
-
-        // IF USER WANT TO TO GO TO ATTENDANCE PAGE
-        // if ( UserData.LoginID === '1234567890' )
-        // {
-        //     history.push('/atthome');
-        // }
-
-        axios.get('/authemployee').then(response => {
-
-            let failed = true;
-            let failed2 = false;
-
-            for (let x = 0; x < response.data.length; x++) {
-
-                // if the password and login id of the current index of an array is matched with 
-                // the entered login id and password, the following condition will be true
-
-                if ( UserData.LoginID === encryptor.decrypt( response.data[x].login_id ) ) {
-
-                    if (response.data[x].lock_user === 'Y') {
-                        failed = false;
-                        failed2 = true;
-                    }else {
-                        $('.LoginDiv').fadeOut(0);
-                        $('.PassDiv').fadeIn();
-                        $('.ButtonDiv2').show();
-                        $('.ButtonDiv1').hide();
-                        $('.Emp_Login2_Grid .HideDiv').css('left', '50%');
-                        $('.Emp_Login2_Grid .HideDiv').html('PASSWORD');
-    
-                        setEmployee(response.data[x]);
-                        failed = false;
-                    }
-                    setStartLoading(false);
-                    
-                } else {
-
-                    setStartLoading(false);
-                    
-                    setUserData({ LoginID: UserData.LoginID, LoginPass: '' });
-
-                }
-
+        axios.post('/validate_user', {
+            login: encryptor.encrypt(UserData.LoginID)
+        }).then(res => {
+            if (res.data) {
+                $('.LoginDiv').fadeOut(0);
+                $('.PassDiv').fadeIn();
+                $('.ButtonDiv2').show();
+                $('.ButtonDiv1').hide();
+                $('.Emp_Login2_Grid .HideDiv').css('left', '50%');
+                $('.Emp_Login2_Grid .HideDiv').html('PASSWORD');
+                setEmployee(true);
+            }else {
+                JSAlert.alert("Kindly make sure the entered login id is correct!", 'No Data Found', JSAlert.Icons.Warning);
+                setUserData({ LoginID: UserData.LoginID, LoginPass: '' });
             }
-
-            if ( failed ) JSAlert.alert("No Employee Found", 'Failed', JSAlert.Icons.Failed).dismissIn(1000 * 2);
-            if ( failed2 ) JSAlert.alert("Authorization Failed", 'Warning', JSAlert.Icons.Warning).dismissIn(1000 * 2);
-
-        }).catch(error => {
-
             setStartLoading(false);
-            JSAlert.alert(error).dismissIn(1000 * 2);
-
-        });
+        }).catch(err => {
+            setStartLoading(false);
+            console.log(err);
+        })
 
     }
 
     // Call on change function to store input field data into usestate()
     const OnChangeHandler = ( e ) => {
-
         const { name, value } = e.target;
         const setValues = {
             ...UserData,
             [name]: value
-        }
-
+        };
         setUserData(setValues);
-
     }
 
-    // On form submition, the following function call
+    // On form submission, the following function call
     const OnUserLogin = ( e ) => {
-
         e.preventDefault();
         setText("Logging");
         setStartLoading(true);
 
-        if ( UserData.LoginPass === encryptor.decrypt( Employee.emp_password ) )
-        {
-            
-            const d = new FormData();
-            d.append('empID', Employee.emp_id);
-            axios.post('/getemployee', d).then( res => {
-
-                let employee = res.data;
-
-                socket.emit(
-                    'UserCanLogin', Employee.emp_id
-                );
-            
-                    // CHECK IF USER IS ALREADY LOGIN IN ANOTHER WINDOW
-                socket.on(
-                    'UserCanLogin', ( result ) => {
-
-                        LoginSuccess( result, Employee, employee );
-
-                    }
-                );
-
-            } ).catch( err => {
-
-                JSAlert.alert(err).dismissIn(1000 * 2);
-
-            } );
-
-        }else {
-
+        axios.post('/validate_password', {
+            login: encryptor.encrypt(UserData.LoginID),
+            password: encryptor.encrypt(UserData.LoginPass)
+        }).then(res => {
+            if (res.data && res.data.length > 0) {
+                const data = res.data[0];
+                if (data.user_category === "EMP") {
+                    socket.emit('UserCanLogin', data.emp_id);
+                    socket.on('UserCanLogin', ( result ) => {
+                        const app_status = result.rslt[0].app_status;
+                        const token = result.rslt[0].token;
+                        if (app_status.length === 0) {
+                            LoginSuccess(data, token);
+                        }else {
+                            JSAlert.alert('You are already login in another window, or your previous session is not expired. You need to logout from the previous session and try login again.', 'Logout and Re-login', JSAlert.Icons.Deleted);
+                        }
+                    });
+                }else {
+                    JSAlert.alert("You're not allowed to login on portal.", 'Unauthorized Login', JSAlert.Icons.Failed);
+                }
+            }else {
+                JSAlert.alert('Please recheck the entered password!', 'Password Not Matched', JSAlert.Icons.Warning);
+                setUserData( { LoginID: UserData.LoginID, LoginPass: '' } );
+            }
             setStartLoading(false);
-
-            setUserData( { LoginID: UserData.LoginID, LoginPass: '' } );
-            JSAlert.alert('Password Not Matched').dismissIn(1000 * 2);
-            
-        }
-
+        }).catch(err => {
+            setStartLoading(false);
+            console.log(err);
+        });
     }
 
-    const LoginSuccess = ( result, emp, employee ) => {
+    const LoginSuccess = ( data, token ) => {
+        JSAlert.alert('Welcome To Employee Portal', 'Login Success', JSAlert.Icons.Success).dismissIn(1000 * 3);
+        localStorage.setItem('Token', token);
+        localStorage.setItem('EmpID', data.emp_id);
+        localStorage.setItem('name', data.name);
 
-        setStartLoading(false);
-        
-        if ( result.err === null && result.rslt[0].app_status === '' )
-        {
-            JSAlert.alert('Welcome To Web Portal').dismissIn(1000 * 2);
-
-            localStorage.setItem('Token', encryptor.encrypt(emp.emp_id));
-            localStorage.setItem('EmpID', emp.emp_id);
-            localStorage.setItem('name', employee[0][0].name);
-
-            socket.emit(
-                'NewUser', emp.emp_id
-            );
-
-            // BECAUSE IT GIVES ERRORS
-            // dispatch( EmployeeLogin( employee[0] ) );
-            
-            setUserData( { LoginID: '', LoginPass: '' } );
-    
-            setTimeout(() => {
-                history.replace('/login');
-            }, 1000);
-        }else
-        {
-            JSAlert.alert('You are already login in another window, or your previous session is still on. Contact IT Support.').dismissIn(1000 * 2);
-        }
-
+        socket.emit('NewUser', {emp_id: data.emp_id, token: token});
+        setUserData( { LoginID: '', LoginPass: '' } );
+        setTimeout(() => {
+            history.replace('/login');
+        }, 1000);
     }
 
-    if ( localStorage.getItem('Token') ) {
-        
-        if 
-        ( 
-            parseInt( encryptor.decrypt( localStorage.getItem("Token") ) )
-            ===
-            parseInt( localStorage.getItem('EmpID') )
-        )
-        {
-            history.replace('/dashboard');
-        }
-        
-    };
+    if (localStorage.getItem("Token")) {
+        history.replace('/dashboard');
+    }
 
     return (
         <>

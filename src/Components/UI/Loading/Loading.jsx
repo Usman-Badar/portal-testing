@@ -34,7 +34,7 @@ const Loading = ( props ) => {
                                 props.icon
                             }
                             <p className='text-center text-light mb-3 company'>
-                                SEABOARD
+                                EMPLOYEE PORTAL
                             </p>
                             {/* LOADING TEXT */}
                             <p className='text-center text-light mb-0'>

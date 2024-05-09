@@ -13,6 +13,7 @@ import loading from '../../../../../images/loadingIcons/icons8-iphone-spinner.gi
 // import weathericon from '../../../../../images/weather-icon.png';
 
 import Modal from '../../../../UI/Modal/Modal';
+import LoadingImg from '../../../../../images/loadingIcons/icons8-iphone-spinner.gif';
 
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -41,8 +42,6 @@ const UI = ({ getAbsentsOfEmployees, Absents, AdvanceCashData, Vendors, Purchase
     };
     const monthNames = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const history = useHistory();
-    const key = 'real secret keys should be long and random';
-    const encryptor = require('simple-encryptor')(key);
     const CanvasJSChart = CanvasJSReact.CanvasJSChart;
     let height = 0;
     let Admin = false;
@@ -58,7 +57,14 @@ const UI = ({ getAbsentsOfEmployees, Absents, AdvanceCashData, Vendors, Purchase
 
     if ( !DataLoaded || !AdvanceCashData || !AttendanceSummery )
     {
-        return <>Please Wait....</>;
+        return (
+            <div className='page'>
+                <div className="page-content text-center">
+                    <img src={LoadingImg} width='50' height='50' alt='loading...' />
+                    <h6 className="mb-0 mt-2">Loading Content....</h6>
+                </div>
+            </div>
+        );
     }
 
     const options = {
