@@ -635,12 +635,16 @@ function UI({ SlipDetails, loadSlipDetails, PRequestDetails, Specifications, loa
                                                                                 <span className='text-danger'>
                                                                                     {
                                                                                         Details.clearance_date
-                                                                                            ?
-                                                                                            <span className='text-success'>Amount Has Been Cleared</span>
-                                                                                            :
-                                                                                            Details.receival_date ?
-                                                                                                <><span className="font-weight-bold" style={{ fontFamily: "Exo" }}>{moment.duration(dueSinsEnd.diff(dueSinsStart)).asDays()}</span> {moment.duration(dueSinsEnd.diff(dueSinsStart)).asDays() === 1 ? "Day" : "Days"}</>
-                                                                                                : "Cash Not Collected"
+                                                                                        ?
+                                                                                        Details.clearance_date && Details.attached_to_po
+                                                                                        ?
+                                                                                        <span className='text-success'>Amount has been cleared by Accounts Department</span>
+                                                                                        :
+                                                                                        <span className='text-success'>Amount Has Been Cleared</span>
+                                                                                        :
+                                                                                        Details.receival_date ?
+                                                                                        <><span className="font-weight-bold" style={{ fontFamily: "Exo" }}>{moment.duration(dueSinsEnd.diff(dueSinsStart)).asDays()}</span> {moment.duration(dueSinsEnd.diff(dueSinsStart)).asDays() === 1 ? "Day" : "Days"}</>
+                                                                                        : "Cash Not Collected"
                                                                                     }</span>
                                                                             </td>
                                                                         </tr>
