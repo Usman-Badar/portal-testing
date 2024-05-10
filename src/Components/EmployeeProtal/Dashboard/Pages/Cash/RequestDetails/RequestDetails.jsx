@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { Suspense, lazy, useEffect, useState } from 'react';
 
-import { approveRequest, cancelRequest, clearRequest, loadCashiers, loadComments, loadDetails, loadPRDetails, loadSlipDetails, loadThumbs, newComment, onAttachCNICBack, onAttachCNICFront, rejectRequest, rejectVRequest, validateEmployee, verifyRequest } from './Functions';
+import { approveRequest, cancelRequest, clearRequest, loadCashiers, loadComments, loadDetails, loadPODetails, loadPRDetails, loadSlipDetails, loadThumbs, newComment, onAttachCNICBack, onAttachCNICFront, rejectRequest, rejectVRequest, validateEmployee, verifyRequest } from './Functions';
 import { useHistory } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import socket from '../../../../../../io';
@@ -30,6 +30,11 @@ function RequestDetails() {
     const [ PRequestDetails, setPRequestDetails ] = useState();
     const [ Specifications, setSpecifications ] = useState();
     const [ AttachedQuotations, setAttachedQuotations ] = useState();
+
+    const [ POequestDetails, setPOequestDetails ] = useState();
+    const [ POSpecifications, setPOSpecifications ] = useState();
+    const [ AttachedBills, setAttachedBills ] = useState();
+    const [ AdditionalRows, setAdditionalRows ] = useState();
 
     useEffect(
         () => {
@@ -65,8 +70,13 @@ function RequestDetails() {
                 Specifications={ Specifications }
                 AttachedQuotations={ AttachedQuotations }
                 SlipDetails={ SlipDetails }
+                POequestDetails={ POequestDetails }
+                POSpecifications={ POSpecifications }
+                AttachedBills={ AttachedBills }
+                AdditionalRows={ AdditionalRows }
 
                 loadSlipDetails={ (slip_id) => loadSlipDetails(slip_id, setSlipDetails) }
+                loadPODetails={ () => loadPODetails(Details.attached_to_po, setPOequestDetails, setPOSpecifications, setAttachedBills, setAdditionalRows) }
                 loadPRDetails={ () => loadPRDetails(Details.pr_id, setPRequestDetails, setSpecifications, setAttachedQuotations) }
                 newComment={ (serial_no, comment, setComment) => newComment(serial_no, comment, Details, setComments, setComment) }
                 loadComments={ () => loadComments( setComments ) }

@@ -18,8 +18,9 @@ import { useSelector } from 'react-redux';
 import SignatureCanvas from 'react-signature-canvas';
 import BreadCrumb from '../../../Components/BreadCrumb';
 import { Link } from 'react-router-dom';
+import { convertTZ } from '../../../../../../utils/date';
 
-function UI({ SlipDetails, loadSlipDetails, PRequestDetails, Specifications, loadPRDetails, Comments, CNICBack, VApprove, VReject, Cancel, CNICFront, Other, ClearMoney, history, AccessControls, CashierThumbs, Money, Reject, Cashiers, Approve, Details, newComment, loadComments, clearRequest, setCancel, rejectVRequest, verifyRequest, cancelRequest, setVApprove, setVReject, setClearMoney, validateEmployee, onAttachCNICFront, onAttachCNICBack, approveRequest, setOther, rejectRequest, setMoney, loadThumbs, loadCashiers, setReject, setApprove }) {
+function UI({ AdditionalRows, loadPODetails, POequestDetails, POSpecifications, AttachedBills, SlipDetails, loadSlipDetails, PRequestDetails, Specifications, loadPRDetails, Comments, CNICBack, VApprove, VReject, Cancel, CNICFront, Other, ClearMoney, history, AccessControls, CashierThumbs, Money, Reject, Cashiers, Approve, Details, newComment, loadComments, clearRequest, setCancel, rejectVRequest, verifyRequest, cancelRequest, setVApprove, setVReject, setClearMoney, validateEmployee, onAttachCNICFront, onAttachCNICBack, approveRequest, setOther, rejectRequest, setMoney, loadThumbs, loadCashiers, setReject, setApprove }) {
 
     const [Comment, setComment] = useState('');
     const [StartPrint, setStartPrint] = useState(false);
@@ -139,7 +140,7 @@ function UI({ SlipDetails, loadSlipDetails, PRequestDetails, Specifications, loa
                 {Details ? <BreadCrumb links={[{ label: 'Cash Requests', href: '/cash/requests' }]} currentLabel={shipping + (Details.company_code_name + '-' + Details.series_year + '-' + Details.serial_no)} /> : null}
                 <div className='page-content'>
                     {
-                        Details && (Details.pr_id !== null || Details.previous_slip !== null)
+                        Details && (Details.pr_id !== null || Details.previous_slip !== null || Details.attached_to_po !== null)
                             ?
                             <ul className="nav nav-tabs mb-3">
                                 <li className="nav-item" onClick={() => setStatus('')}>
@@ -161,311 +162,349 @@ function UI({ SlipDetails, loadSlipDetails, PRequestDetails, Specifications, loa
                                         </li>
                                         : null
                                 }
+                                {
+                                    Details.attached_to_po !== null
+                                    ?
+                                    <li className="nav-item" onClick={() => setStatus('PO')}>
+                                        <a className={Status === 'PO' ? 'nav-link active text-capitalize' : 'nav-link text-capitalize'}>Purchase Order</a>
+                                    </li>
+                                    : null
+                                }
                             </ul>
                             : null
                     }
                     {
                         Status === ''
-                            ?
-                            <div className="advance_cash_details_container mb-3">
-                                {
-                                    Details
-                                        ?
-                                        <>
-                                            <Modal show={VApprove} Hide={() => setVApprove(!VApprove)} content={<ConfirmVApproval Details={Details} Relations={Relations} verifyRequest={verifyRequest} />} />
-                                            <Modal show={VReject} Hide={() => setVReject(!VReject)} content={<ConfirmVRejection rejectVRequest={rejectVRequest} />} />
-                                            <Modal show={Approve} Hide={() => setApprove(!Approve)} content={<ConfirmApproval approveRequest={approveRequest} Details={Details} Cashiers={Cashiers} loadCashiers={loadCashiers} />} />
-                                            <Modal show={Reject} Hide={() => setReject(!Reject)} content={<ConfirmRejection rejectRequest={rejectRequest} />} />
-                                            <Modal show={Cancel} Hide={() => setCancel(!Cancel)} content={<ConfirmCancellation cancelRequest={cancelRequest} />} />
-                                            <Modal show={Money} Hide={() => setMoney(!Money)} content={<ModalFingerPrint CNICBack={CNICBack} CNICFront={CNICFront} onAttachCNICBack={onAttachCNICBack} onAttachCNICFront={onAttachCNICFront} Other={Other} setOther={setOther} validateEmployee={validateEmployee} AccessControls={AccessControls} CashierThumbs={CashierThumbs} loadThumbs={loadThumbs} Details={Details} />} />
-                                            <Modal show={ClearMoney} Hide={() => setClearMoney(!ClearMoney)} content={<ModalMoneyClearance clearRequest={clearRequest} AccessControls={AccessControls} Details={Details} />} />
-                                            <div className="d-flex align-items-center justify-content-between">
-                                                <h3 className="heading">
-                                                    Advance Cash {Details && Details.shp_line_adv === 'Y' ? "(Shipping)" : ""} Details
-                                                    {Details && Details.shp_line_adv === 'Y' ? <sub>Details Of The Shipping Line Cash Request</sub> : <sub>Details Of The Cash Request</sub>}
-                                                </h3>
-                                                <div>
-                                                    <button className='btn light' onClick={() => history.goBack()}>Back</button>
-                                                    <button className='btn submit ml-2' onClick={print}>Print</button>
-                                                    {
-                                                        Details.status === 'pending for verification' && Details.emp_id == localStorage.getItem('EmpID')
-                                                        ?
-                                                        <button className='btn cancle ml-2' onClick={() => setCancel(true)}>Cancel</button>
-                                                        : null
-                                                    }
-                                                </div>
+                        ?
+                        <div className="advance_cash_details_container mb-3">
+                            {
+                                Details
+                                    ?
+                                    <>
+                                        <Modal show={VApprove} Hide={() => setVApprove(!VApprove)} content={<ConfirmVApproval Details={Details} Relations={Relations} verifyRequest={verifyRequest} />} />
+                                        <Modal show={VReject} Hide={() => setVReject(!VReject)} content={<ConfirmVRejection rejectVRequest={rejectVRequest} />} />
+                                        <Modal show={Approve} Hide={() => setApprove(!Approve)} content={<ConfirmApproval approveRequest={approveRequest} Details={Details} Cashiers={Cashiers} loadCashiers={loadCashiers} />} />
+                                        <Modal show={Reject} Hide={() => setReject(!Reject)} content={<ConfirmRejection rejectRequest={rejectRequest} />} />
+                                        <Modal show={Cancel} Hide={() => setCancel(!Cancel)} content={<ConfirmCancellation cancelRequest={cancelRequest} />} />
+                                        <Modal show={Money} Hide={() => setMoney(!Money)} content={<ModalFingerPrint CNICBack={CNICBack} CNICFront={CNICFront} onAttachCNICBack={onAttachCNICBack} onAttachCNICFront={onAttachCNICFront} Other={Other} setOther={setOther} validateEmployee={validateEmployee} AccessControls={AccessControls} CashierThumbs={CashierThumbs} loadThumbs={loadThumbs} Details={Details} />} />
+                                        <Modal show={ClearMoney} Hide={() => setClearMoney(!ClearMoney)} content={<ModalMoneyClearance clearRequest={clearRequest} AccessControls={AccessControls} Details={Details} />} />
+                                        <div className="d-flex align-items-center justify-content-between">
+                                            <h3 className="heading">
+                                                Advance Cash {Details && Details.shp_line_adv === 'Y' ? "(Shipping)" : ""} Details
+                                                {Details && Details.shp_line_adv === 'Y' ? <sub>Details Of The Shipping Line Cash Request</sub> : <sub>Details Of The Cash Request</sub>}
+                                            </h3>
+                                            <div>
+                                                <button className='btn light' onClick={() => history.goBack()}>Back</button>
+                                                <button className='btn submit ml-2' onClick={print}>Print</button>
+                                                {
+                                                    Details.status === 'pending for verification' && Details.emp_id == localStorage.getItem('EmpID')
+                                                    ?
+                                                    <button className='btn cancle ml-2' onClick={() => setCancel(true)}>Cancel</button>
+                                                    : null
+                                                }
                                             </div>
-                                            <hr />
+                                        </div>
+                                        <hr />
 
-                                            <div className={Details.status === 'issued' || Details.status === 'cleared' ? 'amountdiv' : 'amountdiv2'}>
-                                                <h1 className='mb-0'>
-                                                    <small className='text-success' style={{ fontSize: 16 }}>Rs</small><span className='font-weight-bold'>{Details.amount.toLocaleString('en')}</span>/-
-                                                </h1>
-                                                <h6 className='text-capitalize mb-0'>{Details.amount_in_words}</h6>
+                                        <div className={Details.status === 'issued' || Details.status === 'cleared' ? 'amountdiv' : 'amountdiv2'}>
+                                            <h1 className='mb-0'>
+                                                <small className='text-success' style={{ fontSize: 16 }}>Rs</small><span className='font-weight-bold'>{Details.amount.toLocaleString('en')}</span>/-
+                                            </h1>
+                                            <h6 className='text-capitalize mb-0'>{Details.amount_in_words}</h6>
 
-                                            </div>
+                                        </div>
 
-                                            <div className={Details.status === 'issued' || Details.status === 'cleared' ? 'table_container-grid' : 'table_container-non-grid'}>
+                                        <div className={Details.status === 'issued' || Details.status === 'cleared' ? 'table_container-grid' : 'table_container-non-grid'}>
 
-                                                <div className='table_container-left'>
+                                            <div className='table_container-left'>
 
-                                                    <table className='table'>
-                                                        <tbody>
+                                                <table className='table'>
+                                                    <tbody>
 
-                                                            <tr>
-                                                                <td className='border-top-0'>
-                                                                    <h6 className='font-weight-bold mb-0'>Request Status</h6>
-                                                                </td>
-                                                                <td className='border-top-0'>
-                                                                    <div className='d-flex align-items-center'>
-                                                                        <div
-                                                                            className={
-                                                                                "dot mr-1 "
-                                                                                +
-                                                                                (
-                                                                                    Details.status === 'approved' || Details.status === 'cleared'
+                                                        <tr>
+                                                            <td className='border-top-0'>
+                                                                <h6 className='font-weight-bold mb-0'>Request Status</h6>
+                                                            </td>
+                                                            <td className='border-top-0'>
+                                                                <div className='d-flex align-items-center'>
+                                                                    <div
+                                                                        className={
+                                                                            "dot mr-1 "
+                                                                            +
+                                                                            (
+                                                                                Details.status === 'approved' || Details.status === 'cleared'
+                                                                                    ?
+                                                                                    "bg-success"
+                                                                                    :
+                                                                                    Details.status === 'rejected'
                                                                                         ?
-                                                                                        "bg-success"
+                                                                                        "bg-danger"
                                                                                         :
-                                                                                        Details.status === 'rejected'
+                                                                                        Details.status === 'waiting for approval' || Details.status === 'pending for verification'
                                                                                             ?
-                                                                                            "bg-danger"
+                                                                                            "bg-warning"
                                                                                             :
-                                                                                            Details.status === 'waiting for approval' || Details.status === 'pending for verification'
+                                                                                            Details.status === 'issued'
                                                                                                 ?
-                                                                                                "bg-warning"
+                                                                                                "bg-info"
                                                                                                 :
-                                                                                                Details.status === 'issued'
-                                                                                                    ?
-                                                                                                    "bg-info"
-                                                                                                    :
-                                                                                                    "bg-dark"
-                                                                                )
-                                                                            }
-                                                                        ></div>
-                                                                        <div
-                                                                            className={
-                                                                                "text-capitalize "
-                                                                                +
-                                                                                (
-                                                                                    Details.status === 'approved' || Details.status === 'cleared'
+                                                                                                "bg-dark"
+                                                                            )
+                                                                        }
+                                                                    ></div>
+                                                                    <div
+                                                                        className={
+                                                                            "text-capitalize "
+                                                                            +
+                                                                            (
+                                                                                Details.status === 'approved' || Details.status === 'cleared'
+                                                                                    ?
+                                                                                    "text-success"
+                                                                                    :
+                                                                                    Details.status === 'rejected'
                                                                                         ?
-                                                                                        "text-success"
+                                                                                        "text-danger"
                                                                                         :
-                                                                                        Details.status === 'rejected'
+                                                                                        Details.status === 'waiting for approval' || Details.status === 'pending for verification'
                                                                                             ?
-                                                                                            "text-danger"
+                                                                                            "text-warning"
                                                                                             :
-                                                                                            Details.status === 'waiting for approval' || Details.status === 'pending for verification'
+                                                                                            Details.status === 'issued'
                                                                                                 ?
-                                                                                                "text-warning"
+                                                                                                "text-info"
                                                                                                 :
-                                                                                                Details.status === 'issued'
-                                                                                                    ?
-                                                                                                    "text-info"
-                                                                                                    :
-                                                                                                    "text-dark"
-                                                                                )
-                                                                            }
-                                                                        >{Details.status}</div>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
+                                                                                                "text-dark"
+                                                                            )
+                                                                        }
+                                                                    >{Details.status}</div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
 
+                                                        <tr>
+                                                            <td >
+                                                                <h6 className='font-weight-bold'>Requested By</h6>
+                                                            </td>
+                                                            <td>
+                                                                <p className='mb-0 font-weight-bold'>
+                                                                    <Link to={'/hr/employee/details/' + Details.emp_id} className='clickable'>{Details.requested_emp_name}</Link>
+                                                                </p>
+                                                                <p className='mb-0'>{Details.designation_name}</p>
+                                                            </td>
+                                                        </tr>
+
+                                                        <tr>
+                                                            <td >
+                                                                <h6 className='font-weight-bold'>Requested Date</h6>
+                                                            </td>
+                                                            <td>
+                                                                <p className='mb-0'>{Details.submit_date}{Details.submit_time ? ( " at " + moment(Details.submit_time,'h:mm:ss a').format('hh:mm A') ) : null}</p>
+                                                            </td>
+                                                        </tr>
+                                                        
+                                                        {
+                                                            Details.shp_line_adv === 'Y'
+                                                            ?
                                                             <tr>
-                                                                <td >
-                                                                    <h6 className='font-weight-bold'>Requested By</h6>
+                                                                <td>
+                                                                    <h6 className='font-weight-bold'>Line</h6>
                                                                 </td>
                                                                 <td>
-                                                                    <p className='mb-0 font-weight-bold'>
-                                                                        <Link to={'/hr/employee/details/' + Details.emp_id} className='clickable'>{Details.requested_emp_name}</Link>
-                                                                    </p>
-                                                                    <p className='mb-0'>{Details.designation_name}</p>
+                                                                    <p className='mb-1'>{Details.line}</p>
                                                                 </td>
                                                             </tr>
+                                                            :null
+                                                        }
 
+                                                        <tr>
+                                                            <td>
+                                                                <h6 className='font-weight-bold'>Reason</h6>
+                                                            </td>
+                                                            <td>
+                                                                <pre style={{ fontFamily: 'Poppins', fontSize: '13px', width: '100%', whiteSpace: 'pre-wrap' }}>{Details.reason}</pre>
+                                                            </td>
+                                                        </tr>
+
+                                                        <tr>
+                                                            <td>
+                                                                <h6 className='font-weight-bold'>Company</h6>
+                                                                <h6 className='font-weight-bold'>Cash Collection Location</h6>
+                                                            </td>
+                                                            <td>
+                                                                <p className='mb-1'>{Details.company_name}</p>
+                                                                <p className='mb-0'>{Details.location_name}</p>
+                                                            </td>
+                                                        </tr>
+                                                        
+                                                        {
+                                                            Details.shp_line_adv === 'Y'
+                                                            ?
                                                             <tr>
-                                                                <td >
-                                                                    <h6 className='font-weight-bold'>Requested Date</h6>
-                                                                </td>
                                                                 <td>
-                                                                    <p className='mb-0'>{Details.submit_date}{Details.submit_time ? ( " at " + moment(Details.submit_time,'h:mm:ss a').format('hh:mm A') ) : null}</p>
+                                                                    <h6 className='font-weight-bold'>Charges</h6>
+                                                                </td>
+
+                                                                <td>
+
+                                                                    {
+                                                                        Details.d_o
+                                                                            ?
+                                                                            <span className='d-flex mb-1'>
+                                                                                <p className='mr-1 font-weight-bold'>D/O Charges :</p>
+                                                                                <p className='ml-1'>Rs {Details.d_o}/-</p>
+                                                                            </span>
+                                                                            :
+                                                                            null
+                                                                    }
+
+                                                                    {
+                                                                        Details.lolo
+                                                                            ?
+                                                                            <span className='d-flex mb-1'>
+                                                                                <p className='mr-1 font-weight-bold'>LOLO Charges :</p>
+                                                                                <p className='ml-1'>Rs {Details.lolo}/-</p>
+                                                                            </span>
+                                                                            :
+                                                                            null
+                                                                    }
+
+                                                                    {
+                                                                        Details.detention
+                                                                            ?
+                                                                            <span className='d-flex mb-1'>
+                                                                                <p className='mr-1 font-weight-bold'>Detention :</p>
+                                                                                <p className='ml-1'>Rs {Details.detention}/-</p>
+                                                                            </span>
+                                                                            :
+                                                                            null
+                                                                    }
+
+                                                                    {
+                                                                        Details.damage_dirty
+                                                                            ?
+                                                                            <span className='d-flex mb-1'>
+                                                                                <p className='mr-1 font-weight-bold'>Damage & Dirty :</p>
+                                                                                <p className='ml-1'>Rs {Details.damage_dirty}/-</p>
+                                                                            </span>
+                                                                            :
+                                                                            null
+                                                                    }
+
+                                                                    {
+                                                                        Details.csc
+                                                                            ?
+                                                                            <span className='d-flex mb-1'>
+                                                                                <p className='mr-1 font-weight-bold'>CSC Charges :</p>
+                                                                                <p className='ml-1'>Rs {Details.csc}/-</p>
+                                                                            </span>
+                                                                            :
+                                                                            null
+                                                                    }
+
+                                                                    {
+                                                                        Details.other_purpose_amount
+                                                                            ?
+                                                                            <span className='d-flex mb-1'>
+                                                                                <p className='mr-1 font-weight-bold'>Other Charges :</p>
+                                                                                <p className='ml-1'>Rs {Details.other_purpose_amount}/-</p>
+                                                                            </span>
+                                                                            :
+                                                                            null
+                                                                    }
+
+                                                                    {
+                                                                        Details.other_purpose_amount
+                                                                            ?
+                                                                            <span className='d-flex mb-1'>
+                                                                                <p className='mr-1 font-weight-bold'>Other Specification :</p>
+                                                                                <p className='ml-1'>{Details.other_purpose_specification}</p>
+                                                                            </span>
+                                                                            :
+                                                                            null
+                                                                    }
+
+
+
+                                                                    {/* {
+                                                                        Details.other_purpose_specification
+                                                                            ?
+                                                                            <>
+                                                                                <p>Other Charges :</p>
+                                                                                <span className='d-flex mb-1'>
+                                                                                    <p className='mr-1 font-weight-bold'>{Details.other_purpose_specification} :</p>
+                                                                                    <p className='ml-1'>{Details.other_purpose_amount}</p>
+                                                                                </span>
+                                                                            </>
+                                                                            :
+                                                                            <p>Other Charges : {Details.other_purpose_amount}</p>
+                                                                    } */}
                                                                 </td>
                                                             </tr>
-                                                            
-                                                            {
-                                                                Details.shp_line_adv === 'Y'
+                                                            :null
+                                                        }
+                                                        <tr>
+                                                            <td>
+                                                                <h6 className='font-weight-bold'>{Details.status === 'rejected' && Details.approved_by === null ? "Rejected" : "Verified"} By</h6>
+                                                            </td>
+                                                            <td>
+                                                                <p className='mb-0 font-weight-bold'>
+                                                                    {Details.record_emp_name ? <Link to={'/hr/employee/details/' + Details.verified_by} className='clickable'>{Details.record_emp_name}</Link> : <span className='text-warning'>Pending For Verification</span>}
+                                                                </p>
+                                                                {Details.verified_date ? <>{new Date(Details.verified_date).toDateString()} at {moment(Details.verified_time, 'h:mm:ss a').format('hh:mm A')}</> : null}
+                                                            </td>
+                                                        </tr>
+
+                                                        {
+                                                            Details.verified_date
                                                                 ?
                                                                 <tr>
                                                                     <td>
-                                                                        <h6 className='font-weight-bold'>Line</h6>
+                                                                        {Details.verified_date ? <h6 className='font-weight-bold mt-2'>{Details.status === 'rejected' && Details.approved_by === null ? "Rejection" : "Verification"} Remarks</h6> : null}
                                                                     </td>
                                                                     <td>
-                                                                        <p className='mb-1'>{Details.line}</p>
+                                                                        {Details.verified_date ? <p>{Details.verification_remarks}</p> : null}
                                                                     </td>
                                                                 </tr>
-                                                                :null
-                                                            }
+                                                                : null
+                                                        }
 
-                                                            <tr>
-                                                                <td>
-                                                                    <h6 className='font-weight-bold'>Reason</h6>
-                                                                </td>
-                                                                <td>
-                                                                    <pre style={{ fontFamily: 'Poppins', fontSize: '13px', width: '100%', whiteSpace: 'pre-wrap' }}>{Details.reason}</pre>
-                                                                </td>
-                                                            </tr>
-
-                                                            <tr>
-                                                                <td>
-                                                                    <h6 className='font-weight-bold'>Company</h6>
-                                                                    <h6 className='font-weight-bold'>Cash Collection Location</h6>
-                                                                </td>
-                                                                <td>
-                                                                    <p className='mb-1'>{Details.company_name}</p>
-                                                                    <p className='mb-0'>{Details.location_name}</p>
-                                                                </td>
-                                                            </tr>
-                                                            
-                                                            {
-                                                                Details.shp_line_adv === 'Y'
+                                                        {
+                                                            Details.approved_by !== null && Details.status === 'rejected'
                                                                 ?
-                                                                <tr>
-                                                                    <td>
-                                                                        <h6 className='font-weight-bold'>Charges</h6>
-                                                                    </td>
-
-                                                                    <td>
-
-                                                                        {
-                                                                            Details.d_o
-                                                                                ?
-                                                                                <span className='d-flex mb-1'>
-                                                                                    <p className='mr-1 font-weight-bold'>D/O Charges :</p>
-                                                                                    <p className='ml-1'>Rs {Details.d_o}/-</p>
-                                                                                </span>
-                                                                                :
-                                                                                null
-                                                                        }
-
-                                                                        {
-                                                                            Details.lolo
-                                                                                ?
-                                                                                <span className='d-flex mb-1'>
-                                                                                    <p className='mr-1 font-weight-bold'>LOLO Charges :</p>
-                                                                                    <p className='ml-1'>Rs {Details.lolo}/-</p>
-                                                                                </span>
-                                                                                :
-                                                                                null
-                                                                        }
-
-                                                                        {
-                                                                            Details.detention
-                                                                                ?
-                                                                                <span className='d-flex mb-1'>
-                                                                                    <p className='mr-1 font-weight-bold'>Detention :</p>
-                                                                                    <p className='ml-1'>Rs {Details.detention}/-</p>
-                                                                                </span>
-                                                                                :
-                                                                                null
-                                                                        }
-
-                                                                        {
-                                                                            Details.damage_dirty
-                                                                                ?
-                                                                                <span className='d-flex mb-1'>
-                                                                                    <p className='mr-1 font-weight-bold'>Damage & Dirty :</p>
-                                                                                    <p className='ml-1'>Rs {Details.damage_dirty}/-</p>
-                                                                                </span>
-                                                                                :
-                                                                                null
-                                                                        }
-
-                                                                        {
-                                                                            Details.csc
-                                                                                ?
-                                                                                <span className='d-flex mb-1'>
-                                                                                    <p className='mr-1 font-weight-bold'>CSC Charges :</p>
-                                                                                    <p className='ml-1'>Rs {Details.csc}/-</p>
-                                                                                </span>
-                                                                                :
-                                                                                null
-                                                                        }
-
-                                                                        {
-                                                                            Details.other_purpose_amount
-                                                                                ?
-                                                                                <span className='d-flex mb-1'>
-                                                                                    <p className='mr-1 font-weight-bold'>Other Charges :</p>
-                                                                                    <p className='ml-1'>Rs {Details.other_purpose_amount}/-</p>
-                                                                                </span>
-                                                                                :
-                                                                                null
-                                                                        }
-
-                                                                        {
-                                                                            Details.other_purpose_amount
-                                                                                ?
-                                                                                <span className='d-flex mb-1'>
-                                                                                    <p className='mr-1 font-weight-bold'>Other Specification :</p>
-                                                                                    <p className='ml-1'>{Details.other_purpose_specification}</p>
-                                                                                </span>
-                                                                                :
-                                                                                null
-                                                                        }
-
-
-
-                                                                        {/* {
-                                                                            Details.other_purpose_specification
-                                                                                ?
-                                                                                <>
-                                                                                    <p>Other Charges :</p>
-                                                                                    <span className='d-flex mb-1'>
-                                                                                        <p className='mr-1 font-weight-bold'>{Details.other_purpose_specification} :</p>
-                                                                                        <p className='ml-1'>{Details.other_purpose_amount}</p>
-                                                                                    </span>
-                                                                                </>
-                                                                                :
-                                                                                <p>Other Charges : {Details.other_purpose_amount}</p>
-                                                                        } */}
-                                                                    </td>
-                                                                </tr>
-                                                                :null
-                                                            }
-                                                            <tr>
-                                                                <td>
-                                                                    <h6 className='font-weight-bold'>{Details.status === 'rejected' && Details.approved_by === null ? "Rejected" : "Verified"} By</h6>
-                                                                </td>
-                                                                <td>
-                                                                    <p className='mb-0 font-weight-bold'>
-                                                                        {Details.record_emp_name ? <Link to={'/hr/employee/details/' + Details.verified_by} className='clickable'>{Details.record_emp_name}</Link> : <span className='text-warning'>Pending For Verification</span>}
-                                                                    </p>
-                                                                    {Details.verified_date ? <>{new Date(Details.verified_date).toDateString()} at {moment(Details.verified_time, 'h:mm:ss a').format('hh:mm A')}</> : null}
-                                                                </td>
-                                                            </tr>
-
-                                                            {
-                                                                Details.verified_date
-                                                                    ?
+                                                                <>
                                                                     <tr>
                                                                         <td>
-                                                                            {Details.verified_date ? <h6 className='font-weight-bold mt-2'>{Details.status === 'rejected' && Details.approved_by === null ? "Rejection" : "Verification"} Remarks</h6> : null}
+                                                                            <h6 className='font-weight-bold'>Rejected By</h6>
                                                                         </td>
                                                                         <td>
-                                                                            {Details.verified_date ? <p>{Details.verification_remarks}</p> : null}
+                                                                            <span>
+                                                                                <Link to={'/hr/employee/details/' + (Details.approved_by !== null ? Details.approved_by : Details.verified_by !== null ? Details.verified_by : Details.emp_id)} className='clickable'>
+                                                                                    {Details.appr_emp_name ? Details.appr_emp_name : Details.record_emp_name}
+                                                                                </Link>
+                                                                            </span><br />
+                                                                            <b>Date & Time</b><br />
+                                                                            <span>{new Date(Details.approved_date).toDateString() + " at " + moment(Details.approved_time, 'h:mm:ss a').format('hh:mm A')}</span>
                                                                         </td>
                                                                     </tr>
-                                                                    : null
-                                                            }
 
-                                                            {
-                                                                Details.approved_by !== null && Details.status === 'rejected'
+                                                                    <tr>
+                                                                        <td>
+                                                                            <h6 className='font-weight-bold'>
+                                                                                Rejection Remarks
+                                                                            </h6>
+                                                                        </td>
+                                                                        <td>
+                                                                            <pre style={{ fontFamily: 'Poppins', width: '100%', whiteSpace: 'pre-wrap' }}>{Details.hod_remarks}</pre>
+                                                                        </td>
+                                                                    </tr>
+                                                                </>
+                                                                :
+                                                                Details.hod_remarks
                                                                     ?
                                                                     <>
                                                                         <tr>
                                                                             <td>
-                                                                                <h6 className='font-weight-bold'>Rejected By</h6>
+                                                                                <h6 className='font-weight-bold'>Approved By</h6>
                                                                             </td>
                                                                             <td>
                                                                                 <span>
@@ -481,7 +520,7 @@ function UI({ SlipDetails, loadSlipDetails, PRequestDetails, Specifications, loa
                                                                         <tr>
                                                                             <td>
                                                                                 <h6 className='font-weight-bold'>
-                                                                                    Rejection Remarks
+                                                                                    Approval Remarks
                                                                                 </h6>
                                                                             </td>
                                                                             <td>
@@ -489,390 +528,380 @@ function UI({ SlipDetails, loadSlipDetails, PRequestDetails, Specifications, loa
                                                                             </td>
                                                                         </tr>
                                                                     </>
-                                                                    :
-                                                                    Details.hod_remarks
-                                                                        ?
-                                                                        <>
-                                                                            <tr>
-                                                                                <td>
-                                                                                    <h6 className='font-weight-bold'>Approved By</h6>
-                                                                                </td>
-                                                                                <td>
+                                                                    : null
+                                                        }
+
+                                                        
+                                                        
+                                                        {
+                                                            Details.status === 'cancelled'
+                                                            ?
+                                                            <>
+                                                                <tr>
+                                                                    <td>
+                                                                        <h6 className='font-weight-bold'>Cancelled By</h6>
+                                                                    </td>
+                                                                    <td>
+                                                                        <p className='mb-0 font-weight-bold'>
+                                                                            {<Link to={'/hr/employee/details/' + Details.emp_id} className='clickable'>{Details.requested_emp_name}</Link>}
+                                                                        </p>
+                                                                        {Details.cancelled_at ? <>{new Date(Details.cancelled_at).toDateString()} at {moment(Details.cancelled_at, 'h:mm:ss a').format('hh:mm A')}</> : null}
+                                                                    </td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>
+                                                                        <h6 className='font-weight-bold'>Cancellation Remarks</h6>
+                                                                    </td>
+                                                                    <td>
+                                                                        <p className='mb-0'>
+                                                                            {Details.cancellation_remarks}
+                                                                        </p>
+                                                                    </td>
+                                                                </tr>
+                                                            </>
+                                                            :null
+                                                        }
+
+                                                        {
+                                                            Details.cashier_emp_name
+                                                                ?
+                                                                <tr>
+                                                                    <td>
+                                                                        <h6 className='font-weight-bold'>Cashier</h6>
+                                                                    </td>
+                                                                    <td>
+                                                                        {
+                                                                            Details.cashier_emp_name === null
+                                                                                ?
+                                                                                <span>-----</span>
+                                                                                :
+                                                                                <>
                                                                                     <span>
-                                                                                        <Link to={'/hr/employee/details/' + (Details.approved_by !== null ? Details.approved_by : Details.verified_by !== null ? Details.verified_by : Details.emp_id)} className='clickable'>
-                                                                                            {Details.appr_emp_name ? Details.appr_emp_name : Details.record_emp_name}
-                                                                                        </Link>
+                                                                                        <Link to={'/hr/employee/details/' + Details.cashier} className='clickable'>{Details.cashier_emp_name}</Link>
                                                                                     </span><br />
-                                                                                    <b>Date & Time</b><br />
-                                                                                    <span>{new Date(Details.approved_date).toDateString() + " at " + moment(Details.approved_time, 'h:mm:ss a').format('hh:mm A')}</span>
-                                                                                </td>
-                                                                            </tr>
+                                                                                </>
+                                                                        }
+                                                                    </td>
+                                                                </tr>
 
-                                                                            <tr>
-                                                                                <td>
-                                                                                    <h6 className='font-weight-bold'>
-                                                                                        Approval Remarks
-                                                                                    </h6>
-                                                                                </td>
-                                                                                <td>
-                                                                                    <pre style={{ fontFamily: 'Poppins', width: '100%', whiteSpace: 'pre-wrap' }}>{Details.hod_remarks}</pre>
-                                                                                </td>
-                                                                            </tr>
-                                                                        </>
-                                                                        : null
-                                                            }
+                                                                : null
+                                                        }
 
-                                                            
-                                                            
-                                                            {
-                                                                Details.status === 'cancelled'
+                                                        <tr>
+                                                            <td>
+                                                                <h6 className='font-weight-bold'>Collected By</h6>
+                                                            </td>
+                                                            <td>
+                                                                <p>
+                                                                    {
+                                                                        Details.received_person_name
+                                                                            ?
+                                                                            <>
+                                                                                <b>Name: </b>{Details.received_person_name}<br />
+                                                                                <b>Contact: </b> {Details.received_person_contact}<br />
+                                                                                <b>CNIC: </b> {Details.received_person_cnic}
+                                                                            </>
+                                                                            :
+                                                                            Details.receival_date
+                                                                                ?
+                                                                                <span className='text-success'>Cash Collected By <u><Link to={'/hr/employee/details/' + Details.emp_id} className='clickable'>{Details.requested_emp_name}</Link></u></span>
+                                                                                :
+                                                                                <span className='text-danger'>Cash Not Collected</span>
+                                                                    }<br />
+                                                                    {Details.receival_date ? <><b>Collection Date: </b> {new Date(Details.receival_date).toDateString()} at {moment(Details.receival_time, 'h:mm:ss a').format('hh:mm A')}</> : null}
+                                                                </p>
+                                                            </td>
+
+                                                        </tr>
+
+                                                        {
+                                                            Details.hod_remarks
                                                                 ?
                                                                 <>
                                                                     <tr>
                                                                         <td>
-                                                                            <h6 className='font-weight-bold'>Cancelled By</h6>
+                                                                            <h6 className='font-weight-bold mb-0'>Amount Consumed</h6>
                                                                         </td>
                                                                         <td>
-                                                                            <p className='mb-0 font-weight-bold'>
-                                                                                {<Link to={'/hr/employee/details/' + Details.emp_id} className='clickable'>{Details.requested_emp_name}</Link>}
-                                                                            </p>
-                                                                            {Details.cancelled_at ? <>{new Date(Details.cancelled_at).toDateString()} at {moment(Details.cancelled_at, 'h:mm:ss a').format('hh:mm A')}</> : null}
+                                                                            <p className='mb-1'>{Details.after_amount ? ("PKR " + Details.after_amount.toLocaleString('en')) : <span className='text-warning'>Amount Not Cleared</span>}</p>
                                                                         </td>
                                                                     </tr>
+
                                                                     <tr>
                                                                         <td>
-                                                                            <h6 className='font-weight-bold'>Cancellation Remarks</h6>
+                                                                            <h6 className='mb-0'><b>Clearance Date & Time</b></h6>
                                                                         </td>
                                                                         <td>
-                                                                            <p className='mb-0'>
-                                                                                {Details.cancellation_remarks}
-                                                                            </p>
+                                                                            {Details.clearance_date ? <>{new Date(Details.clearance_date).toDateString()} at {moment(Details.clearance_time, 'h:mm:ss a').format('hh:mm A')}</> : null}
+                                                                        </td>
+                                                                    </tr>
+
+                                                                    <tr>
+                                                                        <td>
+                                                                            <h6 className='font-weight-bold mb-0 mt-2'>Due Since</h6>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span className='text-danger'>
+                                                                                {
+                                                                                    Details.clearance_date
+                                                                                    ?
+                                                                                    Details.clearance_date && Details.attached_to_po
+                                                                                    ?
+                                                                                    <span className='text-success'>Amount has been cleared by Accounts Department</span>
+                                                                                    :
+                                                                                    <span className='text-success'>Amount Has Been Cleared</span>
+                                                                                    :
+                                                                                    Details.receival_date ?
+                                                                                    <><span className="font-weight-bold" style={{ fontFamily: "Exo" }}>{moment.duration(dueSinsEnd.diff(dueSinsStart)).asDays()}</span> {moment.duration(dueSinsEnd.diff(dueSinsStart)).asDays() === 1 ? "Day" : "Days"}</>
+                                                                                    : "Cash Not Collected"
+                                                                                }</span>
                                                                         </td>
                                                                     </tr>
                                                                 </>
-                                                                :null
-                                                            }
+                                                                :
+                                                                null
+                                                        }
+                                                    </tbody>
 
-                                                            {
-                                                                Details.cashier_emp_name
-                                                                    ?
-                                                                    <tr>
-                                                                        <td>
-                                                                            <h6 className='font-weight-bold'>Cashier</h6>
-                                                                        </td>
-                                                                        <td>
-                                                                            {
-                                                                                Details.cashier_emp_name === null
-                                                                                    ?
-                                                                                    <span>-----</span>
-                                                                                    :
-                                                                                    <>
-                                                                                        <span>
-                                                                                            <Link to={'/hr/employee/details/' + Details.cashier} className='clickable'>{Details.cashier_emp_name}</Link>
-                                                                                        </span><br />
-                                                                                    </>
-                                                                            }
-                                                                        </td>
-                                                                    </tr>
+                                                </table>
 
-                                                                    : null
-                                                            }
+                                            </div>
 
-                                                            <tr>
-                                                                <td>
-                                                                    <h6 className='font-weight-bold'>Collected By</h6>
-                                                                </td>
-                                                                <td>
-                                                                    <p>
-                                                                        {
-                                                                            Details.received_person_name
-                                                                                ?
-                                                                                <>
-                                                                                    <b>Name: </b>{Details.received_person_name}<br />
-                                                                                    <b>Contact: </b> {Details.received_person_contact}<br />
-                                                                                    <b>CNIC: </b> {Details.received_person_cnic}
-                                                                                </>
-                                                                                :
-                                                                                Details.receival_date
-                                                                                    ?
-                                                                                    <span className='text-success'>Cash Collected By <u><Link to={'/hr/employee/details/' + Details.emp_id} className='clickable'>{Details.requested_emp_name}</Link></u></span>
-                                                                                    :
-                                                                                    <span className='text-danger'>Cash Not Collected</span>
-                                                                        }<br />
-                                                                        {Details.receival_date ? <><b>Collection Date: </b> {new Date(Details.receival_date).toDateString()} at {moment(Details.receival_time, 'h:mm:ss a').format('hh:mm A')}</> : null}
-                                                                    </p>
-                                                                </td>
-
-                                                            </tr>
-
-                                                            {
-                                                                Details.hod_remarks
+                                            <div className='table_container-right'>
+                                                <div className=''>
+                                                    <div className='mb-3'>
+                                                        {
+                                                            Details.receival_date && Details.other === 1
+                                                                ?
+                                                                <>
+                                                                    <h6 className='font-weight-bold'>Signature</h6>
+                                                                    <div className='bg-light border'>
+                                                                        <img src={process.env.REACT_APP_SERVER + '/assets/portal/assets/AC/' + window.location.href.split('/').pop() + '/' + Details.signature} alt="" width="100%" />
+                                                                    </div>
+                                                                </>
+                                                                :
+                                                                Details.receival_date && Details.other === 0
                                                                     ?
                                                                     <>
-                                                                        <tr>
-                                                                            <td>
-                                                                                <h6 className='font-weight-bold mb-0'>Amount Consumed</h6>
-                                                                            </td>
-                                                                            <td>
-                                                                                <p className='mb-1'>{Details.after_amount ? ("PKR " + Details.after_amount.toLocaleString('en')) : <span className='text-warning'>Amount Not Cleared</span>}</p>
-                                                                            </td>
-                                                                        </tr>
-
-                                                                        <tr>
-                                                                            <td>
-                                                                                <b>Clearance Date & Time</b><br />
-                                                                            </td>
-                                                                            <td>
-                                                                                {Details.clearance_date ? <>{new Date(Details.clearance_date).toDateString()} at {moment(Details.clearance_time, 'h:mm:ss a').format('hh:mm A')}</> : null}
-                                                                            </td>
-                                                                        </tr>
-
-                                                                        <tr>
-                                                                            <td>
-                                                                                <h6 className='font-weight-bold mb-0 mt-2'>Due Since</h6>
-                                                                            </td>
-                                                                            <td>
-                                                                                <span className='text-danger'>
-                                                                                    {
-                                                                                        Details.clearance_date
-                                                                                        ?
-                                                                                        Details.clearance_date && Details.attached_to_po
-                                                                                        ?
-                                                                                        <span className='text-success'>Amount has been cleared by Accounts Department</span>
-                                                                                        :
-                                                                                        <span className='text-success'>Amount Has Been Cleared</span>
-                                                                                        :
-                                                                                        Details.receival_date ?
-                                                                                        <><span className="font-weight-bold" style={{ fontFamily: "Exo" }}>{moment.duration(dueSinsEnd.diff(dueSinsStart)).asDays()}</span> {moment.duration(dueSinsEnd.diff(dueSinsStart)).asDays() === 1 ? "Day" : "Days"}</>
-                                                                                        : "Cash Not Collected"
-                                                                                    }</span>
-                                                                            </td>
-                                                                        </tr>
-                                                                    </>
-                                                                    :
-                                                                    null
-                                                            }
-                                                        </tbody>
-
-                                                    </table>
-
-                                                </div>
-
-                                                <div className='table_container-right'>
-                                                    <div className=''>
-                                                        <div className='mb-3'>
-                                                            {
-                                                                Details.receival_date && Details.other === 1
-                                                                    ?
-                                                                    <>
-                                                                        <h6 className='font-weight-bold'>Signature</h6>
-                                                                        <div className='bg-light border'>
-                                                                            <img src={process.env.REACT_APP_SERVER + '/assets/portal/assets/AC/' + window.location.href.split('/').pop() + '/' + Details.signature} alt="" width="100%" />
-                                                                        </div>
-                                                                    </>
-                                                                    :
-                                                                    Details.receival_date && Details.other === 0
-                                                                        ?
-                                                                        <>
-                                                                            <h6 className='font-weight-bold'>Employee Thumb</h6>
-                                                                            <div className='bg-light border d-flex justify-content-center'>
-                                                                                <img src={process.env.REACT_APP_SERVER + '/assets/portal/assets/AC/' + window.location.href.split('/').pop() + '/thumbs/' + Details.emp_finger_print} alt="" width="50%" />
-                                                                            </div>
-                                                                        </>
-                                                                        : null
-                                                            }
-                                                        </div>
-                                                        <div>
-                                                            {
-                                                                Details.other === 1
-                                                                    ?
-                                                                    <>
-                                                                        <h6 className='font-weight-bold'>Cash Receiver CNIC</h6>
-                                                                        <div className='d-flex w-100' style={{ gap: '10px' }}>
-                                                                            <div className='w-50'>
-                                                                                <img src={process.env.REACT_APP_SERVER + '/assets/portal/assets/AC/' + window.location.href.split('/').pop() + '/' + Details.cnic_front} width="100%" className='rounded' alt="cashier finger print" />
-                                                                                {/* <p className='font-weight-bold text-center mb-0'>CNIC Front</p> */}
-                                                                            </div>
-                                                                            <div className='w-50'>
-                                                                                <img src={process.env.REACT_APP_SERVER + '/assets/portal/assets/AC/' + window.location.href.split('/').pop() + '/' + Details.cnic_back} width="100%" className='rounded' alt="employee finger print" />
-                                                                                {/* <p className='font-weight-bold text-center mb-0'>CNIC Back</p> */}
-                                                                            </div>
+                                                                        <h6 className='font-weight-bold'>Employee Thumb</h6>
+                                                                        <div className='bg-light border d-flex justify-content-center'>
+                                                                            <img src={process.env.REACT_APP_SERVER + '/assets/portal/assets/AC/' + window.location.href.split('/').pop() + '/thumbs/' + Details.emp_finger_print} alt="" width="50%" />
                                                                         </div>
                                                                     </>
                                                                     : null
-                                                            }
-                                                        </div>
-                                                        <div className='text-center'>
-                                                            {
-                                                                Details.status === 'pending for verification' && VerificationAccess
-                                                                    ?
-                                                                    <>
-                                                                        <button className='btn cancle mr-3' onClick={() => setVReject(true)}>Reject</button>
-                                                                        <button className='btn submit' onClick={() => setVApprove(true)}>Verify</button>
-                                                                    </>
-                                                                    : null
-                                                            }
-                                                            {
-                                                                Details.status === 'waiting for approval' && Details.approved_by == localStorage.getItem('EmpID') && JSON.parse(AccessControls.access).includes(75)
-                                                                    ?
-                                                                    <>
-                                                                        <button className='btn cancle mr-3' onClick={() => setReject(true)}>Reject</button>
-                                                                        <button className='btn submit' onClick={() => setApprove(true)}>Approve</button>
-                                                                    </>
-                                                                    : null
-                                                            }
-                                                            {
-                                                                Details.status === 'approved' && AccessControls.location_code === Details.location && (AccessControls.designation_code === 66 || AccessControls.designation_code === 97)
-                                                                    ? <button className='btn submit' onClick={() => setMoney(true)}>Release Amount (PKR {Details.amount.toLocaleString('en')})</button>
-                                                                    : null
-                                                            }
-                                                            {
-                                                                Details.status === 'issued' && Details.cashier == localStorage.getItem('EmpID')
-                                                                    ? <button className='btn submit' onClick={() => setClearMoney(true)}>Clear Amount (PKR {Details.amount.toLocaleString('en')})</button>
-                                                                    : null
-                                                            }
-                                                        </div>
+                                                        }
+                                                    </div>
+                                                    <div>
+                                                        {
+                                                            Details.other === 1
+                                                                ?
+                                                                <>
+                                                                    <h6 className='font-weight-bold'>Cash Receiver CNIC</h6>
+                                                                    <div className='d-flex w-100' style={{ gap: '10px' }}>
+                                                                        <div className='w-50'>
+                                                                            <img src={process.env.REACT_APP_SERVER + '/assets/portal/assets/AC/' + window.location.href.split('/').pop() + '/' + Details.cnic_front} width="100%" className='rounded' alt="cashier finger print" />
+                                                                            {/* <p className='font-weight-bold text-center mb-0'>CNIC Front</p> */}
+                                                                        </div>
+                                                                        <div className='w-50'>
+                                                                            <img src={process.env.REACT_APP_SERVER + '/assets/portal/assets/AC/' + window.location.href.split('/').pop() + '/' + Details.cnic_back} width="100%" className='rounded' alt="employee finger print" />
+                                                                            {/* <p className='font-weight-bold text-center mb-0'>CNIC Back</p> */}
+                                                                        </div>
+                                                                    </div>
+                                                                </>
+                                                                : null
+                                                        }
+                                                    </div>
+                                                    <div className='text-center'>
+                                                        {
+                                                            Details.status === 'pending for verification' && VerificationAccess
+                                                                ?
+                                                                <>
+                                                                    <button className='btn cancle mr-3' onClick={() => setVReject(true)}>Reject</button>
+                                                                    <button className='btn submit' onClick={() => setVApprove(true)}>Verify</button>
+                                                                </>
+                                                                : null
+                                                        }
+                                                        {
+                                                            Details.status === 'waiting for approval' && Details.approved_by == localStorage.getItem('EmpID') && JSON.parse(AccessControls.access).includes(75)
+                                                                ?
+                                                                <>
+                                                                    <button className='btn cancle mr-3' onClick={() => setReject(true)}>Reject</button>
+                                                                    <button className='btn submit' onClick={() => setApprove(true)}>Approve</button>
+                                                                </>
+                                                                : null
+                                                        }
+                                                        {
+                                                            Details.status === 'approved' && AccessControls.location_code === Details.location && (AccessControls.designation_code === 66 || AccessControls.designation_code === 97)
+                                                                ? <button className='btn submit' onClick={() => setMoney(true)}>Release Amount (PKR {Details.amount.toLocaleString('en')})</button>
+                                                                : null
+                                                        }
+                                                        {
+                                                            !Details.attached_to_po && Details.status === 'issued' && Details.cashier == localStorage.getItem('EmpID')
+                                                            ? <button className='btn submit mt-3' onClick={() => setClearMoney(true)}>Clear Amount (PKR {Details.amount.toLocaleString('en')})</button>
+                                                            :
+                                                            Details.attached_to_po && Details.cashier == localStorage.getItem('EmpID') && Details.status === 'issued'
+                                                            ?
+                                                            <div className="alert alert-warning mt-3 text-left">
+                                                                <b className='text-capitalize'>You cannot clear this request</b><br />
+                                                                <span>This Advance Cash request is attached with a Purchase Order and only Accounts Department can clear this request.</span>
+                                                            </div>
+                                                            :null
+                                                        }
                                                     </div>
                                                 </div>
                                             </div>
+                                        </div>
 
 
-                                            {/* <table className='table table-borderless table-sm'>
-                                                <tbody>
-                                                    <tr>
-                                                        <td className='text-center font-italic'>
-                                                            <h1 className='mb-0 bg-light pt-3 border-top border-right border-left px-3'>
-                                                                <small className='text-success' style={{ fontSize: 16 }}>Rs</small><span className='font-weight-bold' style={{ fontFamily: 'Roboto' }}>{Details.amount.toLocaleString('en')}</span>/-
-                                                            </h1>
-                                                            <h6 className='text-capitalize bg-light pb-3 border-bottom border-right border-left px-3'>{Details.amount_in_words} Rupees Only</h6>
-                                                        </td>
-                                                        <td>
-                                                            <h6 className='font-weight-bold'>Requested By</h6>
-                                                            <p className='mb-0 font-weight-bold'>
-                                                                <Link to={'/hr/employee/details/' + Details.emp_id} className='clickable'>{Details.requested_emp_name}</Link>
-                                                            </p>
-                                                            <p>{Details.designation_name}</p>
-                                                            <h6 className='font-weight-bold'>Collected By</h6>
-                                                            <p>
-                                                                {
-                                                                    Details.received_person_name
+                                        {/* <table className='table table-borderless table-sm'>
+                                            <tbody>
+                                                <tr>
+                                                    <td className='text-center font-italic'>
+                                                        <h1 className='mb-0 bg-light pt-3 border-top border-right border-left px-3'>
+                                                            <small className='text-success' style={{ fontSize: 16 }}>Rs</small><span className='font-weight-bold' style={{ fontFamily: 'Roboto' }}>{Details.amount.toLocaleString('en')}</span>/-
+                                                        </h1>
+                                                        <h6 className='text-capitalize bg-light pb-3 border-bottom border-right border-left px-3'>{Details.amount_in_words} Rupees Only</h6>
+                                                    </td>
+                                                    <td>
+                                                        <h6 className='font-weight-bold'>Requested By</h6>
+                                                        <p className='mb-0 font-weight-bold'>
+                                                            <Link to={'/hr/employee/details/' + Details.emp_id} className='clickable'>{Details.requested_emp_name}</Link>
+                                                        </p>
+                                                        <p>{Details.designation_name}</p>
+                                                        <h6 className='font-weight-bold'>Collected By</h6>
+                                                        <p>
+                                                            {
+                                                                Details.received_person_name
+                                                                    ?
+                                                                    <>
+                                                                        <b>Name: </b>{Details.received_person_name}<br />
+                                                                        <b>Contact: </b> {Details.received_person_contact}<br />
+                                                                        <b>CNIC: </b> {Details.received_person_cnic}
+                                                                    </>
+                                                                    :
+                                                                    Details.receival_date
                                                                         ?
-                                                                        <>
-                                                                            <b>Name: </b>{Details.received_person_name}<br />
-                                                                            <b>Contact: </b> {Details.received_person_contact}<br />
-                                                                            <b>CNIC: </b> {Details.received_person_cnic}
-                                                                        </>
+                                                                        <span className='text-success'>Cash Collected By <u><Link to={'/hr/employee/details/' + Details.emp_id} className='clickable'>{Details.requested_emp_name}</Link></u></span>
                                                                         :
-                                                                        Details.receival_date
+                                                                        <span className='text-danger'>Cash Not Collected</span>
+                                                            }<br />
+                                                            {Details.receival_date ? <><b>Collection Date: </b> {new Date(Details.receival_date).toDateString()} at {moment(Details.receival_time, 'h:mm:ss a').format('hh:mm A')}</> : null}
+                                                        </p>
+                                                    </td>
+                                                    <td>
+                                                        <h6 className='font-weight-bold'>Verified By</h6>
+                                                        <p className='mb-0 font-weight-bold'>
+                                                            {Details.record_emp_name ? <Link to={'/hr/employee/details/' + Details.verified_by} className='clickable'>{Details.record_emp_name}</Link> : <span className='text-warning'>Pending For Verification</span>}
+                                                        </p>
+                                                        {Details.verified_date ? <>{new Date(Details.verified_date).toDateString()} at {moment(Details.verified_time, 'h:mm:ss a').format('hh:mm A')}</> : null}
+                                                        {Details.verified_date ? <h6 className='font-weight-bold mt-2'>Remarks</h6> : null}
+                                                        {Details.verified_date ? <p>{Details.verification_remarks}</p> : null}
+                                                    </td>
+                                                    <td>
+                                                        <h6 className='font-weight-bold'>Company & Location</h6>
+                                                        <p className='mb-1'>{Details.company_name}</p>
+                                                        <p>{Details.location_name}</p>
+                                                        <h6 className='font-weight-bold'>Request Status</h6>
+                                                        <div className='d-flex align-items-center'>
+                                                            <div
+                                                                className={
+                                                                    "dot mr-1 "
+                                                                    +
+                                                                    (
+                                                                        Details.status === 'approved' || Details.status === 'cleared'
                                                                             ?
-                                                                            <span className='text-success'>Cash Collected By <u><Link to={'/hr/employee/details/' + Details.emp_id} className='clickable'>{Details.requested_emp_name}</Link></u></span>
+                                                                            "bg-success"
                                                                             :
-                                                                            <span className='text-danger'>Cash Not Collected</span>
-                                                                }<br />
-                                                                {Details.receival_date ? <><b>Collection Date: </b> {new Date(Details.receival_date).toDateString()} at {moment(Details.receival_time, 'h:mm:ss a').format('hh:mm A')}</> : null}
-                                                            </p>
-                                                        </td>
-                                                        <td>
-                                                            <h6 className='font-weight-bold'>Verified By</h6>
-                                                            <p className='mb-0 font-weight-bold'>
-                                                                {Details.record_emp_name ? <Link to={'/hr/employee/details/' + Details.verified_by} className='clickable'>{Details.record_emp_name}</Link> : <span className='text-warning'>Pending For Verification</span>}
-                                                            </p>
-                                                            {Details.verified_date ? <>{new Date(Details.verified_date).toDateString()} at {moment(Details.verified_time, 'h:mm:ss a').format('hh:mm A')}</> : null}
-                                                            {Details.verified_date ? <h6 className='font-weight-bold mt-2'>Remarks</h6> : null}
-                                                            {Details.verified_date ? <p>{Details.verification_remarks}</p> : null}
-                                                        </td>
-                                                        <td>
-                                                            <h6 className='font-weight-bold'>Company & Location</h6>
-                                                            <p className='mb-1'>{Details.company_name}</p>
-                                                            <p>{Details.location_name}</p>
-                                                            <h6 className='font-weight-bold'>Request Status</h6>
-                                                            <div className='d-flex align-items-center'>
-                                                                <div
-                                                                    className={
-                                                                        "dot mr-1 "
-                                                                        +
-                                                                        (
-                                                                            Details.status === 'approved' || Details.status === 'cleared'
+                                                                            Details.status === 'rejected'
                                                                                 ?
-                                                                                "bg-success"
+                                                                                "bg-danger"
                                                                                 :
-                                                                                Details.status === 'rejected'
+                                                                                Details.status === 'waiting for approval' || Details.status === 'pending for verification'
                                                                                     ?
-                                                                                    "bg-danger"
+                                                                                    "bg-warning"
                                                                                     :
-                                                                                    Details.status === 'waiting for approval' || Details.status === 'pending for verification'
+                                                                                    Details.status === 'issued'
                                                                                         ?
-                                                                                        "bg-warning"
+                                                                                        "bg-info"
                                                                                         :
-                                                                                        Details.status === 'issued'
-                                                                                            ?
-                                                                                            "bg-info"
-                                                                                            :
-                                                                                            "bg-dark"
-                                                                        )
-                                                                    }
-                                                                ></div>
-                                                                <div
-                                                                    className={
-                                                                        "text-capitalize "
-                                                                        +
-                                                                        (
-                                                                            Details.status === 'approved' || Details.status === 'cleared'
+                                                                                        "bg-dark"
+                                                                    )
+                                                                }
+                                                            ></div>
+                                                            <div
+                                                                className={
+                                                                    "text-capitalize "
+                                                                    +
+                                                                    (
+                                                                        Details.status === 'approved' || Details.status === 'cleared'
+                                                                            ?
+                                                                            "text-success"
+                                                                            :
+                                                                            Details.status === 'rejected'
                                                                                 ?
-                                                                                "text-success"
+                                                                                "text-danger"
                                                                                 :
-                                                                                Details.status === 'rejected'
+                                                                                Details.status === 'waiting for approval' || Details.status === 'pending for verification'
                                                                                     ?
-                                                                                    "text-danger"
+                                                                                    "text-warning"
                                                                                     :
-                                                                                    Details.status === 'waiting for approval' || Details.status === 'pending for verification'
+                                                                                    Details.status === 'issued'
                                                                                         ?
-                                                                                        "text-warning"
+                                                                                        "text-info"
                                                                                         :
-                                                                                        Details.status === 'issued'
-                                                                                            ?
-                                                                                            "text-info"
-                                                                                            :
-                                                                                            "text-dark"
-                                                                        )
-                                                                    }
-                                                                >{Details.status}</div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        {
+                                                                                        "text-dark"
+                                                                    )
+                                                                }
+                                                            >{Details.status}</div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    {
+                                                        Details.hod_remarks
+                                                            ?
+                                                            <td>
+                                                                <h6 className='font-weight-bold mb-0'>Amount Consumed</h6>
+                                                                <p className='mb-1'>{Details.after_amount ? ("PKR " + Details.after_amount.toLocaleString('en')) : <span className='text-warning'>Amount Not Cleared</span>}</p>
+                                                                <b>Clearance Date & Time</b><br />
+                                                                {Details.clearance_date ? <>{new Date(Details.clearance_date).toDateString()} at {moment(Details.clearance_time, 'h:mm:ss a').format('hh:mm A')}</> : null}
+                                                                <h6 className='font-weight-bold mb-0 mt-2'>Due Since</h6>
+                                                                <span className='text-danger'>
+                                                                    {
+                                                                        Details.clearance_date
+                                                                            ?
+                                                                            <span className='text-success'>Amount Has Been Cleared</span>
+                                                                            :
+                                                                            Details.receival_date ?
+                                                                                <><span className="font-weight-bold" style={{ fontFamily: "Exo" }}>{moment.duration(dueSinsEnd.diff(dueSinsStart)).asDays()}</span> {moment.duration(dueSinsEnd.diff(dueSinsStart)).asDays() === 1 ? "Day" : "Days"}</>
+                                                                                : "Cash Not Collected"
+                                                                    }</span>
+                                                            </td>
+                                                            :
+                                                            <td></td>
+                                                    }
+                                                    <td colSpan={2}>
+                                                        <h6 className='font-weight-bold'>Reason</h6>
+                                                        <pre style={{ fontFamily: 'Poppins', fontSize: '13px', width: '100%', whiteSpace: 'pre-wrap' }}>{Details.reason}</pre>
+                                                    </td>
+                                                    {
+                                                        Details.status === 'cancelled' || Details.status === 'rejected'
+                                                            ?
+                                                            <td>
+                                                                <h6 className='font-weight-bold'>Rejected By</h6>
+                                                                <span>
+                                                                    <Link to={'/hr/employee/details/' + (Details.approved_by !== null ? Details.approved_by : Details.verified_by !== null ? Details.verified_by : Details.emp_id)} className='clickable'>
+                                                                        {Details.appr_emp_name ? Details.appr_emp_name : Details.record_emp_name}
+                                                                    </Link>
+                                                                </span><br />
+                                                                <b>Date & Time</b><br />
+                                                                <span>{new Date(Details.approved_date).toDateString() + " at " + moment(Details.approved_time, 'h:mm:ss a').format('hh:mm A')}</span>
+                                                            </td>
+                                                            :
                                                             Details.hod_remarks
                                                                 ?
                                                                 <td>
-                                                                    <h6 className='font-weight-bold mb-0'>Amount Consumed</h6>
-                                                                    <p className='mb-1'>{Details.after_amount ? ("PKR " + Details.after_amount.toLocaleString('en')) : <span className='text-warning'>Amount Not Cleared</span>}</p>
-                                                                    <b>Clearance Date & Time</b><br />
-                                                                    {Details.clearance_date ? <>{new Date(Details.clearance_date).toDateString()} at {moment(Details.clearance_time, 'h:mm:ss a').format('hh:mm A')}</> : null}
-                                                                    <h6 className='font-weight-bold mb-0 mt-2'>Due Since</h6>
-                                                                    <span className='text-danger'>
-                                                                        {
-                                                                            Details.clearance_date
-                                                                                ?
-                                                                                <span className='text-success'>Amount Has Been Cleared</span>
-                                                                                :
-                                                                                Details.receival_date ?
-                                                                                    <><span className="font-weight-bold" style={{ fontFamily: "Exo" }}>{moment.duration(dueSinsEnd.diff(dueSinsStart)).asDays()}</span> {moment.duration(dueSinsEnd.diff(dueSinsStart)).asDays() === 1 ? "Day" : "Days"}</>
-                                                                                    : "Cash Not Collected"
-                                                                        }</span>
-                                                                </td>
-                                                                :
-                                                                <td></td>
-                                                        }
-                                                        <td colSpan={2}>
-                                                            <h6 className='font-weight-bold'>Reason</h6>
-                                                            <pre style={{ fontFamily: 'Poppins', fontSize: '13px', width: '100%', whiteSpace: 'pre-wrap' }}>{Details.reason}</pre>
-                                                        </td>
-                                                        {
-                                                            Details.status === 'cancelled' || Details.status === 'rejected'
-                                                                ?
-                                                                <td>
-                                                                    <h6 className='font-weight-bold'>Rejected By</h6>
+                                                                    <h6 className='font-weight-bold'>Approved By</h6>
                                                                     <span>
                                                                         <Link to={'/hr/employee/details/' + (Details.approved_by !== null ? Details.approved_by : Details.verified_by !== null ? Details.verified_by : Details.emp_id)} className='clickable'>
                                                                             {Details.appr_emp_name ? Details.appr_emp_name : Details.record_emp_name}
@@ -881,141 +910,140 @@ function UI({ SlipDetails, loadSlipDetails, PRequestDetails, Specifications, loa
                                                                     <b>Date & Time</b><br />
                                                                     <span>{new Date(Details.approved_date).toDateString() + " at " + moment(Details.approved_time, 'h:mm:ss a').format('hh:mm A')}</span>
                                                                 </td>
-                                                                :
-                                                                Details.hod_remarks
-                                                                    ?
-                                                                    <td>
-                                                                        <h6 className='font-weight-bold'>Approved By</h6>
-                                                                        <span>
-                                                                            <Link to={'/hr/employee/details/' + (Details.approved_by !== null ? Details.approved_by : Details.verified_by !== null ? Details.verified_by : Details.emp_id)} className='clickable'>
-                                                                                {Details.appr_emp_name ? Details.appr_emp_name : Details.record_emp_name}
-                                                                            </Link>
-                                                                        </span><br />
-                                                                        <b>Date & Time</b><br />
-                                                                        <span>{new Date(Details.approved_date).toDateString() + " at " + moment(Details.approved_time, 'h:mm:ss a').format('hh:mm A')}</span>
-                                                                    </td>
-                                                                    : null
-                                                        }
-                                                    </tr>
-                                                    {
-                                                        Details.hod_remarks
-                                                            ?
-                                                            <tr>
-                                                                <td></td>
-                                                                <td colSpan={2}>
-                                                                    <h6 className='font-weight-bold'>
-                                                                        {Details.status === 'cancelled' ? "Reason" : "Approval Remarks"}
-                                                                    </h6>
-                                                                    <pre style={{ fontFamily: 'Poppins', width: '100%', whiteSpace: 'pre-wrap' }}>{Details.hod_remarks}</pre>
-                                                                </td>
-                                                                <td>
-                                                                    <h6 className='font-weight-bold'>Cashier</h6>
-                                                                    {
-                                                                        Details.cashier_emp_name === null
-                                                                            ?
-                                                                            <span>-----</span>
-                                                                            :
-                                                                            <>
-                                                                                <span>
-                                                                                    <Link to={'/hr/employee/details/' + Details.cashier} className='clickable'>{Details.cashier_emp_name}</Link>
-                                                                                </span><br />
-                                                                            </>
-                                                                    }
-                                                                </td>
-                                                            </tr>
-                                                            : null
-                                                    }
-                                                </tbody>
-                                            </table> */}
-                                            {/* <div className='grid'>
-                                                <div>
-                                                    {
-                                                        Details.receival_date && Details.other === 1
-                                                            ?
-                                                            <>
-                                                                <h6 className='font-weight-bold'>Signature</h6>
-                                                                <img src={process.env.REACT_APP_SERVER + '/assets/portal/assets/AC/' + window.location.href.split('/').pop() + '/' + Details.signature} alt="" width="100%" />
-                                                            </>
-                                                            :
-                                                            Details.receival_date && Details.other === 0
-                                                                ?
-                                                                <>
-                                                                    <h6 className='font-weight-bold'>Employee Thumb</h6>
-                                                                    <img src={process.env.REACT_APP_SERVER + '/assets/portal/assets/AC/' + window.location.href.split('/').pop() + '/thumbs/' + Details.emp_finger_print} alt="" width="50%" />
-                                                                </>
                                                                 : null
                                                     }
-                                                </div>
-                                                <div>
-                                                    {
-                                                        Details.other === 1
+                                                </tr>
+                                                {
+                                                    Details.hod_remarks
+                                                        ?
+                                                        <tr>
+                                                            <td></td>
+                                                            <td colSpan={2}>
+                                                                <h6 className='font-weight-bold'>
+                                                                    {Details.status === 'cancelled' ? "Reason" : "Approval Remarks"}
+                                                                </h6>
+                                                                <pre style={{ fontFamily: 'Poppins', width: '100%', whiteSpace: 'pre-wrap' }}>{Details.hod_remarks}</pre>
+                                                            </td>
+                                                            <td>
+                                                                <h6 className='font-weight-bold'>Cashier</h6>
+                                                                {
+                                                                    Details.cashier_emp_name === null
+                                                                        ?
+                                                                        <span>-----</span>
+                                                                        :
+                                                                        <>
+                                                                            <span>
+                                                                                <Link to={'/hr/employee/details/' + Details.cashier} className='clickable'>{Details.cashier_emp_name}</Link>
+                                                                            </span><br />
+                                                                        </>
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                        : null
+                                                }
+                                            </tbody>
+                                        </table> */}
+                                        {/* <div className='grid'>
+                                            <div>
+                                                {
+                                                    Details.receival_date && Details.other === 1
+                                                        ?
+                                                        <>
+                                                            <h6 className='font-weight-bold'>Signature</h6>
+                                                            <img src={process.env.REACT_APP_SERVER + '/assets/portal/assets/AC/' + window.location.href.split('/').pop() + '/' + Details.signature} alt="" width="100%" />
+                                                        </>
+                                                        :
+                                                        Details.receival_date && Details.other === 0
                                                             ?
                                                             <>
-                                                                <h6 className='font-weight-bold'>Cash Receiver CNIC</h6>
-                                                                <div className='d-flex w-100' style={{ gap: '10px' }}>
-                                                                    <div className='w-50'>
-                                                                        <img src={process.env.REACT_APP_SERVER + '/assets/portal/assets/AC/' + window.location.href.split('/').pop() + '/' + Details.cnic_front} width="100%" className='rounded' alt="cashier finger print" />
-                                                                    </div>
-                                                                    <div className='w-50'>
-                                                                        <img src={process.env.REACT_APP_SERVER + '/assets/portal/assets/AC/' + window.location.href.split('/').pop() + '/' + Details.cnic_back} width="100%" className='rounded' alt="employee finger print" />
-                                                                    </div>
+                                                                <h6 className='font-weight-bold'>Employee Thumb</h6>
+                                                                <img src={process.env.REACT_APP_SERVER + '/assets/portal/assets/AC/' + window.location.href.split('/').pop() + '/thumbs/' + Details.emp_finger_print} alt="" width="50%" />
+                                                            </>
+                                                            : null
+                                                }
+                                            </div>
+                                            <div>
+                                                {
+                                                    Details.other === 1
+                                                        ?
+                                                        <>
+                                                            <h6 className='font-weight-bold'>Cash Receiver CNIC</h6>
+                                                            <div className='d-flex w-100' style={{ gap: '10px' }}>
+                                                                <div className='w-50'>
+                                                                    <img src={process.env.REACT_APP_SERVER + '/assets/portal/assets/AC/' + window.location.href.split('/').pop() + '/' + Details.cnic_front} width="100%" className='rounded' alt="cashier finger print" />
                                                                 </div>
-                                                            </>
-                                                            : null
-                                                    }
-                                                </div>
-                                                <div className='text-center'>
-                                                    {
-                                                        Details.status === 'pending for verification' && VerificationAccess
-                                                            ?
-                                                            <>
-                                                                <button className='btn cancle mr-3' onClick={() => setVReject(true)}>Reject</button>
-                                                                <button className='btn submit' onClick={() => setVApprove(true)}>Verify</button>
-                                                            </>
-                                                            : null
-                                                    }
-                                                    {
-                                                        Details.status === 'waiting for approval' && Details.approved_by == localStorage.getItem('EmpID')
-                                                            ?
-                                                            <>
-                                                                <button className='btn cancle mr-3' onClick={() => setReject(true)}>Reject</button>
-                                                                <button className='btn submit' onClick={() => setApprove(true)}>Approve</button>
-                                                            </>
-                                                            : null
-                                                    }
-                                                    {
-                                                        Details.status === 'approved' && AccessControls.location_code === Details.location && (AccessControls.designation_code === 66 || AccessControls.designation_code === 97)
-                                                            ? <button className='btn submit' onClick={() => setMoney(true)}>Release Amount (PKR {Details.amount.toLocaleString('en')})</button>
-                                                            : null
-                                                    }
-                                                    {
-                                                        Details.status === 'issued' && Details.cashier == localStorage.getItem('EmpID')
-                                                            ? <button className='btn submit' onClick={() => setClearMoney(true)}>Clear Amount (PKR {Details.amount.toLocaleString('en')})</button>
-                                                            : null
-                                                    }
-                                                </div>
-                                            </div> */}
-                                        </>
-                                        :
-                                        <img src={loading} alt="loading..." width='50' height='50' className='d-block mx-auto' />
-                                }
-                            </div>
-                            :
-                            Status === 'Slip'
-                                ?
-                                <AttachedSlip
-                                    slip_id={Details.previous_slip}
-                                    SlipDetails={SlipDetails}
+                                                                <div className='w-50'>
+                                                                    <img src={process.env.REACT_APP_SERVER + '/assets/portal/assets/AC/' + window.location.href.split('/').pop() + '/' + Details.cnic_back} width="100%" className='rounded' alt="employee finger print" />
+                                                                </div>
+                                                            </div>
+                                                        </>
+                                                        : null
+                                                }
+                                            </div>
+                                            <div className='text-center'>
+                                                {
+                                                    Details.status === 'pending for verification' && VerificationAccess
+                                                        ?
+                                                        <>
+                                                            <button className='btn cancle mr-3' onClick={() => setVReject(true)}>Reject</button>
+                                                            <button className='btn submit' onClick={() => setVApprove(true)}>Verify</button>
+                                                        </>
+                                                        : null
+                                                }
+                                                {
+                                                    Details.status === 'waiting for approval' && Details.approved_by == localStorage.getItem('EmpID')
+                                                        ?
+                                                        <>
+                                                            <button className='btn cancle mr-3' onClick={() => setReject(true)}>Reject</button>
+                                                            <button className='btn submit' onClick={() => setApprove(true)}>Approve</button>
+                                                        </>
+                                                        : null
+                                                }
+                                                {
+                                                    Details.status === 'approved' && AccessControls.location_code === Details.location && (AccessControls.designation_code === 66 || AccessControls.designation_code === 97)
+                                                        ? <button className='btn submit' onClick={() => setMoney(true)}>Release Amount (PKR {Details.amount.toLocaleString('en')})</button>
+                                                        : null
+                                                }
+                                                {
+                                                    Details.status === 'issued' && Details.cashier == localStorage.getItem('EmpID')
+                                                        ? <button className='btn submit' onClick={() => setClearMoney(true)}>Clear Amount (PKR {Details.amount.toLocaleString('en')})</button>
+                                                        : null
+                                                }
+                                            </div>
+                                        </div> */}
+                                    </>
+                                    :
+                                    <img src={loading} alt="loading..." width='50' height='50' className='d-block mx-auto' />
+                            }
+                        </div>
+                        :
+                        Status === 'Slip'
+                        ?
+                        <AttachedSlip
+                            slip_id={Details.previous_slip}
+                            SlipDetails={SlipDetails}
 
-                                    loadSlipDetails={loadSlipDetails}
-                                />
-                                :
-                                <PurchaseRequisition
-                                    PRequestDetails={PRequestDetails}
-                                    Specifications={Specifications}
+                            loadSlipDetails={loadSlipDetails}
+                        />
+                        :
+                        Status === 'PR'
+                        ?
+                        <PurchaseRequisition
+                            PRequestDetails={PRequestDetails}
+                            Specifications={Specifications}
 
-                                    loadPRDetails={loadPRDetails}
-                                />
+                            loadPRDetails={loadPRDetails}
+                        />
+                        :
+                        <PurchaseOrder
+                            POequestDetails={ POequestDetails }
+                            POSpecifications={ POSpecifications }
+                            AttachedBills={ AttachedBills }
+                            AdditionalRows={ AdditionalRows }
+                            cashier={parseInt(Details.cashier) === parseInt(localStorage.getItem('EmpID'))}
+
+                            loadPODetails={loadPODetails}
+                        />
                     }
                 </div>
             </div>
@@ -1437,7 +1465,7 @@ const AttachedSlip = ({ slip_id, SlipDetails, loadSlipDetails }) => {
 
                                                         <tr>
                                                             <td>
-                                                                <b>Clearance Date & Time</b><br />
+                                                                <h6 className='mb-0'><b>Clearance Date & Time</b></h6>
                                                             </td>
                                                             <td>
                                                                 {SlipDetails.clearance_date ? <>{new Date(SlipDetails.clearance_date).toDateString()} at {moment(SlipDetails.clearance_time, 'h:mm:ss a').format('hh:mm A')}</> : null}
@@ -1886,6 +1914,363 @@ const PurchaseRequisition = ({ PRequestDetails, Specifications, loadPRDetails })
     )
 }
 
+const PurchaseOrder = ({ cashier, AdditionalRows, loadPODetails, POSpecifications, POequestDetails }) => {
+
+    const { FormatMoney } = require('format-money-js');
+    const fm = new FormatMoney({ symbol: 'Rs ', decimals: 2 });
+
+    useEffect(
+        () => {
+            if (!POequestDetails) loadPODetails();
+        }, []
+    )
+    if (!POequestDetails || !POSpecifications) {
+        return <img src={loading} alt="loading..." width='50' height='50' className='d-block mx-auto' />;
+    }
+    return (
+        <>
+            <form className='popUps'>
+                <p className="mb-1 ml-1">
+                    <b>Invoice No: </b>
+                    <span> {POequestDetails.invoice_no} </span>
+                </p>
+                <table className="table table-sm table-borderless">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <b>Company</b><br />
+                                <span>{POequestDetails.company_name}</span>
+                            </td>
+                            <td>
+                                <b>Delivery / Work Location</b><br />
+                                <span>{POequestDetails.location_name}</span>
+                            </td>
+                            <td>
+                                <b>Prepared By</b><br />
+                                <span>
+                                    <Link to={'/hr/employee/details/' + POequestDetails.requested_by} className='clickable'>{POequestDetails.requested_employee_name}</Link> <br />
+                                    {convertTZ(POequestDetails.requested_date).toDateString() + " at " + POequestDetails.requested_time.substring(0, 5)}
+                                </span>
+                            </td>
+                            <td>
+                                <b>Receiving at Accounts Dept.</b><br />
+                                <span>
+                                    {
+                                        POequestDetails.view_date
+                                            ?
+                                            <>
+                                                <Link to={'/hr/employee/details/' + POequestDetails.appr_rejct_by} className='clickable'>{POequestDetails.hod_employee_name}</Link> <br />
+                                                {convertTZ(POequestDetails.view_date).toDateString() + ' at ' + POequestDetails.view_time.substring(0, 5)}
+                                            </>
+                                            :
+                                            <span className={POequestDetails.status + " text-white status_div"}>Not Viewed</span>
+                                    }
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b>Proceed To</b><br />
+                                <span>{POequestDetails.submit_to_employee_name ? <Link to={'/hr/employee/details/' + POequestDetails.appr_rejct_by} className='clickable'>{POequestDetails.submit_to_employee_name}</Link> : "Not Proceed Yet"}</span>
+                            </td>
+                            <td>
+                                <b>Request Status</b><br />
+                                <span className={POequestDetails.status + " text-white status_div"}>{POequestDetails.status.split('_').join(' ')}</span>
+                            </td>
+                            <>
+                                {
+                                    POequestDetails.hod_employee_name != null
+                                        ?
+                                        POequestDetails.status === 'canceled'
+                                            ?
+                                            <>
+                                                <td>
+                                                    <b>Cancel Date</b><br />
+                                                    <span>{convertTZ(POequestDetails.act_date).toDateString()} at {POequestDetails.act_time.substring(0, 5)}</span>
+                                                </td>
+                                                <td>
+                                                    <b>Reason To Cancel</b><br />
+                                                    <span>{POequestDetails.remarks_from_hod}</span>
+                                                </td>
+                                            </>
+                                            :
+                                            POequestDetails.status === 'rejected'
+                                                ?
+                                                <>
+                                                    <td>
+                                                        <b>Rejected By</b><br />
+                                                        <span>{POequestDetails.hod_employee_name}</span>
+                                                    </td>
+                                                    <td>
+                                                        <b>Accounts's Rejection</b><br />
+                                                        <span>{convertTZ(POequestDetails.act_date).toDateString()} at {POequestDetails.act_time.substring(0, 5)}</span>
+                                                    </td>
+                                                </>
+                                                :
+                                                <>
+                                                    {
+                                                        POequestDetails.status === 'approved' || POequestDetails.status === 'unapproved'
+                                                            ?
+                                                            <>
+                                                                <td>
+                                                                    <b>Accounts's Approval</b><br />
+                                                                    <span>{convertTZ(POequestDetails.act_date).toDateString()} at {POequestDetails.act_time.substring(0, 5)}</span>
+                                                                </td>
+                                                                <td>
+                                                                    <b>Accounts's Remarks</b><br />
+                                                                    <span>{POequestDetails.remarks_from_hod}</span>
+                                                                </td>
+                                                            </>
+                                                            : null
+                                                    }
+                                                </>
+                                        : null
+                                }
+                            </>
+                        </tr>
+                        {
+                            POequestDetails.status === 'unapproved' && (
+                                <tr>
+                                    <td>
+                                        <b>Unapproved By</b><br />
+                                        <span>{POequestDetails.unapproved_person_name}</span><br />
+                                        <span>{POequestDetails.unapproved_person_designation_name}</span>
+                                    </td>
+                                    <td>
+                                        <b>Unapproved At</b><br />
+                                        <span>{new Date(POequestDetails.unapproved_at).toDateString()}</span><br />
+                                        <span>{new Date(POequestDetails.unapproved_at).toTimeString().substring(0, 5)}</span>
+                                    </td>
+                                    <td colSpan={2}>
+                                        <b>Reamrks</b><br />
+                                        <span>{POequestDetails.unapproved_comments}</span>
+                                    </td>
+                                </tr>
+                            )
+                        }
+                        {
+                            POequestDetails?.payment_mode === 'Cheque'
+                                ?
+                                (
+                                    POequestDetails?.status.toLowerCase() === 'approved'
+                                        ?
+                                        <tr>
+                                            <td colSpan={2}>
+                                                <b>Additional Notes</b><br />
+                                                <span>{POequestDetails.note}</span>
+                                            </td>
+                                            <td>
+                                                <b>Payment Status</b><br />
+                                                {
+                                                    POequestDetails?.payment_status === 'Pending'
+                                                        ?
+                                                        <span className="text-danger">Pending</span>
+                                                        :
+                                                        <div className='m-0 bg-lightgray'>
+                                                            {POequestDetails?.in_progree_dt && <div><b className='text-warning'>In Progress</b> at {new Date(POequestDetails?.in_progree_dt).toDateString()} {new Date(POequestDetails?.in_progree_dt).toTimeString().substring(0, 5)}</div>}
+                                                            {POequestDetails?.checque_prepared_dt && <div><b className='text-info'>Cheque Prepared</b> at {new Date(POequestDetails?.checque_prepared_dt).toDateString()} {new Date(POequestDetails?.checque_prepared_dt).toTimeString().substring(0, 5)}</div>}
+                                                            {POequestDetails?.paid_dt && <div><b className='text-success'>Paid</b> at {new Date(POequestDetails?.paid_dt).toDateString()} {new Date(POequestDetails?.paid_dt).toTimeString().substring(0, 5)}</div>}
+                                                        </div>
+                                                }
+                                            </td>
+                                            <td>
+                                                <b>Payment Mode</b><br />
+                                                <span className="text-secondary">{POequestDetails?.payment_mode}</span>
+                                            </td>
+                                        </tr>
+                                        :
+                                        <tr>
+                                            <td colSpan={4}>
+                                                <b>Additional Notes</b><br />
+                                                <span>{POequestDetails.note}</span>
+                                            </td>
+                                        </tr>
+                                )
+                                :
+                                POequestDetails?.status.toLowerCase() === 'approved'
+                                    ?
+                                    <tr>
+                                        <td colSpan={2}>
+                                            <b>Additional Notes</b><br />
+                                            <span>{POequestDetails.note}</span>
+                                        </td>
+                                        <td>
+                                            <b>Payment Status</b><br />
+                                            {
+                                                POequestDetails?.cash_payment_dt
+                                                    ?
+                                                    <>
+                                                        <span className="text-success">Paid </span>
+                                                        at {new Date(POequestDetails?.cash_payment_dt).toDateString()} {new Date(POequestDetails?.cash_payment_dt).toTimeString().substring(0, 5)}
+                                                    </>
+                                                    :
+                                                    <>
+                                                        <span className="text-danger">Pending</span>
+                                                    </>
+                                            }
+                                        </td>
+                                        <td>
+                                            <b>Payment Mode</b><br />
+                                            <span className="text-secondary">{POequestDetails?.payment_mode}</span>
+                                        </td>
+                                    </tr>
+                                    :
+                                    <tr>
+                                        <td colSpan={4}>
+                                            <b>Additional Notes</b><br />
+                                            <span>{POequestDetails.note}</span>
+                                        </td>
+                                    </tr>
+                        }
+                    </tbody>
+                </table>
+                <hr />
+                <fieldset disabled>
+
+                    <div className="grid_container mb-3">
+
+                        <div className='w-100'>
+
+                            <h6 className='p-1' style={{ backgroundColor: '#e5e3e3' }}>Vendor</h6>
+                            {console.log(cashier)}
+                            {
+                                cashier
+                                ?
+                                <p className='font-weight-bold mb-0'>
+                                    {POequestDetails.vendor_name} - ({POequestDetails.verified === 1 ? <span className='text-success'>Verified</span> : <span className='text-danger'>Not Verified</span>})
+                                </p>
+                                :
+                                <p className='font-weight-bold mb-0'>
+                                    <Link to={"/inventory/vendor/" + POequestDetails.vendor_id} className='clickable'>{POequestDetails.vendor_name}</Link> - ({POequestDetails.verified === 1 ? <span className='text-success'>Verified</span> : <span className='text-danger'>Not Verified</span>})
+                                </p>
+                            }
+                            <p className="mb-0">{POequestDetails.vendor_phone}</p>
+                            <p className="mb-0">{POequestDetails.vendor_address}</p>
+
+                        </div>
+                        <div className='w-100'>
+                            {
+                                POequestDetails.new_purchase === 1
+                                    ?
+                                    <div className='w-100 mb-1 grid_container align-items-center'>
+                                        <span>New Purchase</span>
+                                        <input checked={true} type="checkbox" className='ml-2' />
+                                    </div>
+                                    : null
+                            }
+                            {
+                                POequestDetails.repair
+                                    ?
+                                    <div className='w-100 mb-1 grid_container align-items-center'>
+                                        <span>Repair</span>
+                                        <input checked={true} type="checkbox" className='ml-2' />
+                                    </div>
+                                    : null
+                            }
+                            {
+                                POequestDetails.replace_recycle
+                                    ?
+                                    <div className='w-100 mb-1 grid_container align-items-center'>
+                                        <span>Replacement / Recycle</span>
+                                        <input checked={true} type="checkbox" className='ml-2' />
+                                    </div>
+                                    : null
+                            }
+                            {
+                                POequestDetails.invoice_attached
+                                    ?
+                                    <div className='w-100 mb-1 grid_container align-items-center'>
+                                        <span>Invoice Attached</span>
+                                        <input checked={true} type="checkbox" className='ml-2' />
+                                    </div>
+                                    : null
+                            }
+                        </div>
+
+                    </div>
+
+                    <label className="mb-1"><b>Purchase / Repair / Replacement Specifications</b></label>
+
+                    <table className="table table-borderless specifications-table">
+                        <thead>
+                            <tr>
+                                <th>Sr.No.</th>
+                                <th>Description</th>
+                                <th>Quantity</th>
+                                <th>Unit Price</th>
+                                <th className='text-right'>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                POSpecifications.map(
+                                    (val, index) => {
+                                        return (
+                                            <tr key={index}>
+                                                <td> {index + 1} </td>
+                                                <td> {val.description} </td>
+                                                <td> {parseFloat(val.quantity).toFixed(2)} {val.unit} </td>
+                                                <td>{fm.from(val.unit_price)}</td>
+                                                <td className='text-right'>{fm.from(val.total_cost)}</td>
+                                            </tr>
+                                        )
+                                    }
+                                )
+                            }
+                        </tbody>
+                        <br />
+                        <tfoot>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td className='sub-total-td'><b>Sub Total</b></td>
+                                <td className='sub-total-td text-right'>{fm.from(POequestDetails.total_sub_value)}</td>
+                            </tr>
+                            {
+                                parseFloat(POequestDetails.total_ac_adjustments) > 0 && (
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td className='sub-total-td text-danger'><b>Adjust Advance Cash</b></td>
+                                        <td className='sub-total-td text-right'>-{fm.from(POequestDetails.total_ac_adjustments)}</td>
+                                    </tr>
+                                )
+                            }
+                            {
+                                AdditionalRows
+                                    ?
+                                    AdditionalRows.map(
+                                        (val, index) => {
+                                            return (
+                                                <tr key={index}>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td className='text-capitalize'><b>{val.label}</b></td>
+                                                    <td className='text-right'>{fm.from(val.value)}</td>
+                                                </tr>
+                                            )
+                                        }
+                                    )
+                                    : null
+                            }
+                            <tr>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td className='total-td'><b>Total</b></td>
+                                <td className='total-td text-right'>{fm.from(POequestDetails.total_value)}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </fieldset>
+            </form>
+        </>
+    );
+}
+
 const CommentBox = ({ data, index }) => {
     return (
         <>
@@ -2109,11 +2494,16 @@ const ModalFingerPrint = ({ CNICBack, CNICFront, Other, AccessControls, CashierT
                 JSAlert.alert("Signature is required!!!").dismissIn(1500 * 1);
             }
         } else {
-            if (Template2) {
+            if (!Template2 && e.target['passcode']?.value === '') {
+                JSAlert.alert("Please enter the requested employee password or verify your thumb!!!").dismissIn(1500 * 1);
+            }else {
                 validateEmployee(e, signature, Template1, Template2);
-            } else {
-                JSAlert.alert("Fingerprint is required!!!").dismissIn(1500 * 1);
             }
+            // if (Template2) {
+            //     validateEmployee(e, signature, Template1, Template2);
+            // } else {
+            //     JSAlert.alert("Fingerprint is required!!!").dismissIn(1500 * 1);
+            // }
         }
     }
     const handleSignatureEnd = () => {
@@ -2141,8 +2531,8 @@ const ModalFingerPrint = ({ CNICBack, CNICFront, Other, AccessControls, CashierT
                                             <div className='text-center mb-3'>
                                                 <img onClick={() => CallSGIFPGetData(SuccessFunc2, ErrorFunc)} id="FPImage2" src={"https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Fingerprint_picture.svg/1413px-Fingerprint_picture.svg.png"} alt="fingerprints" />
                                             </div>
-                                            {/* <label className='mb-0'>{Details.requested_emp_name}'s Password</label>
-                                            <input type='password' name="passcode" className='form-control' required /> */}
+                                            <label className='mb-0'>{Details.requested_emp_name}'s Password</label>
+                                            <input type='password' name="passcode" className='form-control' />
                                         </>
                                         :
                                         <>

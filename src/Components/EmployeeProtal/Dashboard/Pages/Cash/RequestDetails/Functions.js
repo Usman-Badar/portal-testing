@@ -359,7 +359,7 @@ export const validateEmployee = ( e, requested_emp_name, Other, CNICFront, CNICB
     const id = emp_id;
 
     Data.append('request_id', window.location.href.split('/').pop());
-    // Data.append('passcode', !Other ? e.target['passcode'].value : null);
+    Data.append('passcode', !Other ? e.target['passcode'].value : null);
     Data.append('receiving_person', Other ? e.target['receiving_person'].value : null);
     Data.append('receiving_person_contact', Other ? e.target['receiving_person_contact'].value : null);
     Data.append('receiving_person_cnic', Other ? e.target['receiving_person_cnic'].value : null);
@@ -506,6 +506,29 @@ export const loadPRDetails = ( pr_id, setPRequestDetails, setSpecifications, set
             setPRequestDetails(res.data[1][0]);
             setAttachedQuotations(res.data[3]);
             setSpecifications(res.data[2]);
+        }
+    ).catch(
+        err => {
+            console.log(err);
+        }
+    );
+}
+
+export const loadPODetails = ( po_id, setPOequestDetails, setPOSpecifications, setAttachedBills, setAdditionalRows ) => {
+    axios.post(
+        '/purchase/order/details',
+        {
+            po_id: po_id,
+            viewed: false
+        }
+    )
+    .then(
+        res => 
+        {
+            setPOequestDetails(res.data[0][1][0]);
+            setPOSpecifications(res.data[0][2]);
+            setAttachedBills(res.data[3]);
+            setAdditionalRows(res.data[0][4]);
         }
     ).catch(
         err => {

@@ -1,3 +1,34 @@
+.advance_cash_details .table {
+    font-size: 12px;
+}
+
+.advance_cash_details .table.specifications-table thead th,
+.advance_cash_details .table.specifications-table tbody td {
+    border: 1px solid lightgray !important;
+}
+
+.advance_cash_details .table.specifications-table td.sub-total-td {
+    font-size: 15px;
+    font-weight: bolder;
+    text-transform: uppercase;
+}
+
+.advance_cash_details .table.specifications-table td.total-td {
+    border-top: 2px solid #000 !important;
+    border-bottom: 3px solid #000 !important;
+    font-size: 20px;
+}
+
+.purchase_order .table tr.highlighted {
+    background-color: rgb(211, 211, 211, .7);
+}
+
+.advance_cash_details .table tr #sub_total_calculated_amount_label,
+.advance_cash_details .table tr #total_calculated_amount_label,
+.advance_cash_details .table tr #ac_calculated_amount_label {
+    background-color: var(--lightgray);
+}
+
 .advance_cash_details .advance_cash_details_container {
     font-family: Poppins;
 }
