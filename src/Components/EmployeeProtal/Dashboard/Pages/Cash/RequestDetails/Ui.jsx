@@ -11,6 +11,7 @@ import 'react-quill/dist/quill.snow.css';
 import parse from 'html-react-parser';
 import { useReactToPrint } from 'react-to-print';
 import JSAlert from 'js-alert';
+import { Uint8ToBase64 } from '../../../../../../utils/Uint8ToBase64';
 import Modal from '../../../../../UI/Modal/Modal';
 import moment from 'moment';
 import loading from '../../../../../../images/loadingIcons/icons8-iphone-spinner.gif';
@@ -657,6 +658,19 @@ function UI({ AdditionalRows, loadPODetails, POequestDetails, POSpecifications, 
                                                                                 }</span>
                                                                         </td>
                                                                     </tr>
+
+                                                                    {
+                                                                        Details.issue_method && (
+                                                                            <tr>
+                                                                                <td>
+                                                                                    <h6 className='font-weight-bold mb-0 mt-2'>Issue Method</h6>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <span className='text-secondary'>{Details.issue_method}</span>
+                                                                                </td>
+                                                                            </tr>
+                                                                        )
+                                                                    }
                                                                 </>
                                                                 :
                                                                 null
@@ -671,6 +685,16 @@ function UI({ AdditionalRows, loadPODetails, POequestDetails, POSpecifications, 
                                                 <div className=''>
                                                     <div className='mb-3'>
                                                         {
+                                                            Details.receival_date && Details.other === 1 && (
+                                                                <>
+                                                                    <h6 className='font-weight-bold'>Signature</h6>
+                                                                    <div className='bg-light border'>
+                                                                        <img src={'data:image/png;base64,' + Details.signature} alt="" width="100%" />
+                                                                    </div>
+                                                                </>
+                                                            )
+                                                        }
+                                                        {/* {
                                                             Details.receival_date && Details.other === 1
                                                                 ?
                                                                 <>
@@ -689,7 +713,7 @@ function UI({ AdditionalRows, loadPODetails, POequestDetails, POSpecifications, 
                                                                         </div>
                                                                     </>
                                                                     : null
-                                                        }
+                                                        } */}
                                                     </div>
                                                     <div>
                                                         {
@@ -699,11 +723,11 @@ function UI({ AdditionalRows, loadPODetails, POequestDetails, POSpecifications, 
                                                                     <h6 className='font-weight-bold'>Cash Receiver CNIC</h6>
                                                                     <div className='d-flex w-100' style={{ gap: '10px' }}>
                                                                         <div className='w-50'>
-                                                                            <img src={process.env.REACT_APP_SERVER + '/assets/portal/assets/AC/' + window.location.href.split('/').pop() + '/' + Details.cnic_front} width="100%" className='rounded' alt="cashier finger print" />
+                                                                            {Details.cnic_front && <img src={Uint8ToBase64(Buffer.from(Details.cnic_front, 'base64'))} width="100%" className='rounded' alt="cashier finger print" />}
                                                                             {/* <p className='font-weight-bold text-center mb-0'>CNIC Front</p> */}
                                                                         </div>
                                                                         <div className='w-50'>
-                                                                            <img src={process.env.REACT_APP_SERVER + '/assets/portal/assets/AC/' + window.location.href.split('/').pop() + '/' + Details.cnic_back} width="100%" className='rounded' alt="employee finger print" />
+                                                                            {Details.cnic_back && <img src={Uint8ToBase64(Buffer.from(Details.cnic_back, 'base64'))} width="100%" className='rounded' alt="employee finger print" />}
                                                                             {/* <p className='font-weight-bold text-center mb-0'>CNIC Back</p> */}
                                                                         </div>
                                                                     </div>

@@ -1,4 +1,4 @@
-export function Uint8ToBase64(u8Arr) {
+export function Uint8ToBase64(u8Arr, type) {
     var CHUNK_SIZE = 0x8000; //arbitrary number
     var index = 0;
     var length = u8Arr.length;
@@ -9,5 +9,6 @@ export function Uint8ToBase64(u8Arr) {
         result += String.fromCharCode.apply(null, slice);
         index += CHUNK_SIZE;
     }
+    if (type) return `data:${type};base64,${btoa(result)}`;
     return `data:image/png;base64,${btoa(result)}`;
 }

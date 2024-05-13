@@ -387,6 +387,10 @@ export const validateEmployee = ( e, requested_emp_name, Other, CNICFront, CNICB
         res => 
         {
             $('fieldset').prop('disabled', false);
+            if ( typeof(res.data) === 'string' && res.data.includes('match score is :') )
+            {
+                JSAlert.alert("Match score is: " + res.data.split(':').pop(), "Thumb not matched!!!");
+            }else
             if ( res.data === 'not matched' )
             {
                 JSAlert.alert("Password Not Matched!!!").dismissIn(1000 * 2);

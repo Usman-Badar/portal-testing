@@ -1005,7 +1005,7 @@ export const ApproveRequisition = ( e, po_id, requested_by, history, AdvanceCash
         {
             if (res.data.includes('already cleared')) {
                 $('fieldset').prop('disabled', false);
-                $('#error_alert_approval').removeClass('d-none').removeClass('alert-success').addClass('alert-danger').text("Could not approve PO because advance cash with serial no: " + res.data.split('(').pop().split(')').shift());
+                $('#error_alert_approval').removeClass('d-none').removeClass('alert-success').addClass('alert-danger').text("Could not approve PO because advance cash with serial no: " + res.data.split('(').pop().split(')').shift() + " is already cleared.");
             }else
             if ( res.data === 'success' )
             {
