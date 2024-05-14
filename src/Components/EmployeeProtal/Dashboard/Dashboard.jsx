@@ -98,6 +98,7 @@ const Categories = lazy( () => import('./Pages/Inventory/Categories/Categories')
 const SubCategories = lazy( () => import('./Pages/Inventory/Categories/Sub-Categories/Sub-Categories') );
 const Vendors = lazy( () => import('./Pages/Inventory/Vendors/Vendors') );
 const HREmployee = lazy( () => import('./Pages/HR/Employee/Employee') );
+const CashSettings = lazy( () => import('./Pages/HR/CashSettings/CashSettings') );
 const Locations = lazy( () => import('./Pages/Inventory/Locations/Locations') );
 const Create = lazy( () => import('./Pages/Inventory/Products/Create/Create') );
 
@@ -448,7 +449,7 @@ const Dashboard = () => {
                                 <Route exact path="/hr/temporary/employees/form" render={ () => <Sus content={ <TemporaryEmployees /> } /> } />
                                 <Route exact path="/hr/temporary/employees/list" render={ () => <Sus content={ <TemporaryEmployees /> } /> } />
 
-
+                                <Route exact path="/hr/advance/cash/variables" render={ () => <Sus content={ <CashSettings /> } /> } />
                                 <Route exact path="/hr/employee/list" render={ () => <Sus content={ <HREmployee /> } /> } />
                                 <Route exact path="/hr/employee/details/:id" render={ () => <Sus content={ <HREmployee /> } /> } />
                                 <Route exact path="/hr/employee/edit/:id" render={ () => <Sus content={ <HREmployee /> } /> } />

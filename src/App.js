@@ -110,7 +110,7 @@ const App = () => {
                     <Route exact path="/hr/temporary/employees/form" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/hr/temporary/employees/list" render={ () => <Sus content={ <Dashboard /> } /> } />
 
-                    
+                    <Route exact path="/hr/advance/cash/variables" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/hr/employee/list" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/hr/employee/details/:id" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/hr/employee/edit/:id" render={ () => <Sus content={ <Dashboard /> } /> } />

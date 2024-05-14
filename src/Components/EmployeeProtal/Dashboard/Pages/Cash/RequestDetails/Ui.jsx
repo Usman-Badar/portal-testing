@@ -663,10 +663,10 @@ function UI({ AdditionalRows, loadPODetails, POequestDetails, POSpecifications, 
                                                                         Details.issue_method && (
                                                                             <tr>
                                                                                 <td>
-                                                                                    <h6 className='font-weight-bold mb-0 mt-2'>Issue Method</h6>
+                                                                                    <h6 className='font-weight-bold mb-0 mt-2'>Verification Method</h6>
                                                                                 </td>
                                                                                 <td>
-                                                                                    <span className='text-secondary'>{Details.issue_method}</span>
+                                                                                    <span className='text-secondary'>{Details.issue_method === 'both' ? 'Both thumb and password' : Details.issue_method}</span>
                                                                                 </td>
                                                                             </tr>
                                                                         )
@@ -2445,7 +2445,7 @@ const ModalFingerPrint = ({ CNICBack, CNICFront, Other, AccessControls, CashierT
 
     const [CashierPassCode, setCashierPassCode] = useState();
     const [Template1, setTemplate1] = useState();
-    const [Template2, setTemplate2] = useState();
+    const [Template2, setTemplate2] = useState()
     const [signature, setSignature] = useState(null);
     const [ValidCashier, setValidCashier] = useState(false);
     const key = 'real secret keys should be long and random';
@@ -2521,6 +2521,10 @@ const ModalFingerPrint = ({ CNICBack, CNICFront, Other, AccessControls, CashierT
             if (!Template2 && e.target['passcode']?.value === '') {
                 JSAlert.alert("Please enter the requested employee password or verify your thumb!!!").dismissIn(1500 * 1);
             }else {
+                if (Details?.req_biometric_for_cash === 1 && !Template2) {
+                    JSAlert.alert("Biometric is required!!!").dismissIn(1500 * 2);
+                    return;
+                }
                 validateEmployee(e, signature, Template1, Template2);
             }
             // if (Template2) {
