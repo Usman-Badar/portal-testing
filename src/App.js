@@ -60,6 +60,9 @@ const App = () => {
                         For Employee Portal
                     */}
 
+                    
+                    <Route exact path='/biometric/registration' render={ () => <Sus content={ <Dashboard /> }/> } />
+
                     <Redirect exact path='/' to='/login' />
                     <Route exact path='/dashboard' render={ () => <Sus content={ <Dashboard /> }/> } />
 

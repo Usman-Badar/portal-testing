@@ -127,6 +127,9 @@ const TripSelection = lazy( () => import('./Pages/Forms/FuelManagementModule/Tri
 const StockAtWorkshop = lazy( () => import('./Pages/Forms/FuelManagementModule/StockAtWorkshop/StockAtWorkshop') );
 const StockAtFuelingStation = lazy( () => import('./Pages/Forms/FuelManagementModule/StockAtFuelingStation/StockAtFuelingStation') );
 
+
+const BiometricRegistration = lazy( () => import('./Pages/BiometricRegistration/BiometricRegistration') );
+
 const Dashboard = () => {
     
     const AccessControls = useSelector( ( state ) => state.EmpAuth.EmployeeData );
@@ -386,6 +389,8 @@ const Dashboard = () => {
                             :
                             <div className='popUps'>
                                 <ChatBotNotification  />
+                                <Route exact path='/biometric/registration' render={ () => <Sus content={ <BiometricRegistration /> }/> } />
+
                                 <Route exact path='/dashboard' render={ () => <Sus content={ <Home /> } /> } />
 
                                 <Route exact path='/chat' render={ () => <Sus content={ <Chat /> } /> } />
