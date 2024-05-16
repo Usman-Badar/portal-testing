@@ -232,7 +232,7 @@ function PurchaseOrder() {
                     PaymentStatus={PaymentStatus}
 
                     releasePayment={(po_id, requested_by, setReleasePaymentConfirmation) => releasePayment(po_id, requested_by, setReleasePaymentConfirmation, setRequestDetails, setSpecifications, setAttachedBills, setAdditionalRows, setPRequestDetails, setPRSpecifications, setBills, setPR, setPRCode, setSPRSpecifications)}
-                    clearSelectedAC={(po_id, selectedAC) => clearSelectedAC(po_id, selectedAC, setRequestDetails, setSpecifications, setAttachedBills, setAdditionalRows, setPRequestDetails, setPRSpecifications, setBills, setPR, setPRCode, setSPRSpecifications)}
+                    clearSelectedAC={(po_id, selectedAC, setConfirmToClear) => clearSelectedAC(po_id, selectedAC, setConfirmToClear, setRequestDetails, setSpecifications, setAttachedBills, setAdditionalRows, setPRequestDetails, setPRSpecifications, setBills, setPR, setPRCode, setSPRSpecifications)}
                     updatePaymentStatus={ (e, po_id, requested_by, setPaymentStatusModel) => updatePaymentStatus(e, po_id, requested_by, setPaymentStatusModel, AdvanceCash, setRequestDetails, setSpecifications, setAttachedBills, setAdditionalRows, setPRequestDetails, setPRSpecifications, setBills, setPR, setPRCode, setSPRSpecifications) }
                     setAttachedAC={setAttachedAC}
                     setUnAttachedAC={setUnAttachedAC}

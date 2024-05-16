@@ -947,7 +947,7 @@ export const releasePayment = ( po_id, requested_by, setReleasePaymentConfirmati
 
 }
 
-export const clearSelectedAC = ( po_id, selectedAC, setRequestDetails, setSpecifications, setAttachedBills, setAdditionalRows, setPRequestDetails, setPRSpecifications, setBills, setPR, setPRCode, setSPRSpecifications ) => {
+export const clearSelectedAC = ( po_id, selectedAC, setConfirmToClear, setRequestDetails, setSpecifications, setAttachedBills, setAdditionalRows, setPRequestDetails, setPRSpecifications, setBills, setPR, setPRCode, setSPRSpecifications ) => {
 
     const list = JSON.stringify(selectedAC);
     $('#clearBtn').prop('disabled', true);
@@ -965,6 +965,7 @@ export const clearSelectedAC = ( po_id, selectedAC, setRequestDetails, setSpecif
             $('#clearBtn').prop('disabled', false);
             if ( res.data === 'success' )
             {
+                setConfirmToClear(false);
                 openRequestDetails(po_id, false, setRequestDetails, setSpecifications, setAttachedBills, setAdditionalRows, setPRequestDetails, setPRSpecifications, setBills, setPR, setPRCode, setSPRSpecifications);
                 JSAlert.alert("Advance Cash has been cleared");
             }

@@ -1179,6 +1179,7 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
     const [ ApprovalConfirm, setApprovalConfirm ] = useState(false);
     const [ EditConfirm, setEditConfirm ] = useState(false);
     const [ releasePaymentConfirmation, setReleasePaymentConfirmation ] = useState(false);
+    const [ confirmToClear, setConfirmToClear ] = useState(false);
     const [ EditContent, setEditContent ] = useState(<></>);
     // const [ BackgroundPosition, setBackgroundPosition ] = useState("0% 0%");
 
@@ -1285,6 +1286,15 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
                             </div>
                         </>
                     } />
+                    <Modal show={ confirmToClear } Hide={ () => setConfirmToClear(false) } content={
+                        <>
+                            <div>
+                                <h6 className="mb-0">Confirm to clear the selected advance cash requests?</h6>
+                                <hr />
+                                <button id="clearBtn" onClick={() => clearSelectedAC(po_id, selectedAC, setConfirmToClear)} className='btn d-block ml-auto submit'>Confirm</button>
+                            </div>
+                        </>
+                    } />
                     <Modal show={ CancelConfirm } Hide={ () => setCancelConfirm(false) } content={ <CancelConfirmation po_id={ po_id } CancelRequisition={ CancelRequisition } /> } />
                     <Modal show={ ApprovalConfirm } Hide={ () => setApprovalConfirm(false) } content={ <ApprovalConfirmation SubOrdinands={ SubOrdinands } loadSubOrdinands={ loadSubOrdinands } requested_by={ RequestDetails.requested_by } po_id={ po_id } ApproveRequisition={ ApproveRequisition } /> } />
                     <Modal show={ RejectConfirm } Hide={ () => setRejectConfirm(false) } content={ <RejectConfirmation RequestDetails={ RequestDetails } Specifications={ Specifications } po_id={ po_id } RejectRequisition={ RejectRequisition } /> } />
@@ -1303,7 +1313,7 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
                                 :
                                 AdvanceCash.length > 0 && selectedAC.length === AdvanceCash.length && Cashier && RequestDetails?.payment_mode === 'Cash' && !RequestDetails?.cash_payment_dt
                                 ?
-                                <button id="clearBtn" className="btn submit ml-2" onClick={() => clearSelectedAC(po_id, selectedAC)}>Clear</button>
+                                <button id="clearBtn" className="btn submit ml-2" onClick={() => setConfirmToClear(true)}>Clear</button>
                                 :null
                             }
                             {
@@ -1347,6 +1357,14 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
                             }
                         </div>
                     </div>
+                    {
+                        !RequestDetails?.cash_payment_dt && 
+                        Cashier && 
+                        selectedAC.length !== AdvanceCash.length && 
+                        (
+                            <p className='alert alert-warning'>All Advance Cash are required to be selected</p>
+                        )
+                    }
                     {
                         View === 'application'
                         ?
@@ -1737,11 +1755,6 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
                                     <h6 className="text-center">No Advance Cash Attached</h6>
                                     :
                                     <>
-                                        {
-                                            !RequestDetails?.cash_payment_dt && Cashier && selectedAC.length !== AdvanceCash.length && (
-                                                <h6 className='alert alert-warning'>All Advance Cash are required to be selected</h6>
-                                            )
-                                        }
                                         <div className="grid_container">
                                             {
                                                 AdvanceCash.map((val, i) => {
@@ -1750,17 +1763,17 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
                                                     return (
                                                         <div key={i} className='border' style={{maxHeight: '500px', overflow: 'auto'}}>
                                                             <div className='amountdiv'>
-                                                                <h1 className='mb-0'>
+                                                                <h3 className='mb-0'>
                                                                     <small className='text-success' style={{ fontSize: 16 }}>Rs</small><span className='font-weight-bold'>{val.amount.toLocaleString('en')}</span>/-
-                                                                </h1>
-                                                                <h6 className='text-capitalize mb-0'>{val.amount_in_words}</h6>
+                                                                </h3>
+                                                                <p className='text-capitalize mb-0'>{val.amount_in_words}</p>
                                                             </div>
                                                             <table className='table'>
                                                                 <tbody>
 
                                                                     <tr>
                                                                         <td className='border-top-0'>
-                                                                            <h6 className='font-weight-bold mb-0'>Advance Cash #</h6>
+                                                                            <p className='font-weight-bold mb-0'>Advance Cash #</p>
                                                                         </td>
                                                                         <td className='border-top-0'>
                                                                             {
@@ -1778,7 +1791,7 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
 
                                                                     <tr>
                                                                         <td>
-                                                                            <h6 className='font-weight-bold'>Request Status</h6>
+                                                                            <p className='font-weight-bold'>Request Status</p>
                                                                         </td>
                                                                         <td>
                                                                             <div className='d-flex align-items-center'>
@@ -1838,7 +1851,7 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
 
                                                                     <tr>
                                                                         <td >
-                                                                            <h6 className='font-weight-bold'>Requested By</h6>
+                                                                            <p className='font-weight-bold'>Requested By</p>
                                                                         </td>
                                                                         <td>
                                                                             <p className='mb-0 font-weight-bold'>
@@ -1847,13 +1860,22 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
                                                                             <p>{val.designation_name}</p>
                                                                         </td>
                                                                     </tr>
+                                                                    
+                                                                    <tr>
+                                                                        <td >
+                                                                            <p className='font-weight-bold'>Requested Date</p>
+                                                                        </td>
+                                                                        <td>
+                                                                            <p className='mb-1'>{new Date(val.submit_date).toDateString()}</p>
+                                                                        </td>
+                                                                    </tr>
 
                                                                     {
                                                                         val.shp_line_adv === 'Y'
                                                                             ?
                                                                             <tr>
                                                                                 <td>
-                                                                                    <h6 className='font-weight-bold'>Line</h6>
+                                                                                    <p className='font-weight-bold'>Line</p>
                                                                                 </td>
                                                                                 <td>
                                                                                     <p className='mb-1'>{val.line}</p>
@@ -1864,7 +1886,7 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
 
                                                                     <tr>
                                                                         <td>
-                                                                            <h6 className='font-weight-bold'>Reason</h6>
+                                                                            <p className='font-weight-bold'>Reason</p>
                                                                         </td>
                                                                         <td>
                                                                             <pre style={{ fontFamily: 'Poppins', fontSize: '13px', width: '100%', whiteSpace: 'pre-wrap' }}>{val.reason}</pre>
@@ -1873,8 +1895,8 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
 
                                                                     <tr>
                                                                         <td>
-                                                                            <h6 className='font-weight-bold'>Company</h6>
-                                                                            <h6 className='font-weight-bold'>Cash Collection Location</h6>
+                                                                            <p className='font-weight-bold mb-1'>Company</p>
+                                                                            <p className='font-weight-bold mb-1'>Cash Collection Location</p>
                                                                         </td>
                                                                         <td>
                                                                             <p className='mb-1'>{val.company_name}</p>
@@ -1887,7 +1909,7 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
                                                                             ?
                                                                             <tr>
                                                                                 <td>
-                                                                                    <h6 className='font-weight-bold'>Charges</h6>
+                                                                                    <p className='font-weight-bold'>Charges</p>
                                                                                 </td>
 
                                                                                 <td>
@@ -1990,7 +2012,7 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
                                                                     }
                                                                     <tr>
                                                                         <td>
-                                                                            <h6 className='font-weight-bold'>{val.status === 'rejected' && val.approved_by === null ? "Rejected" : "Verified"} By</h6>
+                                                                            <p className='font-weight-bold'>{val.status === 'rejected' && val.approved_by === null ? "Rejected" : "Verified"} By</p>
                                                                         </td>
                                                                         <td>
                                                                             <p className='mb-0 font-weight-bold'>
@@ -2005,7 +2027,7 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
                                                                             ?
                                                                             <tr>
                                                                                 <td>
-                                                                                    {val.verified_date ? <h6 className='font-weight-bold mt-2'>{val.status === 'rejected' && val.approved_by === null ? "Rejection" : "Verification"} Remarks</h6> : null}
+                                                                                    {val.verified_date ? <p className='font-weight-bold'>{val.status === 'rejected' && val.approved_by === null ? "Rejection" : "Verification"} Remarks</p> : null}
                                                                                 </td>
                                                                                 <td>
                                                                                     {val.verified_date ? <p>{val.verification_remarks}</p> : null}
@@ -2020,7 +2042,7 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
                                                                             <>
                                                                                 <tr>
                                                                                     <td>
-                                                                                        <h6 className='font-weight-bold'>Rejected By</h6>
+                                                                                        <p className='font-weight-bold'>Rejected By</p>
                                                                                     </td>
                                                                                     <td>
                                                                                         <span>
@@ -2035,9 +2057,9 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
 
                                                                                 <tr>
                                                                                     <td>
-                                                                                        <h6 className='font-weight-bold'>
+                                                                                        <p className='font-weight-bold'>
                                                                                             Rejection Remarks
-                                                                                        </h6>
+                                                                                        </p>
                                                                                     </td>
                                                                                     <td>
                                                                                         <pre style={{ fontFamily: 'Poppins', width: '100%', whiteSpace: 'pre-wrap' }}>{val.hod_remarks}</pre>
@@ -2050,7 +2072,7 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
                                                                                 <>
                                                                                     <tr>
                                                                                         <td>
-                                                                                            <h6 className='font-weight-bold'>Approved By</h6>
+                                                                                            <p className='font-weight-bold'>Approved By</p>
                                                                                         </td>
                                                                                         <td>
                                                                                             <span>
@@ -2065,9 +2087,9 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
 
                                                                                     <tr>
                                                                                         <td>
-                                                                                            <h6 className='font-weight-bold'>
+                                                                                            <p className='font-weight-bold'>
                                                                                                 Approval Remarks
-                                                                                            </h6>
+                                                                                            </p>
                                                                                         </td>
                                                                                         <td>
                                                                                             <pre style={{ fontFamily: 'Poppins', width: '100%', whiteSpace: 'pre-wrap' }}>{val.hod_remarks}</pre>
@@ -2085,7 +2107,7 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
                                                                             <>
                                                                                 <tr>
                                                                                     <td>
-                                                                                        <h6 className='font-weight-bold'>Cancelled By</h6>
+                                                                                        <p className='font-weight-bold'>Cancelled By</p>
                                                                                     </td>
                                                                                     <td>
                                                                                         <p className='mb-0 font-weight-bold'>
@@ -2096,7 +2118,7 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
                                                                                 </tr>
                                                                                 <tr>
                                                                                     <td>
-                                                                                        <h6 className='font-weight-bold'>Cancellation Remarks</h6>
+                                                                                        <p className='font-weight-bold'>Cancellation Remarks</p>
                                                                                     </td>
                                                                                     <td>
                                                                                         <p className='mb-0'>
@@ -2113,7 +2135,7 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
                                                                             ?
                                                                             <tr>
                                                                                 <td>
-                                                                                    <h6 className='font-weight-bold'>Cashier</h6>
+                                                                                    <p className='font-weight-bold'>Cashier</p>
                                                                                 </td>
                                                                                 <td>
                                                                                     {
@@ -2135,7 +2157,7 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
 
                                                                     <tr>
                                                                         <td>
-                                                                            <h6 className='font-weight-bold'>Collected By</h6>
+                                                                            <p className='font-weight-bold'>Collected By</p>
                                                                         </td>
                                                                         <td>
                                                                             <p>
@@ -2166,7 +2188,7 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
                                                                             <>
                                                                                 <tr>
                                                                                     <td>
-                                                                                        <h6 className='font-weight-bold mb-0'>Amount Consumed</h6>
+                                                                                        <p className='font-weight-bold mb-0'>Amount Consumed</p>
                                                                                     </td>
                                                                                     <td>
                                                                                         <p className='mb-1'>{val.after_amount ? ("PKR " + val.after_amount.toLocaleString('en')) : <span className='text-warning'>Amount Not Cleared</span>}</p>
@@ -2184,7 +2206,7 @@ const Detailing = ( { releasePayment, clearSelectedAC, Cashier, updatePaymentSta
 
                                                                                 <tr>
                                                                                     <td>
-                                                                                        <h6 className='font-weight-bold mb-0 mt-2'>Due Since</h6>
+                                                                                        <p className='font-weight-bold mb-0'>Due Since</p>
                                                                                     </td>
                                                                                     <td>
                                                                                         <span className='text-danger'>
@@ -3467,7 +3489,7 @@ const PORequests = ( { PaymentStatus, setPaymentStatus, PaymentMode, setPaymentM
                                                         {
                                                             val.payment_mode === 'Cash'
                                                             ?
-                                                            <span className={!val.cash_payment_dt ? "text-warning" : "text-secondary"}>{!val.cash_payment_dt ? "Pending" : "Paid"}</span>
+                                                            <span className={!val.cash_payment_dt ? "text-warning" : "text-success"}>{!val.cash_payment_dt ? "Pending" : "Paid"}</span>
                                                             :
                                                             val.payment_status === 'Paid'
                                                             ?
@@ -3480,6 +3502,10 @@ const PORequests = ( { PaymentStatus, setPaymentStatus, PaymentMode, setPaymentM
                                                             val.payment_status === 'In progress'
                                                             ?
                                                             <span className='text-secondary'>In Progress</span>
+                                                            :
+                                                            val.status === 'rejected' || val.status === 'unapproved'
+                                                            ?
+                                                            <></>
                                                             :
                                                             <span className='text-danger'>Pending</span>
                                                         }<br />
