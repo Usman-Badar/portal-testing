@@ -274,7 +274,7 @@ const StockAtFuelingStation = () => {
                         <tbody>
                             {
                                 Requests.filter(val => val.inserted_at.includes(DateFilter)).map((val, i) => {
-                                    const { last_issued_at, trip_issued_by, equipment_company, equipment_location, verified_at, submitted_at, equipment_submit_person, equipment_verify_person, equipment_type, equipment_number, requested_at, approved_at, station_submit_person, station_verify_person, station_company, station_location, in_out, request_id, quantity_in_ltr, inserted_at, fuel_requested_at, other_than_trip, trip_based } = val;
+                                    const { equipments_number, equipments_type, last_issued_at, trip_issued_by, equipment_company, equipment_location, verified_at, submitted_at, equipment_submit_person, equipment_verify_person, equipment_type, equipment_number, requested_at, approved_at, station_submit_person, station_verify_person, station_company, station_location, in_out, request_id, quantity_in_ltr, inserted_at, fuel_requested_at, other_than_trip, trip_based } = val;
                                     const d = new Date(inserted_at);
                                     const label = other_than_trip === 0 && trip_based === 0 ? 'Requested At' :
                                         other_than_trip === 1 ? 'Issued To Equipment' :
@@ -291,9 +291,9 @@ const StockAtFuelingStation = () => {
                                                 in_out === 'OUT'
                                                 ?
                                                 <td className='text-uppercase'>
-                                                    {equipment_type}<br />
+                                                    {other_than_trip === 1 ? equipment_type : equipments_type}<br />
                                                     <div className="badge bg-light border">
-                                                        <b>{equipment_number}</b>
+                                                        <b>{other_than_trip === 1 ? equipment_number : equipments_number}</b>
                                                     </div>
                                                 </td>
                                                 :

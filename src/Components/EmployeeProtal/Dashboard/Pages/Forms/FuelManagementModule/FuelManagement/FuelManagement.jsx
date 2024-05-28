@@ -181,13 +181,13 @@ function FuelManagement() {
                 <div className="page-content">
                     <h3 className="heading">
                         Setup Company Equipments
-                        <sub>Comapany Equipment Setup Form</sub>
+                        <sub>Company Equipment Setup Form</sub>
                     </h3>
                     <hr />
                     {
                         !JSON.parse(AccessControls.access).includes(81) && (
                             <div className="alert alert-warning">
-                                <b>You don't have access to add new company equipements.</b>
+                                <b>You don't have access to add new company equipments.</b>
                             </div>
                         )
                     }
