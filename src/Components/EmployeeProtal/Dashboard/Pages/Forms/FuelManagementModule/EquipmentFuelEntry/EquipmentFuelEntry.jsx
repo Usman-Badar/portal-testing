@@ -11,6 +11,8 @@ import moment from 'moment';
 
 function EquipmentFuelEntry() {
     const AccessControls = useSelector( ( state ) => state.EmpAuth.EmployeeData );
+    const companyRef = useRef();
+    const locationRef = useRef();
     const typeRef = useRef();
     const numberRef = useRef();
     const meterRef = useRef();
@@ -29,6 +31,8 @@ function EquipmentFuelEntry() {
     const [tripBased, setTripBased] = useState(0);
     const [TripEntries, setTripEntries] = useState([]);
     const [SelectedTrips, setSelectedTrips] = useState([]);
+    const [Locations, setLocations] = useState([]);
+    const [Companies, setCompanies] = useState([]);
 
     useEffect(
         () => {
@@ -48,11 +52,32 @@ function EquipmentFuelEntry() {
             }
         }, []
     );
+
+    const GetCompanies = (isActive) => {
+        axios.get('/getallcompanies')
+        .then(res => {
+            if (!isActive) return;
+            setCompanies(res.data);
+        }).catch(err => console.log(err));
+    }
+    const GetLocations = (value) => {
+        setLocations([]);
+        axios.post('/getcompanylocations', {company_code: value}).then(
+            res => {
+                setLocations(res.data);
+            }
+        ).catch(
+            err => {
+                console.log(err);
+            }
+        )
+    }
     const GetEquipments = (isActive) => {
         axios.get('/fuel-managent/equipment-types')
         .then(res => {
             if (!isActive) return;
             setEquipments(res.data);
+            GetCompanies(isActive);
         }).catch(err => console.log(err));
     }
     const GetEquipmentNumbers = (value) => {
@@ -100,6 +125,13 @@ function EquipmentFuelEntry() {
         }else if (numberRef.current.value.trim().length === 0) {
             JSAlert.alert('Equipment Number is required!!', 'Validation Error', JSAlert.Icons.Warning).dismissIn(4000);
             return false;
+        }if (companyRef.current.value.trim().length === 0) {
+            JSAlert.alert('Company is required!!', 'Validation Error', JSAlert.Icons.Warning).dismissIn(4000);
+            return false;
+        }else
+        if (locationRef.current.value.trim().length === 0) {
+            JSAlert.alert('Location is required!!', 'Validation Error', JSAlert.Icons.Warning).dismissIn(4000);
+            return false;
         }else if (meterRef.current.value.trim().length === 0) {
             JSAlert.alert('Hrs. meter reading is required!!', 'Validation Error', JSAlert.Icons.Warning).dismissIn(4000);
             return false;
@@ -122,6 +154,8 @@ function EquipmentFuelEntry() {
         axios.post(
             '/fuel-managent/fuel-issue-for-equipemnt/new',
             {
+                company: companyRef.current.value,
+                location: locationRef.current.value,
                 type: typeRef.current.value,
                 number: numberRef.current.value,
                 meter: meterRef.current.value,
@@ -226,6 +260,54 @@ function EquipmentFuelEntry() {
                                                         value={val.id}
                                                     // selected={details && details.location_code == val.location_code ? true : false}
                                                     > {val.equipment_number}</option>
+                                                );
+
+                                            }
+                                        )
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div className="d-flex mb-2" style={{ gap: '20px' }}>
+                            <div className='w-50'>
+                                <label className='mb-0'>
+                                    <b>Company</b>
+                                </label>
+                                <select className="form-control" name='company' ref={companyRef} onChange={(e) => GetLocations(e.target.value)} required>
+                                    <option value=''>Select the option</option>
+                                    {
+                                        Companies.map(
+                                            val => {
+
+                                                return (
+                                                    <option
+                                                        key={val.company_code}
+                                                        value={val.company_code}
+                                                    // selected={details && details.company_code == val.company_code ? true : false}
+                                                    > {val.company_name} </option>
+                                                )
+
+                                            }
+                                        )
+                                    }
+                                </select>
+                            </div>
+                            <div className='w-50'>
+                                <label className='mb-0'>
+                                    <b>Location</b>
+                                </label>
+                                <select className="form-control" name='location' ref={locationRef} required>
+                                    <option value=''>Select the option</option>
+                                    {
+                                        Locations.map(
+                                            val => {
+
+                                                return (
+                                                    <option
+                                                        key={val.location_code}
+                                                        value={val.location_code}
+                                                    // selected={details && details.location_code == val.location_code ? true : false}
+                                                    > {val.location_name} </option>
                                                 );
 
                                             }
@@ -484,7 +566,7 @@ const ReceivalDetails = ({ AccessControls, Details, setDetails, loadRequests }) 
             return;
         }
         $('#confirm').prop('disabled', true);
-        axios.post('/fuel-managent/fuel-issue-for-equipemnt/issue', {id: Details?.id, fuel_issued: Details.fuel_issued, emp_id: Details.submitted_by, issued_by: localStorage.getItem('EmpID'), issued_date: Details.issued_date, equipment_number: Details.equipment_number}).then((res) => {
+        axios.post('/fuel-managent/fuel-issue-for-equipemnt/issue', {company: Details?.company_code, location: Details?.location_code, id: Details?.id, fuel_issued: Details.fuel_issued, emp_id: Details.submitted_by, issued_by: localStorage.getItem('EmpID'), issued_date: Details.issued_date, equipment_number: Details.equipment_number}).then((res) => {
             if (res.data === 'limit exceed') {
                 $('#confirm').prop('disabled', false);
                 JSAlert.alert('Insufficient quantity at the station!', 'Warning', JSAlert.Icons.Warning).dismissIn(4000);
@@ -519,7 +601,7 @@ const ReceivalDetails = ({ AccessControls, Details, setDetails, loadRequests }) 
             return;
         }
         $('#confirm').prop('disabled', true);
-        axios.post('/fuel-managent/fuel-issue-for-equipemnt/approve', {id: Details?.id, fuel_issued: Details.fuel_issued, emp_id: Details.submitted_by, verifier: localStorage.getItem('EmpID'), issued_date: Details.issued_date, equipment_number: Details.equipment_number}).then((res) => {
+        axios.post('/fuel-managent/fuel-issue-for-equipemnt/approve', {company: Details?.company_code, location: Details?.location_code, id: Details?.id, fuel_issued: Details.fuel_issued, emp_id: Details.submitted_by, verifier: localStorage.getItem('EmpID'), issued_date: Details.issued_date, equipment_number: Details.equipment_number}).then((res) => {
             if (res.data === 'limit exceed') {
                 $('#confirm').prop('disabled', false);
                 JSAlert.alert('Insufficient quantity at the station!', 'Warning', JSAlert.Icons.Warning).dismissIn(4000);

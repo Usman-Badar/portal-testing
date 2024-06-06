@@ -17,6 +17,8 @@ const TripSelection = () => {
     const btn3Ref = useRef();
     const formRef = useRef();
     const fieldsetRef = useRef();
+    const companyRef = useRef();
+    const locationRef = useRef();
     const [AdditionalFuel, setAdditionalFuel] = useState(0);
     const [New, setNew] = useState(false);
     const [Equipments, setEquipments] = useState([]);
@@ -27,6 +29,8 @@ const TripSelection = () => {
     const [Requests, setRequests] = useState();
     const [Details, setDetails] = useState();
     const [selectedRoutes, setselectedRoutes] = useState([]);
+    const [Locations, setLocations] = useState([]);
+    const [Companies, setCompanies] = useState([]);
 
     useEffect(
         () => {
@@ -39,11 +43,31 @@ const TripSelection = () => {
         }, []
     );
 
+    const GetCompanies = (isActive) => {
+        axios.get('/getallcompanies')
+        .then(res => {
+            if (!isActive) return;
+            setCompanies(res.data);
+        }).catch(err => console.log(err));
+    }
+    const GetLocations = (value) => {
+        setLocations([]);
+        axios.post('/getcompanylocations', {company_code: value}).then(
+            res => {
+                setLocations(res.data);
+            }
+        ).catch(
+            err => {
+                console.log(err);
+            }
+        )
+    }
     const GetEquipments = (isActive) => {
         axios.get('/fuel-managent/equipment-types')
         .then(res => {
             if (!isActive) return;
             setEquipments(res.data);
+            GetCompanies(isActive);
         }).catch(err => console.log(err));
     }
     const GetEquipmentNumbers = (value) => {
@@ -107,6 +131,8 @@ const TripSelection = () => {
         axios.post(
             '/fuel-managent/issue-fuel-for-trips',
             {
+                company: companyRef.current.value,
+                location: locationRef.current.value,
                 type: typeRef.current.value,
                 number: numberRef.current.value,
                 trips: JSON.stringify(SelectedTrips),
@@ -196,6 +222,8 @@ const TripSelection = () => {
                 id: Details.id,
                 additionalFuel: Details.additional_fuel > 0 ? 1 : 0,
                 additionalFuelIssued: Details.additional_fuel_issued,
+                company: Details.company_code,
+                location: Details.location_code,
                 routes: JSON.stringify(selectedRoutes),
                 allIssued: Trips.filter(val => val.status !== 'issued').length === selectedRoutes.length ? 1 : 0,
                 emp_id: localStorage.getItem('EmpID'),
@@ -238,6 +266,8 @@ const TripSelection = () => {
             {
                 id: Details.id,
                 fuel: Details.additional_fuel,
+                company: Details.company_code,
+                location: Details.location_code,
                 emp_id: localStorage.getItem('EmpID'),
                 trip_date: Details.trip_date,
                 number: Details.equipment_number,
@@ -315,6 +345,50 @@ const TripSelection = () => {
                                             <select onChange={(e) => GetTripEntries(e.target.value)} className="form-control" ref={numberRef}>
                                                 <option value=''>Select the option</option>
                                                 {EquipmentNumbers.map(val => <option key={val.id} value={val.id}> {val.equipment_number}</option>)}
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td className='border-top-0'>
+                                            <label className='font-weight-bold mb-0'>Company</label>
+                                            <select className="form-control" name='company' ref={companyRef} onChange={(e) => GetLocations(e.target.value)} required>
+                                                <option value=''>Select the option</option>
+                                                {
+                                                    Companies.map(
+                                                        val => {
+
+                                                            return (
+                                                                <option
+                                                                    key={val.company_code}
+                                                                    value={val.company_code}
+                                                                // selected={details && details.company_code == val.company_code ? true : false}
+                                                                > {val.company_name} </option>
+                                                            )
+
+                                                        }
+                                                    )
+                                                }
+                                            </select>
+                                        </td>
+                                        <td className='border-top-0'>
+                                            <label className='font-weight-bold mb-0'>Location</label>
+                                            <select className="form-control" name='location' ref={locationRef} required>
+                                                <option value=''>Select the option</option>
+                                                {
+                                                    Locations.map(
+                                                        val => {
+
+                                                            return (
+                                                                <option
+                                                                    key={val.location_code}
+                                                                    value={val.location_code}
+                                                                // selected={details && details.location_code == val.location_code ? true : false}
+                                                                > {val.location_name} </option>
+                                                            );
+
+                                                        }
+                                                    )
+                                                }
                                             </select>
                                         </td>
                                     </tr>

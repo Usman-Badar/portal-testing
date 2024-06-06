@@ -513,7 +513,7 @@ const ReceivalDetails = ({ AccessControls, Details, setDetails, loadRequests }) 
             return false;
         }
         $('#confirm').prop('disabled', true);
-        axios.post('/fuel-managent/fuel-receival-for-workshop/approve', {id: Details?.id, fuel_received: Details.fuel_received, emp_id: Details.submitted_by, verifier: localStorage.getItem('EmpID'), received_at: Details.receival_date}).then((res) => {
+        axios.post('/fuel-managent/fuel-receival-for-workshop/approve', {company: Details?.company_code, location: Details?.location_code, id: Details?.id, fuel_received: Details.fuel_received, emp_id: Details.submitted_by, verifier: localStorage.getItem('EmpID'), received_at: Details.receival_date}).then((res) => {
             console.log(res)
             setDetails();
             loadRequests(true);

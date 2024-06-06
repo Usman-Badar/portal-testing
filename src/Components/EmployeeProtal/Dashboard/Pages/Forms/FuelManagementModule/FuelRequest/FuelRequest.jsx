@@ -21,6 +21,7 @@ function FuelRequest() {
     const [New, setNew] = useState(false);
     const [Companies, setCompanies] = useState([]);
     const [AllLocations, setAllLocations] = useState([]);
+    const [Locations, setLocations] = useState([]);
     const [ ShowFilters, setShowFilters ] = useState(false);
     const [ FilterCompany, setFilterCompany ] = useState('');
     const [ FilterLocation, setFilterLocation ] = useState('');
@@ -50,10 +51,24 @@ function FuelRequest() {
             GetAllLocations();
         }).catch(err => console.log(err));
     }
+    const GetLocations = (value) => {
+        setLocations([]);
+        axios.post('/getcompanylocations', {company_code: value}).then(
+            res => {
+                setLocations(res.data);
+            }
+        ).catch(
+            err => {
+                console.log(err);
+            }
+        )
+    }
     const GetAllLocations = () => axios.get('/getalllocations').then(res => setAllLocations(res.data)).catch(err => console.log(err));
     const onRequest = (e) => {
         e.preventDefault();
         const fuelRequired = e.target['fuelRequired'].value;
+        const company = e.target['company'].value;
+        const location = e.target['location'].value;
         if (typeof(parseInt(fuelRequired)) !== 'number') {
             JSAlert.alert('Invalid fuel quantity!!', 'Validation Error', JSAlert.Icons.Warning).dismissIn(4000);
             return false;
@@ -62,12 +77,22 @@ function FuelRequest() {
             JSAlert.alert('Required fuel must be greater than 0!!', 'Validation Error', JSAlert.Icons.Warning).dismissIn(4000);
             return false;
         }
+        if (company === '') {
+            JSAlert.alert('Company is Required', 'Validation Error', JSAlert.Icons.Warning).dismissIn(4000);
+            return false;
+        }
+        if (location === '') {
+            JSAlert.alert('Company is Required', 'Validation Error', JSAlert.Icons.Warning).dismissIn(4000);
+            return false;
+        }
         fieldsetRef.current.disabled = true;
         btnRef.current.innerHTML = 'Please Wait...';
         axios.post(
             '/fuel-managent/fuel-request-for-station/new',
             {
                 fuelRequired: fuelRequired,
+                company: company,
+                location: location,
                 requested_by: localStorage.getItem('EmpID')
             }
         ).then(() => {
@@ -123,6 +148,54 @@ function FuelRequest() {
                     <hr />
                     <form ref={formRef} onSubmit={onRequest}>
                         <fieldset ref={fieldsetRef}>
+                            <div className="d-flex mb-2" style={{ gap: '20px' }}>
+                                <div className='w-50'>
+                                    <label className='mb-0'>
+                                        <b>Company</b>
+                                    </label>
+                                    <select className="form-control" name='company' onChange={(e) => GetLocations(e.target.value)} required>
+                                        <option value=''>Select the option</option>
+                                        {
+                                            Companies.map(
+                                                val => {
+
+                                                    return (
+                                                        <option
+                                                            key={val.company_code}
+                                                            value={val.company_code}
+                                                        // selected={details && details.company_code == val.company_code ? true : false}
+                                                        > {val.company_name} </option>
+                                                    )
+
+                                                }
+                                            )
+                                        }
+                                    </select>
+                                </div>
+                                <div className='w-50'>
+                                    <label className='mb-0'>
+                                        <b>Location</b>
+                                    </label>
+                                    <select className="form-control" name='location' required>
+                                        <option value=''>Select the option</option>
+                                        {
+                                            Locations.map(
+                                                val => {
+
+                                                    return (
+                                                        <option
+                                                            key={val.location_code}
+                                                            value={val.location_code}
+                                                        // selected={details && details.location_code == val.location_code ? true : false}
+                                                        > {val.location_name} </option>
+                                                    );
+
+                                                }
+                                            )
+                                        }
+                                    </select>
+                                </div>
+                            </div>
                             <label className='mb-0'>
                                 <b>Fuel (in Ltr.)</b>
                             </label>
@@ -372,7 +445,7 @@ const ReceivalDetails = ({ AccessControls, Details, setDetails, loadRequests }) 
             return false;
         }
         $('#confirm').prop('disabled', true);
-        axios.post('/fuel-managent/fuel-request-for-station/approve', {id: Details?.id, quantity: Details?.fuel_required, emp_id: Details?.requested_by, approved_by: localStorage.getItem('EmpID'), requested_at: Details?.requested_at}).then((res) => {
+        axios.post('/fuel-managent/fuel-request-for-station/approve', {company: Details?.company_code, location: Details?.location_code, id: Details?.id, quantity: Details?.fuel_required, emp_id: Details?.requested_by, approved_by: localStorage.getItem('EmpID'), requested_at: Details?.requested_at}).then((res) => {
             if (res.data === 'limit exceed') {
                 $('#confirm').prop('disabled', false);
                 JSAlert.alert('Insufficient quantity at workshop!', 'Warning', JSAlert.Icons.Warning).dismissIn(4000);

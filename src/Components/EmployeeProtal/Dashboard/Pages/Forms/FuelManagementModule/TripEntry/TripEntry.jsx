@@ -16,6 +16,8 @@ function TripEntry() {
     const toRef = useRef();
     const dateRef = useRef();
     const fuelRef = useRef();
+    const companyRef = useRef();
+    const locationRef = useRef();
     const btnRef = useRef();
     const formRef = useRef();
     const fieldsetRef = useRef();
@@ -24,6 +26,8 @@ function TripEntry() {
     const [Requests, setRequests] = useState();
     const [New, setNew] = useState(false);
     const [Details, setDetails] = useState();
+    const [Locations, setLocations] = useState([]);
+    const [Companies, setCompanies] = useState([]);
 
     useEffect(
         () => {
@@ -43,11 +47,31 @@ function TripEntry() {
             }
         }, []
     );
+    const GetCompanies = (isActive) => {
+        axios.get('/getallcompanies')
+        .then(res => {
+            if (!isActive) return;
+            setCompanies(res.data);
+        }).catch(err => console.log(err));
+    }
+    const GetLocations = (value) => {
+        setLocations([]);
+        axios.post('/getcompanylocations', {company_code: value}).then(
+            res => {
+                setLocations(res.data);
+            }
+        ).catch(
+            err => {
+                console.log(err);
+            }
+        )
+    }
     const GetEquipments = (isActive) => {
         axios.get('/fuel-managent/equipment-types')
         .then(res => {
             if (!isActive) return;
             setEquipments(res.data);
+            GetCompanies(isActive);
         }).catch(err => console.log(err));
     }
     const GetEquipmentNumbers = (value) => {
@@ -100,6 +124,8 @@ function TripEntry() {
             {
                 type: typeRef.current.value,
                 number: numberRef.current.value,
+                company: companyRef.current.value,
+                location: locationRef.current.value,
                 from: fromRef.current.value,
                 to: toRef.current.value,
                 date: dateRef.current.disabled ? '' : dateRef.current.value,
@@ -188,6 +214,54 @@ function TripEntry() {
                                                         value={val.id}
                                                     // selected={details && details.location_code == val.location_code ? true : false}
                                                     > {val.equipment_number}</option>
+                                                );
+
+                                            }
+                                        )
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div className="d-flex mb-2" style={{ gap: '20px' }}>
+                            <div className='w-50'>
+                                <label className='mb-0'>
+                                    <b>Company</b>
+                                </label>
+                                <select className="form-control" name='company' ref={companyRef} onChange={(e) => GetLocations(e.target.value)} required>
+                                    <option value=''>Select the option</option>
+                                    {
+                                        Companies.map(
+                                            val => {
+
+                                                return (
+                                                    <option
+                                                        key={val.company_code}
+                                                        value={val.company_code}
+                                                    // selected={details && details.company_code == val.company_code ? true : false}
+                                                    > {val.company_name} </option>
+                                                )
+
+                                            }
+                                        )
+                                    }
+                                </select>
+                            </div>
+                            <div className='w-50'>
+                                <label className='mb-0'>
+                                    <b>Location</b>
+                                </label>
+                                <select className="form-control" name='location' ref={locationRef} required>
+                                    <option value=''>Select the option</option>
+                                    {
+                                        Locations.map(
+                                            val => {
+
+                                                return (
+                                                    <option
+                                                        key={val.location_code}
+                                                        value={val.location_code}
+                                                    // selected={details && details.location_code == val.location_code ? true : false}
+                                                    > {val.location_name} </option>
                                                 );
 
                                             }
