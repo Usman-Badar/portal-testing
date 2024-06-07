@@ -129,6 +129,8 @@ const StockAtFuelingStation = lazy( () => import('./Pages/Forms/FuelManagementMo
 
 
 const BiometricRegistration = lazy( () => import('./Pages/BiometricRegistration/BiometricRegistration') );
+const WorkshopItemReuestForm = lazy( () => import('./Pages/WorkShop/WorkshopEquipment/WorkShopItemRequestForm') );
+const WorkshopItemReuestList = lazy( () => import('./Pages/WorkShop/WorkshopEquipment/Workshop') );
 
 const Dashboard = () => {
     
@@ -560,6 +562,11 @@ const Dashboard = () => {
                                 <Route exact path='/portal/issues' render={ () => <Sus content={ <PortalIssues /> } /> } />
                                 <Route exact path='/portal/issues/new' render={ () => <Sus content={ <PortalIssues /> } /> } />
                                 <Route exact path='/portal/issues/details/:id' render={ () => <Sus content={ <PortalIssues /> } /> } />
+
+
+                                {/* WORKSHOP */}
+                                <Route exact path='/workshop' render={() => <Sus content={<WorkshopItemReuestList />} />} />
+                                <Route exact path='/workshop_item_request' render={() => <Sus content={<WorkshopItemReuestForm />} />} />
                             </div>
                         }
                     </div>
