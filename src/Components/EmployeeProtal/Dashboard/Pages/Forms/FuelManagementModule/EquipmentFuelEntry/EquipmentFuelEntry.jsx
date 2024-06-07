@@ -490,7 +490,7 @@ const Status = ({ status }) => {
                             ?
                             "bg-success"
                             :
-                            status === 'Replied' || status === 'Closed'
+                            status === 'Confirmed' || status === 'Replied' || status === 'Closed'
                                 ?
                                 "bg-primary"
                                 :
@@ -511,7 +511,7 @@ const Status = ({ status }) => {
                             ?
                             "text-success"
                             :
-                            status === 'Replied' || status === 'Closed'
+                            status === 'Confirmed' || status === 'Replied' || status === 'Closed'
                                 ?
                                 "text-primary"
                                 :
@@ -532,6 +532,7 @@ const Status = ({ status }) => {
 
 const ReceivalDetails = ({ AccessControls, Details, setDetails, loadRequests }) => {
     const [modal, setModal] = useState();
+    const [showConfirmationStock, setShowConfirmationStock] = useState(true);
 
     const reject = () => {
         setModal(
@@ -559,6 +560,35 @@ const ReceivalDetails = ({ AccessControls, Details, setDetails, loadRequests }) 
                 <button id='confirm' className="btn d-block ml-auto submit mt-3" onClick={() => confirmIssueFuel()}>Confirm</button>
             </>
         )
+    }
+    const confirmReceivingFuel = () => {
+        setModal(
+            <>
+                <h6><b>Confirm to receive the required fuel?</b></h6>
+                <hr />
+                <button id='confirm' className="btn d-block ml-auto submit mt-3" onClick={() => confirmReceived()}>Confirm</button>
+            </>
+        )
+    }
+    const confirmReceived = () => {
+        if (!JSON.parse(AccessControls.access).includes(92)) {
+            JSAlert.alert('Access Denied!', 'Warning', JSAlert.Icons.Warning).dismissIn(4000);
+            return;
+        }
+        $('#confirm').prop('disabled', true);
+        axios.post('/fuel-managent/fuel-issue-for-equipemnt/confirm', {company: Details?.company_code, location: Details?.location_code, id: Details?.id, fuel_issued: Details.fuel_issued, submitted_by: Details.submitted_by, verified_by: Details.verified_by, confirmed_by: localStorage.getItem('EmpID'), issued_date: Details.issued_date, equipment_number: Details.equipment_number}).then((res) => {
+            if (res.data === 'limit exceed') {
+                $('#confirm').prop('disabled', false);
+                JSAlert.alert('Insufficient quantity at the station!', 'Warning', JSAlert.Icons.Warning).dismissIn(4000);
+                return;
+            }
+            setDetails();
+            loadRequests(true);
+            JSAlert.alert('Confirmed to get the required fuel!', 'Success', JSAlert.Icons.Success).dismissIn(4000);
+        }).catch(err => {
+            console.log(err);
+            $('#confirm').prop('disabled', false);
+        });
     }
     const confirmIssueFuel = () => {
         if (!JSON.parse(AccessControls.access).includes(92)) {
@@ -642,6 +672,10 @@ const ReceivalDetails = ({ AccessControls, Details, setDetails, loadRequests }) 
                                 Details.status === 'Waiting For Verification' && 
                                 JSON.parse(AccessControls.access).includes(92) 
                                 ?<button className="btn submit" onClick={issueFuel}>Issue Fuel</button>
+                                :
+                                JSON.parse(AccessControls.access).includes(111) &&
+                                (Details.status === "Verified" || Details.status === "issued")
+                                ?<button className="btn submit" onClick={confirmReceivingFuel}>Confirm</button>
                                 :null
                             }
                             <button className="btn light ml-2" onClick={() => setDetails()}>Back</button>
@@ -649,12 +683,32 @@ const ReceivalDetails = ({ AccessControls, Details, setDetails, loadRequests }) 
                     </div>
                     <hr />
                     <div className="w-50 mx-auto" style={{fontFamily: "Roboto-Light"}}>
-                        <div className='main-banner'>
-                            <h1 className='mb-0' style={{fontSize: 35}}>
-                                <span className='font-weight-bold'>{parseFloat(Details.stock_at_station ? Details.stock_at_station : Details.total_stock).toFixed(2)}<small className='text-success' style={{ fontSize: 16 }}>Ltr</small></span>
-                            </h1>
-                            <h6 style={{fontSize: 15}} className='text-capitalize mb-0'>Stored at the fueling station {Details.stock_at_station ? `(dated: ${new Date(Details?.verified_at).toDateString()})` : '(Current)' }</h6>
-                        </div>
+                        {
+                            (JSON.parse(AccessControls.access).includes(0) || JSON.parse(AccessControls.access).includes(111)) &&
+                            Details.status === "Confirmed" && (
+                                <div className="btn-group w-100">
+                                    <button onClick={() => setShowConfirmationStock(true)} className={showConfirmationStock ? "btn border" : "btn"}>Stock At Verification</button>
+                                    <button onClick={() => setShowConfirmationStock(false)} className={showConfirmationStock ? "btn" : "btn border"}>Stock At Confirmation</button>
+                                </div>
+                            )
+                        }
+                        {
+                            showConfirmationStock
+                            ?
+                            <div className='main-banner popUps'>
+                                <h1 className='mb-0' style={{fontSize: 35}}>
+                                    <span className='font-weight-bold'>{parseFloat(Details.stock_at_station ? Details.stock_at_station : Details.total_stock).toFixed(2)}<small className='text-success' style={{ fontSize: 16 }}>Ltr</small></span>
+                                </h1>
+                                <h6 style={{fontSize: 15}} className='text-capitalize mb-0'>Stored at the fueling station {Details.stock_at_station ? `(dated: ${new Date(Details?.verified_at).toDateString()})` : '(Current)' }</h6>
+                            </div>
+                            :
+                            <div className='main-banner popUps'>
+                                <h1 className='mb-0' style={{fontSize: 35}}>
+                                    <span className='font-weight-bold'>{parseFloat(Details.stock_at_station_at_confirmation ? Details.stock_at_station_at_confirmation : Details.total_stock).toFixed(2)}<small className='text-success' style={{ fontSize: 16 }}>Ltr</small></span>
+                                </h1>
+                                <h6 style={{fontSize: 15}} className='text-capitalize mb-0'>Stored at the fueling station {Details.stock_at_station_at_confirmation ? `(dated: ${new Date(Details?.confirmed_at).toDateString()})` : '(Current)' }</h6>
+                            </div>
+                        }
                         <table className="table">
                             <tbody>
                                 <tr>
@@ -754,6 +808,20 @@ const ReceivalDetails = ({ AccessControls, Details, setDetails, loadRequests }) 
                                             </>
                                         }
                                     </>
+                                }
+                                {
+                                    Details.status === "Confirmed" && (
+                                        <>
+                                            <tr>
+                                                <td><h6 className='font-weight-bold'>Confirmed By</h6></td>
+                                                <td>{Details.confirm_person}</td>
+                                            </tr>
+                                            <tr>
+                                                <td><h6 className='font-weight-bold'>Confirmed At</h6></td>
+                                                <td>{new Date(Details.confirmed_at).toDateString()} at {new Date(Details.confirmed_at).toLocaleTimeString().substring(0, 8)}</td>
+                                            </tr>
+                                        </>
+                                    )
                                 }
                             </tbody>
                         </table>
