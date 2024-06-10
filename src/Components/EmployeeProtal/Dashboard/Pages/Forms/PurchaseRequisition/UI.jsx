@@ -18,14 +18,77 @@ import Override from '../../../../../../utils/Override';
 // import { new Date } from '../../../../../../utils/date';
 
 import ReactTooltip from 'react-tooltip';
+import moment from 'moment';
 
-const UI = ({ SiteManagerRejectionConfirm, SiteManagerApprovalConfirm, CompanyViewer, Logs, overrideRequisition, TotalCostCalculation, Status, RequestStatuses, RemovedQuotations, EditConfirmation, AccessDefined, Admin, InvRejectRequisition, setRemovedQuotations, sendForApproveRequisition, Relations, Data, HodList, setStatus, updatePR, loadHods, Employee, PRUpdate, selectEmpInBehalf, setQuotations, setEditConfirmation, onSearchEmployees, Employees, AccessControls, FilterAmount, FilterCompany, SpecKeyword, setFilterAmount, LoadedCompanies, setFilterCompany, setSpecKeyword, ApproveRequisition, AttachedQuotations, Specifications, RequestDetails, history, Requests, addRow, RejectRequisition, CancelRequisition, SubmitConfirmation, ShowQuotationModal, Quotations, Locations, Companies, SubmitPR, loadRequests, openRequestDetails, PRSubmittion, setSubmitConfirmation, onAttachQuotations, onContentInput, onContentEdit, setShowQuotationModal }) => {
+const UI = ({ AttachedWMERequests, AttachedWMEquipmentList, setAttachedWMEquipmentList, WMEquipmentList, setWMEquipmentList, loadWMEquipmentRequests, SiteManagerRejectionConfirm, SiteManagerApprovalConfirm, CompanyViewer, Logs, overrideRequisition, TotalCostCalculation, Status, RequestStatuses, RemovedQuotations, EditConfirmation, AccessDefined, Admin, InvRejectRequisition, setRemovedQuotations, sendForApproveRequisition, Relations, Data, HodList, setStatus, updatePR, loadHods, Employee, PRUpdate, selectEmpInBehalf, setQuotations, setEditConfirmation, onSearchEmployees, Employees, AccessControls, FilterAmount, FilterCompany, SpecKeyword, setFilterAmount, LoadedCompanies, setFilterCompany, setSpecKeyword, ApproveRequisition, AttachedQuotations, Specifications, RequestDetails, history, Requests, addRow, RejectRequisition, CancelRequisition, SubmitConfirmation, ShowQuotationModal, Quotations, Locations, Companies, SubmitPR, loadRequests, openRequestDetails, PRSubmittion, setSubmitConfirmation, onAttachQuotations, onContentInput, onContentEdit, setShowQuotationModal }) => {
+
+    const [ WM_EquipmentsModal, setWM_EquipmentsModal ] = useState(false);
+
+    const onSelectWMRequest = (e, i, id) => {
+        if (e.target.checked) {
+            const arr = AttachedWMEquipmentList.slice();
+            const data = WMEquipmentList[i];
+            const obj = {
+                id: data.id
+            }
+            arr.push(obj);
+            setAttachedWMEquipmentList(arr);
+        }else {
+            const arr = AttachedWMEquipmentList.slice();
+            const filteredArr = arr.filter(val => val.id !== id);
+            setAttachedWMEquipmentList(filteredArr);
+        }
+    }
 
     return (
         <>
             <div className="purchase_requisition">
                 <Modal show={EditConfirmation} Hide={() => setEditConfirmation(!EditConfirmation)} content={<EditConfirmationModal Relations={Relations} Data={Data} RequestDetails={RequestDetails} PRUpdate={PRUpdate} />} />
                 <Modal show={ShowQuotationModal} Hide={() => setShowQuotationModal(!ShowQuotationModal)} content={<ModalContent RemovedQuotations={RemovedQuotations} setRemovedQuotations={setRemovedQuotations} setQuotations={setQuotations} setShowQuotationModal={setShowQuotationModal} Quotations={Quotations} onAttachQuotations={onAttachQuotations} />} />
+                <Modal show={WM_EquipmentsModal} Hide={() => setWM_EquipmentsModal(false)} content={
+                    <>
+                        <div className="d-flex justify-content-between align-items-center">
+                            <h4 className='mb-0'>Workshop Equipment Requests</h4>
+                        </div>
+                        <hr />
+                        {
+                            WMEquipmentList.length === 0
+                                ?
+                                <h6 className="text-center">No Request Found</h6>
+                                :
+                                <>
+                                    <table className='table table-sm'>
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>ID</th>
+                                                <th>Co & Loc</th>
+                                                <th>Description</th>
+                                                <th>Request Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {
+                                                WMEquipmentList.map((val, i) => {
+                                                    return (
+                                                        <tr key={i}>
+                                                            <td>
+                                                                <input type='checkbox' checked={AttachedWMEquipmentList.filter(value => value.id === val.id)[0] ? true : false} name="WM" onChange={(e) => onSelectWMRequest(e, i, val.id)} />
+                                                            </td>
+                                                            <td>{val.id}</td>
+                                                            <td>{val.company_name} <br /> {val.location_name}</td>
+                                                            <td>{val.description}</td>
+                                                            <td>{moment(val.requested_at).format('DD-MM-YYYY hh:mm A')}</td>
+                                                        </tr>
+                                                    )
+                                                })
+                                            }
+                                        </tbody>
+                                    </table>
+                                </>
+                        }
+                    </>
+                } />
                 {
                     window.location.hash.includes('/purchase/requisition/details')
                         ?
@@ -50,7 +113,13 @@ const UI = ({ SiteManagerRejectionConfirm, SiteManagerApprovalConfirm, CompanyVi
                                     AccessControls={AccessControls}
                                     Employees={Employees}
                                     Employee={Employee}
+                                    WM_EquipmentsModal={WM_EquipmentsModal}
+                                    WMEquipmentList={WMEquipmentList}
+                                    AttachedWMEquipmentList={AttachedWMEquipmentList}
 
+                                    setWMEquipmentList={setWMEquipmentList}
+                                    loadWMEquipmentRequests={loadWMEquipmentRequests}
+                                    setWM_EquipmentsModal={setWM_EquipmentsModal}
                                     TotalCostCalculation={TotalCostCalculation}
                                     selectEmpInBehalf={selectEmpInBehalf}
                                     onSearchEmployees={onSearchEmployees}
@@ -96,6 +165,7 @@ const UI = ({ SiteManagerRejectionConfirm, SiteManagerApprovalConfirm, CompanyVi
                                     Locations={ Locations }
                                     CompanyViewer={ CompanyViewer }
                                     AccessControls={AccessControls}
+                                    AttachedWMERequests={AttachedWMERequests}
 
                                     SiteManagerRejectionConfirm={SiteManagerRejectionConfirm}
                                     SiteManagerApprovalConfirm={SiteManagerApprovalConfirm}
@@ -409,9 +479,16 @@ const PRFormForEditing = ({ Quotations, updatePR, RequestDetails, Specifications
 
 }
 
-const PRForm = ({ TotalCostCalculation, Employee, selectEmpInBehalf, onSearchEmployees, Employees, AccessControls, history, Locations, Quotations, Companies, SubmitPR, setShowQuotationModal, addRow, onContentInput }) => {
+const PRForm = ({ AttachedWMEquipmentList, WMEquipmentList, setWMEquipmentList, loadWMEquipmentRequests, WM_EquipmentsModal, setWM_EquipmentsModal, TotalCostCalculation, Employee, selectEmpInBehalf, onSearchEmployees, Employees, AccessControls, history, Locations, Quotations, Companies, SubmitPR, setShowQuotationModal, addRow, onContentInput }) => {
 
     const [Drafts, setDrafts] = useState(false);
+    const [SelectCompany, setSelectCompany] = useState();
+
+    useEffect(
+        () => {
+            if (SelectCompany && WM_EquipmentsModal) loadWMEquipmentRequests(SelectCompany);
+        }, [SelectCompany, WM_EquipmentsModal]
+    )
 
     const saveToDraft = () => {
 
@@ -664,7 +741,7 @@ const PRForm = ({ TotalCostCalculation, Employee, selectEmpInBehalf, onSearchEmp
 
                         <div>
                             <label className="mb-0"><b>Company Name</b></label>
-                            <select className="form-control" name="company_code" id="form_company_code" required>
+                            <select className="form-control" name="company_code" id="form_company_code" onChange={(e) => setSelectCompany(e.target.value)} required>
                                 <option value=''>Select the option</option>
                                 {
                                     Companies.map(
@@ -813,10 +890,15 @@ const PRForm = ({ TotalCostCalculation, Employee, selectEmpInBehalf, onSearchEmp
                     </table>
 
                     <div className="d-flex align-items-center justify-content-between">
-
-                        <button className="btn green" type='button' onClick={() => setShowQuotationModal(true)}>Attached Quotations ({Quotations.length})</button>
+                        {
+                            SelectCompany && (
+                                <div>
+                                    <button className="btn green" type='button' onClick={() => setShowQuotationModal(true)}>Attached Quotations ({Quotations.length})</button>
+                                    <button className="btn light ml-2" type='button' onClick={() => setWM_EquipmentsModal(true)}>Attach Maintainance Form {AttachedWMEquipmentList.length > 0 && <>({ AttachedWMEquipmentList.length })</>}</button>
+                                </div>
+                            )
+                        }
                         <button className="btn submit" type='submit'>Generate Purchase Requisition</button>
-
                     </div>
                 </fieldset>
             </form>
@@ -825,7 +907,7 @@ const PRForm = ({ TotalCostCalculation, Employee, selectEmpInBehalf, onSearchEmp
 
 }
 
-const RequestDetailsView = ({ AccessControls, SiteManagerRejectionConfirm, SiteManagerApprovalConfirm, CompanyViewer, Locations, Logs, overrideRequisition, Admin, InvRejectRequisition, sendForApproveRequisition, Relations, ApproveRequisition, history, Quotations, Specifications, RequestDetails, CancelRequisition, RejectRequisition, openRequestDetails, onContentEdit }) => {
+const RequestDetailsView = ({ AttachedWMERequests, AccessControls, SiteManagerRejectionConfirm, SiteManagerApprovalConfirm, CompanyViewer, Locations, Logs, overrideRequisition, Admin, InvRejectRequisition, sendForApproveRequisition, Relations, ApproveRequisition, history, Quotations, Specifications, RequestDetails, CancelRequisition, RejectRequisition, openRequestDetails, onContentEdit }) => {
 
     const [View, setView] = useState("application");
 
@@ -872,6 +954,7 @@ const RequestDetailsView = ({ AccessControls, SiteManagerRejectionConfirm, SiteM
                             SiteManagerApprovalConfirm={SiteManagerApprovalConfirm}
                             SiteManagerRejectionConfirm={SiteManagerRejectionConfirm}
                             AccessControls={AccessControls}
+                            AttachedWMERequests={AttachedWMERequests}
                         />
                         :
                         <>
@@ -888,7 +971,7 @@ const RequestDetailsView = ({ AccessControls, SiteManagerRejectionConfirm, SiteM
 
 }
 
-const Detailing = ({ AccessControls, SiteManagerRejectionConfirm, SiteManagerApprovalConfirm, Admin, Locations, Logs, overrideRequisition, sendForApproveRequisition, Relations, pr_id, CancelRequisition, ApproveRequisition, InvRejectRequisition, RejectRequisition, history, Quotations, View, setView, RequestDetails, Specifications, onContentEdit }) => {
+const Detailing = ({ AttachedWMERequests, AccessControls, SiteManagerRejectionConfirm, SiteManagerApprovalConfirm, Admin, Locations, Logs, overrideRequisition, sendForApproveRequisition, Relations, pr_id, CancelRequisition, ApproveRequisition, InvRejectRequisition, RejectRequisition, history, Quotations, View, setView, RequestDetails, Specifications, onContentEdit }) => {
     const onBeforeGetContentResolve = useRef();
 
     const [PrintContentLoaded, setPrintContentLoaded] = useState(false);
@@ -960,9 +1043,10 @@ const Detailing = ({ AccessControls, SiteManagerRejectionConfirm, SiteManagerApp
                         <sub>Request Details</sub>
                     </h4>
                     <div className='btn-group'>
-                        <button className="btn green" onClick={() => history.replace('/purchase/requisition/requests')}>Back To Requests</button>
+                        <button className="btn green" onClick={() => history.replace('/purchase/requisition/requests')}>Back</button>
                         <button className={View === 'application' ? "btn submit" : "btn green"} onClick={() => setView('application')}>Application</button>
                         <button className={View === 'request_status' ? "btn submit" : "btn green"} onClick={() => setView('request_status')}>Quotations({Quotations.length})</button>
+                        <button className={View === 'maintainance' ? "btn submit" : "btn light"} onClick={() => setView('maintainance')}>Maintainance Requests({AttachedWMERequests.length})</button>
                     </div>
                 </div>
                 <hr />
@@ -1511,6 +1595,8 @@ const Detailing = ({ AccessControls, SiteManagerRejectionConfirm, SiteManagerApp
                         </div>
                     </>
                     :
+                    View === 'request_status'
+                    ?
                     <div className='purchase_requisition_details_2' id="accordion">
                         <div className='collapse_toogle d-flex justify-content-between' data-toggle="collapse" data-target="#attached_quotations" aria-expanded="false" aria-controls="attached_quotations">
                             <h6 className='mb-0'>Quotations Attached</h6>
@@ -1547,269 +1633,397 @@ const Detailing = ({ AccessControls, SiteManagerRejectionConfirm, SiteManagerApp
                             }
                         </div>
                     </div>
+                    :
+                    View === 'maintainance'
+                    ?
+                    <>
+                        <hr />
+                        <div className='d-flex justify-content-between'>
+                            <h5 className='mb-0'>Maintainance Form Attached</h5>
+                            <h5 className='mb-0'>({AttachedWMERequests.length})</h5>
+                        </div>
+                        <div className="pr-grid">
+                            {
+                                AttachedWMERequests.map(
+                                    (val, i) => {
+                                        return (
+                                            <div key={i} className='border p-3'>
+                                                <div className='main-banner' key={i}>
+                                                    <h1 className='mb-0 font-weight-bold'>{val.equipment_no}</h1>
+                                                    <h6 className='mb-0'>{val.equipment_type_name}</h6>
+                                                </div>
+                                                <table className="table" key={i}>
+                                                    <tbody>
+                                                        <tr>
+                                                            <th><h6>Status</h6></th>
+                                                            {
+                                                                val.status === 'Pending'
+                                                                    ?
+                                                                    <td>
+                                                                        <div className={`text-warning`} style={{ display: 'flex', alignItems: 'center' }}>
+                                                                            <span className={`dot bg-warning mr-1`}></span>
+                                                                            {val.status}
+                                                                        </div>
+                                                                    </td>
+                                                                    :
+                                                                    val.status === 'Verified'
+                                                                        ?
+                                                                        <td>
+                                                                            <div className={`text-success`} style={{ display: 'flex', alignItems: 'center' }}>
+                                                                                <span className={`dot bg-success mr-1`}></span>
+                                                                                {val.status}
+                                                                            </div>
+                                                                        </td>
+                                                                        :
+                                                                        <td>
+                                                                            <div className={`text-danger`} style={{ display: 'flex', alignItems: 'center' }}>
+                                                                                <span className={`dot bg-danger mr-1`}></span>
+                                                                                {val.status}
+                                                                            </div>
+                                                                        </td>
+                                                            }
+                                                        </tr>
+                                                        <tr>
+                                                            <th><h6>Request Id</h6></th>
+                                                            <td>{val.id}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th><h6>Company</h6></th>
+                                                            <td>{val.company_name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th><h6>Location</h6></th>
+                                                            <td>{val.location_name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th><h6>Equipment Type</h6></th>
+                                                            <td>{val.equipment_type_name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th><h6>Service Type</h6></th>
+                                                            <td>{val.maintenance_type}</td>
+                                                        </tr>
+                                                        {
+                                                            val.maintenance_type === 'Other' && (
+                                                                <tr>
+                                                                    <th><h6>Service Type (Other)</h6></th>
+                                                                    <td>{val.maintenance_type_other}</td>
+                                                                </tr>
+                                                            )
+                                                        }
+                                                        <tr>
+                                                            <th><h6>Description</h6></th>
+                                                            <td>{val.description}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th><h6>Requested By</h6></th>
+                                                            <td>{val.requested_by_name}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th><h6>Requested At</h6></th>
+                                                            <td>{moment(val.requested_at).format('DD-MM-YYYY hh:mm A')}</td>
+                                                        </tr>
+                                                        {
+                                                            val.status === 'Verified' && (
+                                                                <>
+                                                                    <tr>
+                                                                        <th><h6>Verified By</h6></th>
+                                                                        <td>{val.verified_by_name}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th><h6>Verified At</h6></th>
+                                                                        <td>{moment(val.verified_at).format('DD-MM-YYYY hh:mm A')}</td>
+                                                                    </tr>
+                                                                </>
+                                                            )
+                                                        }
+                                                        {
+                                                            val.status === 'Rejected' && (
+                                                                <>
+                                                                    <tr>
+                                                                        <th><h6>Rejected By</h6></th>
+                                                                        <td>{val.verified_by_name}</td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <th><h6>Rejected At</h6></th>
+                                                                        <td>{moment(val.verified_at).format('DD-MM-YYYY hh:mm A')}</td>
+                                                                    </tr>
+                                                                </>
+                                                            )
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        )
+                                    }
+                                )
+                            }
+                        </div>
+                    </>
+                    :null
                 }
 
                 {
                     StartPrint && RequestDetails
-                        ?
-                        <div id="pr_to_print" ref={componentRef} style={{ width: '100%', padding: 20, fontFamily: "Poppins" }}>
+                    ?
+                    <div id="pr_to_print" ref={componentRef} style={{ width: '100%', padding: 20, fontFamily: "Poppins" }}>
 
-                            <div style={
-                                {
-                                    position: 'fixed',
-                                    top: 0,
-                                    left: 0,
-                                    border: '1px dotted gray',
-                                    width: '100%',
-                                    height: '100%'
-                                }
-                            }></div>
+                        <div style={
+                            {
+                                position: 'fixed',
+                                top: 0,
+                                left: 0,
+                                border: '1px dotted gray',
+                                width: '100%',
+                                height: '100%'
+                            }
+                        }></div>
 
-                            <div className="content">
-                                <h1 className='text-center font-weight-bold' style={{ letterSpacing: '10px', fontFamily: 'Cinzel' }}>SEABOARD GROUP</h1>
-                                <hr />
-                                <h3 className='text-center font-weight-bold' style={{ letterSpacing: 10 }}> PURCHASE REQUISITION </h3>
+                        <div className="content">
+                            <h1 className='text-center font-weight-bold' style={{ letterSpacing: '10px', fontFamily: 'Cinzel' }}>SEABOARD GROUP</h1>
+                            <hr />
+                            <h3 className='text-center font-weight-bold' style={{ letterSpacing: 10 }}> PURCHASE REQUISITION </h3>
 
-                                <br />
-                                <br />
+                            <br />
+                            <br />
 
-                                <div style={{ display: 'flex' }}>
+                            <div style={{ display: 'flex' }}>
 
-                                    <div style={{ width: "50%" }}>
-                                        <div style={{ display: 'flex' }}>
-                                            <b style={{ width: '50%', padding: 5, fontSize: 15 }}>Company Name:</b>
-                                            <span style={{ width: '50%', padding: 5, fontSize: 15 }}>{RequestDetails.company_name}</span>
-                                        </div>
-                                        <div style={{ display: 'flex' }}>
-                                            <b style={{ width: '50%', padding: 5, fontSize: 15 }}>Delivery / Work Location:</b>
-                                            <span style={{ width: '50%', padding: 5, fontSize: 15 }}>{RequestDetails.location_name}</span>
-                                        </div>
+                                <div style={{ width: "50%" }}>
+                                    <div style={{ display: 'flex' }}>
+                                        <b style={{ width: '50%', padding: 5, fontSize: 15 }}>Company Name:</b>
+                                        <span style={{ width: '50%', padding: 5, fontSize: 15 }}>{RequestDetails.company_name}</span>
                                     </div>
-                                    <div style={{ width: "50%" }}>
-                                        <div style={{ display: 'flex' }}>
-                                            <b style={{ width: '50%', padding: 5, fontSize: 15 }}>PR Number:</b>
-                                            <span style={{ width: '50%', padding: 5, fontSize: 15 }}>{RequestDetails.company_short_code + '-' + RequestDetails.series_year + '-' + RequestDetails.series_code}</span>
-                                        </div>
-                                        <div style={{ display: 'flex' }}>
-                                            <b style={{ width: '50%', padding: 5, fontSize: 15 }}>Date:</b>
-                                            <span style={{ width: '50%', padding: 5, fontSize: 15 }}>{new Date(RequestDetails.requested_date).toDateString()}</span>
-                                        </div>
+                                    <div style={{ display: 'flex' }}>
+                                        <b style={{ width: '50%', padding: 5, fontSize: 15 }}>Delivery / Work Location:</b>
+                                        <span style={{ width: '50%', padding: 5, fontSize: 15 }}>{RequestDetails.location_name}</span>
                                     </div>
-
+                                </div>
+                                <div style={{ width: "50%" }}>
+                                    <div style={{ display: 'flex' }}>
+                                        <b style={{ width: '50%', padding: 5, fontSize: 15 }}>PR Number:</b>
+                                        <span style={{ width: '50%', padding: 5, fontSize: 15 }}>{RequestDetails.company_short_code + '-' + RequestDetails.series_year + '-' + RequestDetails.series_code}</span>
+                                    </div>
+                                    <div style={{ display: 'flex' }}>
+                                        <b style={{ width: '50%', padding: 5, fontSize: 15 }}>Date:</b>
+                                        <span style={{ width: '50%', padding: 5, fontSize: 15 }}>{new Date(RequestDetails.requested_date).toDateString()}</span>
+                                    </div>
                                 </div>
 
-                                <hr />
+                            </div>
 
-                                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+                            <hr />
 
-                                    <div style={{ width: "50%" }}>
-                                        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                                            <b style={{ width: '50%', padding: 5, fontSize: 15 }}>New Purchase</b>
-                                            <span style={{ width: '50%', padding: 5 }}>
-                                                <input checked={RequestDetails.new_purchase === 1 ? true : false} type="checkbox" style={{ fontSize: 17, width: 20, height: 20 }} />
-                                            </span>
-                                        </div>
-                                        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                                            <b style={{ width: '50%', padding: 5, fontSize: 15 }}>Repair</b>
-                                            <span style={{ width: '50%', padding: 5 }}>
-                                                <input checked={RequestDetails.repair === 1 ? true : false} type="checkbox" style={{ fontSize: 17, width: 20, height: 20 }} />
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div style={{ width: "50%" }}>
-                                        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                                            <b style={{ width: '50%', padding: 5, fontSize: 15 }}>Replacement / Recycle</b>
-                                            <span style={{ width: '50%', padding: 5 }}>
-                                                <input checked={RequestDetails.replace_recycle === 1 ? true : false} type="checkbox" style={{ fontSize: 17, width: 20, height: 20 }} />
-                                            </span>
-                                        </div>
-                                        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-                                            <b style={{ width: '50%', padding: 5, fontSize: 15 }}>Budgeted</b>
-                                            <span style={{ width: '50%', padding: 5 }}>
-                                                <input checked={RequestDetails.budgeted === 1 ? true : false} type="checkbox" style={{ fontSize: 17, width: 20, height: 20 }} />
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div style={{ width: "100%", display: 'flex' }}>
-                                        <div style={{ width: '50%', display: 'flex', alignItems: 'flex-end' }}>
-                                            <b style={{ width: '50%', padding: 5, fontSize: 15 }}>Not Budgeted</b>
-                                            <span style={{ width: '50%', padding: 5 }}>
-                                                <input checked={RequestDetails.not_budgeted === 1 ? true : false} type="checkbox" style={{ fontSize: 17, width: 20, height: 20 }} />
-                                            </span>
-                                        </div>
-                                        <div style={{ width: '50%', display: 'flex', alignItems: 'flex-end' }}>
-                                            <b style={{ width: '50%', padding: 5, fontSize: 15 }}>Quotation Attached</b>
-                                            <span style={{ width: '50%', padding: 5 }}>
-                                                <input checked={RequestDetails.invoice_attached === 1 ? true : false} type="checkbox" style={{ fontSize: 17, width: 20, height: 20 }} />
-                                            </span>
-                                        </div>
-                                    </div>
+                            <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
 
+                                <div style={{ width: "50%" }}>
+                                    <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                                        <b style={{ width: '50%', padding: 5, fontSize: 15 }}>New Purchase</b>
+                                        <span style={{ width: '50%', padding: 5 }}>
+                                            <input checked={RequestDetails.new_purchase === 1 ? true : false} type="checkbox" style={{ fontSize: 17, width: 20, height: 20 }} />
+                                        </span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                                        <b style={{ width: '50%', padding: 5, fontSize: 15 }}>Repair</b>
+                                        <span style={{ width: '50%', padding: 5 }}>
+                                            <input checked={RequestDetails.repair === 1 ? true : false} type="checkbox" style={{ fontSize: 17, width: 20, height: 20 }} />
+                                        </span>
+                                    </div>
+                                </div>
+                                <div style={{ width: "50%" }}>
+                                    <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                                        <b style={{ width: '50%', padding: 5, fontSize: 15 }}>Replacement / Recycle</b>
+                                        <span style={{ width: '50%', padding: 5 }}>
+                                            <input checked={RequestDetails.replace_recycle === 1 ? true : false} type="checkbox" style={{ fontSize: 17, width: 20, height: 20 }} />
+                                        </span>
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                                        <b style={{ width: '50%', padding: 5, fontSize: 15 }}>Budgeted</b>
+                                        <span style={{ width: '50%', padding: 5 }}>
+                                            <input checked={RequestDetails.budgeted === 1 ? true : false} type="checkbox" style={{ fontSize: 17, width: 20, height: 20 }} />
+                                        </span>
+                                    </div>
+                                </div>
+                                <div style={{ width: "100%", display: 'flex' }}>
+                                    <div style={{ width: '50%', display: 'flex', alignItems: 'flex-end' }}>
+                                        <b style={{ width: '50%', padding: 5, fontSize: 15 }}>Not Budgeted</b>
+                                        <span style={{ width: '50%', padding: 5 }}>
+                                            <input checked={RequestDetails.not_budgeted === 1 ? true : false} type="checkbox" style={{ fontSize: 17, width: 20, height: 20 }} />
+                                        </span>
+                                    </div>
+                                    <div style={{ width: '50%', display: 'flex', alignItems: 'flex-end' }}>
+                                        <b style={{ width: '50%', padding: 5, fontSize: 15 }}>Quotation Attached</b>
+                                        <span style={{ width: '50%', padding: 5 }}>
+                                            <input checked={RequestDetails.invoice_attached === 1 ? true : false} type="checkbox" style={{ fontSize: 17, width: 20, height: 20 }} />
+                                        </span>
+                                    </div>
                                 </div>
 
-                                <hr />
+                            </div>
 
-                                <b style={{ fontSize: 15 }}>Reason For Repair / Replacement / New Purchase</b>
-                                <br />
-                                <span style={{ wordBreak: 'break-word', padding: 5, fontSize: 15, display: 'block', marginTop: 10, marginBottom: 10 }}>
-                                    {RequestDetails.reason}
-                                </span>
+                            <hr />
 
-                                <b style={{ fontSize: 15 }}>Purchase / Repair / Replacement Specifications</b>
-                                <br />
-                                <table className="table table-bordered mt-2" style={{ zIndex: 1, backgroundColor: '#fff' }}>
-                                    <thead>
-                                        <tr style={{ borderColor: '#000' }}>
-                                            <th style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}>Sr.No</th>
-                                            <th style={{ outline: '1px solid lightgray', fontSize: 13 }}>Description</th>
-                                            <th style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}>Quantity</th>
-                                            <th style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}>Estimated Cost</th>
-                                            <th style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}>Total Cost</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {
-                                            Specifications.map(
-                                                (val, index) => {
-                                                    return (
-                                                        <tr style={{ borderColor: '#000' }} key={index}>
-                                                            <td style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}>{index + 1}</td>
-                                                            <td style={{ outline: '1px solid lightgray', fontSize: 13, maxWidth: 250, wordBreak: 'break-word' }}>{val.description}</td>
-                                                            <td style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}>{val.quantity}</td>
-                                                            <td style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}>Rs {val.estimated_cost.toLocaleString('en')}</td>
-                                                            <td style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}>Rs {val.total_estimated_cost.toLocaleString('en')}</td>
-                                                        </tr>
-                                                    )
-                                                }
-                                            )
-                                        }
-                                    </tbody>
-                                    <tfoot>
-                                        <tr style={{ borderColor: '#000' }}>
-                                            <td style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}></td>
-                                            <td style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}></td>
-                                            <td style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}></td>
-                                            <th style={{ outline: '1px solid lightgray', textAlign: 'center', border: '0', fontSize: 13 }}><b>Total</b></th>
-                                            <td style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}>Rs {RequestDetails.total_value.toLocaleString('en')}</td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
+                            <b style={{ fontSize: 15 }}>Reason For Repair / Replacement / New Purchase</b>
+                            <br />
+                            <span style={{ wordBreak: 'break-word', padding: 5, fontSize: 15, display: 'block', marginTop: 10, marginBottom: 10 }}>
+                                {RequestDetails.reason}
+                            </span>
 
-                                <div className="footer" style={{ padding: 20, width: "100%", position: 'fixed', bottom: 0, zIndex: -1 }}>
-                                    <p style={{ marginBottom: 0, fontSize: 13 }}>
-                                        <b style={{ marginRight: 5 }}>Note: </b>
-                                    </p>
-                                    <p style={{ marginBottom: 0, fontSize: 13 }}>
-                                        - This is an electronically generated report, hence does not require a signature.
-                                    </p>
+                            <b style={{ fontSize: 15 }}>Purchase / Repair / Replacement Specifications</b>
+                            <br />
+                            <table className="table table-bordered mt-2" style={{ zIndex: 1, backgroundColor: '#fff' }}>
+                                <thead>
+                                    <tr style={{ borderColor: '#000' }}>
+                                        <th style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}>Sr.No</th>
+                                        <th style={{ outline: '1px solid lightgray', fontSize: 13 }}>Description</th>
+                                        <th style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}>Quantity</th>
+                                        <th style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}>Estimated Cost</th>
+                                        <th style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}>Total Cost</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
                                     {
-                                        RequestDetails.behalf_employee_name
-                                            ?
-                                            <p style={{ marginBottom: 0, fontSize: 13 }}>- This request is generated by {RequestDetails.requested_employee_name} ({RequestDetails.requested_employee_designation_name}) on behalf of the requested employee.</p>
-                                            : null
+                                        Specifications.map(
+                                            (val, index) => {
+                                                return (
+                                                    <tr style={{ borderColor: '#000' }} key={index}>
+                                                        <td style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}>{index + 1}</td>
+                                                        <td style={{ outline: '1px solid lightgray', fontSize: 13, maxWidth: 250, wordBreak: 'break-word' }}>{val.description}</td>
+                                                        <td style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}>{val.quantity}</td>
+                                                        <td style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}>Rs {val.estimated_cost.toLocaleString('en')}</td>
+                                                        <td style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}>Rs {val.total_estimated_cost.toLocaleString('en')}</td>
+                                                    </tr>
+                                                )
+                                            }
+                                        )
                                     }
-                                    {
-                                        RequestDetails.site_act_date
+                                </tbody>
+                                <tfoot>
+                                    <tr style={{ borderColor: '#000' }}>
+                                        <td style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}></td>
+                                        <td style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}></td>
+                                        <td style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}></td>
+                                        <th style={{ outline: '1px solid lightgray', textAlign: 'center', border: '0', fontSize: 13 }}><b>Total</b></th>
+                                        <td style={{ outline: '1px solid lightgray', fontSize: 13, textAlign: 'center' }}>Rs {RequestDetails.total_value.toLocaleString('en')}</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+
+                            <div className="footer" style={{ padding: 20, width: "100%", position: 'fixed', bottom: 0, zIndex: -1 }}>
+                                <p style={{ marginBottom: 0, fontSize: 13 }}>
+                                    <b style={{ marginRight: 5 }}>Note: </b>
+                                </p>
+                                <p style={{ marginBottom: 0, fontSize: 13 }}>
+                                    - This is an electronically generated report, hence does not require a signature.
+                                </p>
+                                {
+                                    RequestDetails.behalf_employee_name
+                                        ?
+                                        <p style={{ marginBottom: 0, fontSize: 13 }}>- This request is generated by {RequestDetails.requested_employee_name} ({RequestDetails.requested_employee_designation_name}) on behalf of the requested employee.</p>
+                                        : null
+                                }
+                                {
+                                    RequestDetails.site_act_date
+                                    ?
+                                    <>
+                                        <p style={{ marginBottom: 0, fontSize: 13 }}>
+                                            <b style={{ marginRight: 5 }}>Site's Remarks: </b>
+                                        </p>
+                                        <p style={{ marginBottom: 0, fontSize: 13 }}>- {RequestDetails.site_manager_remarks}</p>
+                                    </>
+                                    : null
+                                }
+                                {
+                                    RequestDetails.status === "approved" || RequestDetails.status === "rejected"
                                         ?
                                         <>
                                             <p style={{ marginBottom: 0, fontSize: 13 }}>
-                                                <b style={{ marginRight: 5 }}>Site's Remarks: </b>
+                                                <b style={{ marginRight: 5 }}>H.O.D's Remarks: </b>
                                             </p>
-                                            <p style={{ marginBottom: 0, fontSize: 13 }}>- {RequestDetails.site_manager_remarks}</p>
+                                            <p style={{ marginBottom: 0, fontSize: 13 }}>- {RequestDetails.remarks_from_hod}</p>
                                         </>
                                         : null
-                                    }
-                                    {
-                                        RequestDetails.status === "approved" || RequestDetails.status === "rejected"
-                                            ?
-                                            <>
-                                                <p style={{ marginBottom: 0, fontSize: 13 }}>
-                                                    <b style={{ marginRight: 5 }}>H.O.D's Remarks: </b>
-                                                </p>
-                                                <p style={{ marginBottom: 0, fontSize: 13 }}>- {RequestDetails.remarks_from_hod}</p>
-                                            </>
-                                            : null
-                                    }
-                                    <div style={{ display: 'flex' }}>
-                                        <div style={{ width: RequestDetails.site_act_date ? '25%' : '33.33%', padding: 10 }}>
-                                            <b style={{ marginBottom: 10, display: 'block', textAlign: 'center', fontSize: 13 }}>Requested By</b>
-                                            <p style={{ textAlign: 'center', fontSize: 20, fontFamily: "Tangerine", transform: "rotate(-10deg) translate(0, 5px)" }}>
-                                                {
+                                }
+                                <div style={{ display: 'flex' }}>
+                                    <div style={{ width: RequestDetails.site_act_date ? '25%' : '33.33%', padding: 10 }}>
+                                        <b style={{ marginBottom: 10, display: 'block', textAlign: 'center', fontSize: 13 }}>Requested By</b>
+                                        <p style={{ textAlign: 'center', fontSize: 20, fontFamily: "Tangerine", transform: "rotate(-10deg) translate(0, 5px)" }}>
+                                            {
+                                                RequestDetails.behalf_employee_name
+                                                    ?
                                                     RequestDetails.behalf_employee_name
-                                                        ?
-                                                        RequestDetails.behalf_employee_name
-                                                        :
-                                                        RequestDetails.requested_employee_name
-                                                }
-                                            </p>
-                                            <p style={{ marginTop: 10, marginBottom: 0, display: 'block', textAlign: 'center', fontSize: 13 }}>
-                                                {
+                                                    :
+                                                    RequestDetails.requested_employee_name
+                                            }
+                                        </p>
+                                        <p style={{ marginTop: 10, marginBottom: 0, display: 'block', textAlign: 'center', fontSize: 13 }}>
+                                            {
+                                                RequestDetails.behalf_employee_designation_name
+                                                    ?
                                                     RequestDetails.behalf_employee_designation_name
-                                                        ?
-                                                        RequestDetails.behalf_employee_designation_name
-                                                        :
-                                                        RequestDetails.requested_employee_designation_name
-                                                }
+                                                    :
+                                                    RequestDetails.requested_employee_designation_name
+                                            }
+                                        </p>
+                                        <p style={{ marginBottom: 0, display: 'block', textAlign: 'center', fontSize: 13 }}>
+                                            {new Date(RequestDetails.requested_date).toDateString()}
+                                        </p>
+                                    </div>
+                                    {
+                                        RequestDetails.site_act_date
+                                        ?
+                                        <div style={{ width: RequestDetails.site_act_date ? '25%' : '33.33%', padding: 10 }}>
+                                            <b style={{ marginBottom: 10, display: 'block', textAlign: 'center', fontSize: 13 }}>Submitted To</b>
+                                            <p style={{ textAlign: 'center', fontSize: 20, fontFamily: "Tangerine", transform: "rotate(-10deg) translate(0, 5px)" }}>
+                                                {RequestDetails.site_manager_name}
                                             </p>
+                                            <p style={{ marginBottom: 0, marginTop: 10, display: 'block', textAlign: 'center', fontSize: 13 }}>{RequestDetails.site_manager_designation_name}</p>
                                             <p style={{ marginBottom: 0, display: 'block', textAlign: 'center', fontSize: 13 }}>
-                                                {new Date(RequestDetails.requested_date).toDateString()}
+                                                {new Date(RequestDetails.site_act_date).toDateString()}
                                             </p>
                                         </div>
+                                        :null
+                                    }
+                                    <div style={{ width: RequestDetails.site_act_date ? '25%' : '33.33%', padding: 10 }}>
+                                        <b style={{ marginBottom: 10, display: 'block', textAlign: 'center', fontSize: 13 }}>Verified By</b>
                                         {
-                                            RequestDetails.site_act_date
-                                            ?
-                                            <div style={{ width: RequestDetails.site_act_date ? '25%' : '33.33%', padding: 10 }}>
-                                                <b style={{ marginBottom: 10, display: 'block', textAlign: 'center', fontSize: 13 }}>Submitted To</b>
-                                                <p style={{ textAlign: 'center', fontSize: 20, fontFamily: "Tangerine", transform: "rotate(-10deg) translate(0, 5px)" }}>
-                                                    {RequestDetails.site_manager_name}
-                                                </p>
-                                                <p style={{ marginBottom: 0, marginTop: 10, display: 'block', textAlign: 'center', fontSize: 13 }}>{RequestDetails.site_manager_designation_name}</p>
-                                                <p style={{ marginBottom: 0, display: 'block', textAlign: 'center', fontSize: 13 }}>
-                                                    {new Date(RequestDetails.site_act_date).toDateString()}
-                                                </p>
-                                            </div>
-                                            :null
+                                            RequestDetails.view_date
+                                                ?
+                                                <>
+                                                    <p style={{ textAlign: 'center', fontSize: 20, fontFamily: "Tangerine", transform: "rotate(-10deg) translate(0, 5px)" }}>
+                                                        {RequestDetails.submit_to_employee_name}
+                                                    </p>
+                                                    <p style={{ marginTop: 10, marginBottom: 0, display: 'block', textAlign: 'center', fontSize: 13 }}>{RequestDetails.submit_to_employee_designation_name}</p>
+                                                    <p style={{ marginBottom: 0, display: 'block', textAlign: 'center', fontSize: 13 }}>
+                                                        {new Date(RequestDetails.view_date).toDateString()}
+                                                    </p>
+                                                </>
+                                                : null
                                         }
-                                        <div style={{ width: RequestDetails.site_act_date ? '25%' : '33.33%', padding: 10 }}>
-                                            <b style={{ marginBottom: 10, display: 'block', textAlign: 'center', fontSize: 13 }}>Verified By</b>
-                                            {
-                                                RequestDetails.view_date
-                                                    ?
-                                                    <>
-                                                        <p style={{ textAlign: 'center', fontSize: 20, fontFamily: "Tangerine", transform: "rotate(-10deg) translate(0, 5px)" }}>
-                                                            {RequestDetails.submit_to_employee_name}
-                                                        </p>
-                                                        <p style={{ marginTop: 10, marginBottom: 0, display: 'block', textAlign: 'center', fontSize: 13 }}>{RequestDetails.submit_to_employee_designation_name}</p>
-                                                        <p style={{ marginBottom: 0, display: 'block', textAlign: 'center', fontSize: 13 }}>
-                                                            {new Date(RequestDetails.view_date).toDateString()}
-                                                        </p>
-                                                    </>
-                                                    : null
-                                            }
-                                        </div>
-                                        <div style={{ width: RequestDetails.site_act_date ? '25%' : '33.33%', padding: 10 }}>
-                                            <b style={{ marginBottom: 10, display: 'block', textAlign: 'center', fontSize: 13 }}>{RequestDetails.status === 'rejected' ? "Rejected By" : RequestDetails.status === 'cancelled' || RequestDetails.status === 'canceled_by_inventory' ? "Cancelled By" : "Approved By"}</b>
-                                            {
-                                                RequestDetails.act_date
-                                                    ?
-                                                    <>
-                                                        <p style={{ textAlign: 'center', fontSize: 20, fontFamily: "Tangerine", transform: "rotate(-10deg) translate(0, 5px)" }}>
-                                                            {RequestDetails.hod_employee_name}
-                                                        </p>
-                                                        <p style={{ marginBottom: 0, marginTop: 10, display: 'block', textAlign: 'center', fontSize: 13 }}>{RequestDetails.hod_employee_designation_name}</p>
-                                                        <p style={{ marginBottom: 0, display: 'block', textAlign: 'center', fontSize: 13 }}>
-                                                            {new Date(RequestDetails.act_date).toDateString()}
-                                                        </p>
-                                                    </>
-                                                    : null
-                                            }
-                                        </div>
+                                    </div>
+                                    <div style={{ width: RequestDetails.site_act_date ? '25%' : '33.33%', padding: 10 }}>
+                                        <b style={{ marginBottom: 10, display: 'block', textAlign: 'center', fontSize: 13 }}>{RequestDetails.status === 'rejected' ? "Rejected By" : RequestDetails.status === 'cancelled' || RequestDetails.status === 'canceled_by_inventory' ? "Cancelled By" : "Approved By"}</b>
+                                        {
+                                            RequestDetails.act_date
+                                                ?
+                                                <>
+                                                    <p style={{ textAlign: 'center', fontSize: 20, fontFamily: "Tangerine", transform: "rotate(-10deg) translate(0, 5px)" }}>
+                                                        {RequestDetails.hod_employee_name}
+                                                    </p>
+                                                    <p style={{ marginBottom: 0, marginTop: 10, display: 'block', textAlign: 'center', fontSize: 13 }}>{RequestDetails.hod_employee_designation_name}</p>
+                                                    <p style={{ marginBottom: 0, display: 'block', textAlign: 'center', fontSize: 13 }}>
+                                                        {new Date(RequestDetails.act_date).toDateString()}
+                                                    </p>
+                                                </>
+                                                : null
+                                        }
                                     </div>
                                 </div>
                             </div>
-
                         </div>
-                        : null
+
+                    </div>
+                    : null
                 }
 
             </div>

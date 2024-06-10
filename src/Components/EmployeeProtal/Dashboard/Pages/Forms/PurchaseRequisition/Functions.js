@@ -144,6 +144,26 @@ export const GetCompanies = ( setCompanies ) => {
 
 }
 
+export const loadWMEquipmentRequests = ( company, setWMEquipmentList ) => {
+    setWMEquipmentList([]);
+    axios.post('/workshop/equipment-request/verified_list', {
+        company: company
+    })
+    .then(
+        res => 
+        {
+            setWMEquipmentList(res.data);
+        }
+    ).catch(
+        err => {
+
+            console.log(err);
+
+        }
+    );
+
+}
+
 export const GetLocations = ( setLocations ) => {
 
     axios.get('/getalllocations').then(
@@ -215,7 +235,7 @@ export const SubmitPR = ( e, setData, setSubmitConfirmation ) => {
 
 }
 
-export const PRSubmittion = ( e, history, toast, Quotations, Data, Employee, AccessControls ) => {
+export const PRSubmittion = ( e, history, toast, Quotations, Data, Employee, AccessControls, AttachedWMEquipmentList ) => {
 
     e.preventDefault();
     const FormFields = new FormData();
@@ -284,6 +304,7 @@ export const PRSubmittion = ( e, history, toast, Quotations, Data, Employee, Acc
     {
         $('fieldset').prop('disabled', true);
         FormFields.append( "specifications", JSON.stringify(specifications) );
+        FormFields.append( "wm_requests", JSON.stringify(AttachedWMEquipmentList) );
         FormFields.append( "data", JSON.stringify(Data) );
         FormFields.append( "note", e.target['notes'].value );
         FormFields.append( "emp_location", AccessControls.location_code );
@@ -675,7 +696,7 @@ export const loadRequests = ( companies, CompanyViewer, Admin, setRequests ) => 
 
 }
 
-export const openRequestDetails = ( AccessControls, pr_id, setRequestDetails, setSpecifications, setAttachedQuotations, setQuotations, setLogs ) => {
+export const openRequestDetails = ( AccessControls, pr_id, setRequestDetails, setSpecifications, setAttachedQuotations, setQuotations, setLogs, setAttachedWMERequests ) => {
 
     let key = false;
     // if ( AccessControls.access )
@@ -725,7 +746,7 @@ export const openRequestDetails = ( AccessControls, pr_id, setRequestDetails, se
                 specifications = res.data[2];
             }
             setSpecifications(specifications);
-
+            setAttachedWMERequests(res.data[5]);
         }
     ).catch(
         err => {
