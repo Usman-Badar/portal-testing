@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom/cjs/react-router-dom';
+import { Link, useHistory } from 'react-router-dom/cjs/react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -8,6 +8,7 @@ import $ from 'jquery';
 import axios from '../../../../../../axios';
 
 const WorkShopItemRequestForm = () => {
+  const history = useHistory();
   const [Equipments, setEquipments] = useState([]);
   const [EquipmentNumbers, setEquipmentNumbers] = useState([]);
   const [Locations, setLocations] = useState([]);
@@ -73,12 +74,15 @@ const WorkShopItemRequestForm = () => {
       maintenance_other: e.target['equipmentTypeOther'] ? e.target['equipmentTypeOther'].value : '',
       request_type: RequestType,
       description: e.target['description'].value,
+      emp_id: localStorage.getItem('EmpID')
     }).then(
-      (res) => {
+      () => {
         toast.success("Form submitted successfully!");
+        history.push('/workshop');
       }
     ).catch(
       err => {
+        $('fieldset').prop('disabled', false);
         console.log(err);
       }
     )
