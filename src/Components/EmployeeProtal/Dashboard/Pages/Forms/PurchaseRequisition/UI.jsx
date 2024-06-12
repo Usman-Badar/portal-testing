@@ -189,7 +189,11 @@ const UI = ({ AttachedWMERequests, AttachedWMEquipmentList, setAttachedWMEquipme
                                     Specifications={Specifications}
                                     RequestDetails={RequestDetails}
                                     Quotations={Quotations}
+                                    AccessControls={AccessControls}
+                                    AttachedWMEquipmentList={AttachedWMEquipmentList}
 
+                                    loadWMEquipmentRequests={loadWMEquipmentRequests}
+                                    setWM_EquipmentsModal={setWM_EquipmentsModal}
                                     addRow={addRow}
                                     updatePR={updatePR}
                                     openRequestDetails={openRequestDetails}
@@ -262,13 +266,15 @@ const EditConfirmationModal = ({ RequestDetails, Relations, Data, PRUpdate }) =>
 
 }
 
-const PRFormForEditing = ({ Quotations, updatePR, RequestDetails, Specifications, openRequestDetails, history, Locations, Companies, addRow, onContentInput, setShowQuotationModal }) => {
+const PRFormForEditing = ({ loadWMEquipmentRequests, setWM_EquipmentsModal, AttachedWMEquipmentList, AccessControls, Quotations, updatePR, RequestDetails, Specifications, openRequestDetails, history, Locations, Companies, addRow, onContentInput, setShowQuotationModal }) => {
 
     useEffect(
         () => {
+            const pr_id = window.location.href.split('&&pr_id=').pop();
             if (!RequestDetails) {
-                const pr_id = window.location.href.split('&&pr_id=').pop();
                 openRequestDetails(pr_id);
+            }else {
+                loadWMEquipmentRequests(RequestDetails.company_code, pr_id);
             }
         }, [RequestDetails]
     );
@@ -465,8 +471,11 @@ const PRFormForEditing = ({ Quotations, updatePR, RequestDetails, Specifications
                             </table>
 
                             <div className="d-flex align-items-center justify-content-between">
-
-                                <button className="btn green" type='button' onClick={() => setShowQuotationModal(true)}>Attached Quotations ({Quotations.length})</button>
+                                <div>
+                                    <button className="btn green" type='button' onClick={() => setShowQuotationModal(true)}>Attached Quotations ({Quotations.length})</button>
+                                    {/* {AccessControls && JSON.parse(AccessControls.access).includes(113) && <button className="btn light ml-2" type='button' onClick={() => setWM_EquipmentsModal(true)}>Attach Maintenance Form {AttachedWMEquipmentList.length > 0 && <>({ AttachedWMEquipmentList.length })</>}</button>} */}
+                                    <button className="btn light ml-2" type='button' onClick={() => setWM_EquipmentsModal(true)}>Attach Maintenance Form {AttachedWMEquipmentList.length > 0 && <>({ AttachedWMEquipmentList.length })</>}</button>
+                                </div>
                                 <button className="btn submit" type='submit'>Update Purchase Requisition</button>
 
                             </div>
@@ -894,7 +903,7 @@ const PRForm = ({ AttachedWMEquipmentList, WMEquipmentList, setWMEquipmentList, 
                             SelectCompany && (
                                 <div>
                                     <button className="btn green" type='button' onClick={() => setShowQuotationModal(true)}>Attached Quotations ({Quotations.length})</button>
-                                    <button className="btn light ml-2" type='button' onClick={() => setWM_EquipmentsModal(true)}>Attach Maintainance Form {AttachedWMEquipmentList.length > 0 && <>({ AttachedWMEquipmentList.length })</>}</button>
+                                    {AccessControls && JSON.parse(AccessControls.access).includes(113) && <button className="btn light ml-2" type='button' onClick={() => setWM_EquipmentsModal(true)}>Attach Maintenance Form {AttachedWMEquipmentList.length > 0 && <>({ AttachedWMEquipmentList.length })</>}</button>}
                                 </div>
                             )
                         }
@@ -1046,7 +1055,7 @@ const Detailing = ({ AttachedWMERequests, AccessControls, SiteManagerRejectionCo
                         <button className="btn green" onClick={() => history.replace('/purchase/requisition/requests')}>Back</button>
                         <button className={View === 'application' ? "btn submit" : "btn green"} onClick={() => setView('application')}>Application</button>
                         <button className={View === 'request_status' ? "btn submit" : "btn green"} onClick={() => setView('request_status')}>Quotations({Quotations.length})</button>
-                        <button className={View === 'maintainance' ? "btn submit" : "btn light"} onClick={() => setView('maintainance')}>Maintainance Requests({AttachedWMERequests.length})</button>
+                        <button className={View === 'maintainance' ? "btn submit" : "btn light"} onClick={() => setView('maintainance')}>Maintenance Requests({AttachedWMERequests.length})</button>
                     </div>
                 </div>
                 <hr />
@@ -1639,7 +1648,7 @@ const Detailing = ({ AttachedWMERequests, AccessControls, SiteManagerRejectionCo
                     <>
                         <hr />
                         <div className='d-flex justify-content-between'>
-                            <h5 className='mb-0'>Maintainance Form Attached</h5>
+                            <h5 className='mb-0'>Maintenance Form Attached</h5>
                             <h5 className='mb-0'>({AttachedWMERequests.length})</h5>
                         </div>
                         <div className="pr-grid">

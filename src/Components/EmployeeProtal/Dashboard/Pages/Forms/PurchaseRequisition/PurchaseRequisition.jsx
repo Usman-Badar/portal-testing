@@ -173,7 +173,7 @@ function PurchaseRequisition() {
                     
                     setAttachedWMEquipmentList={setAttachedWMEquipmentList}
                     setWMEquipmentList={setWMEquipmentList}
-                    loadWMEquipmentRequests={ (company) => loadWMEquipmentRequests(company, setWMEquipmentList) }
+                    loadWMEquipmentRequests={ (company, pr_id) => loadWMEquipmentRequests(company, pr_id, setWMEquipmentList, setAttachedWMEquipmentList) }
                     SiteManagerRejectionConfirm={ ( e, pr_id, requested_by, Specifications ) => SiteManagerRejectionConfirm( e, pr_id, requested_by, Specifications, history, (RequestDetails?.company_short_code + '-' + RequestDetails?.series_year + '-' + RequestDetails?.series_code) ) }
                     SiteManagerApprovalConfirm={ ( e, pr_id, requested_by, Specifications ) => SiteManagerApprovalConfirm( e, pr_id, requested_by, Specifications, history, (RequestDetails?.company_short_code + '-' + RequestDetails?.series_year + '-' + RequestDetails?.series_code) ) }
                     overrideRequisition={ (e, type) => overrideRequisition( e, type, RequestDetails, history ) }
@@ -191,7 +191,7 @@ function PurchaseRequisition() {
                     addRow={ addRow }
                     openRequestDetails={ ( pr_id ) => openRequestDetails( AccessControls, pr_id, setRequestDetails, setSpecifications, setAttachedQuotations, setQuotations, setLogs, setAttachedWMERequests ) }
                     PRSubmittion={ ( e ) => PRSubmittion( e, history, toast, Quotations, Data, Employee, AccessControls, AttachedWMEquipmentList ) }
-                    PRUpdate={ ( e ) => PRUpdate( e, RequestDetails, history, Data, EditedSpecifications, Quotations, RemovedQuotations, Logs, Specifications ) }
+                    PRUpdate={ ( e ) => PRUpdate( e, RequestDetails, history, Data, EditedSpecifications, Quotations, RemovedQuotations, Logs, Specifications, AttachedWMEquipmentList ) }
                     updatePR={ ( e ) => updatePR( e, RequestDetails, setData, setEditConfirmation, setEditedSpecifications, setLogs ) }
                     SubmitPR={ ( e ) => SubmitPR( e, setData, setSubmitConfirmation ) }
                     setSubmitConfirmation={ setSubmitConfirmation }

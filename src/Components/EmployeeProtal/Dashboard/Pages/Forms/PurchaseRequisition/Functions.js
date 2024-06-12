@@ -144,23 +144,49 @@ export const GetCompanies = ( setCompanies ) => {
 
 }
 
-export const loadWMEquipmentRequests = ( company, setWMEquipmentList ) => {
+export const loadWMEquipmentRequests = ( company, pr_id, setWMEquipmentList, setAttachedWMEquipmentList ) => {
     setWMEquipmentList([]);
-    axios.post('/workshop/equipment-request/verified_list', {
-        company: company
-    })
-    .then(
-        res => 
-        {
-            setWMEquipmentList(res.data);
-        }
-    ).catch(
-        err => {
+    console.log(pr_id)
+    if (pr_id) {
+        axios.post('/workshop/equipment-request/edit/verified_list', {
+            company: company,
+            pr_id: pr_id
+        })
+        .then(
+            res => 
+            {
+                const arr = [];
+                for (let x = 0; x < res.data.length; x++) {
+                    if (parseInt(res.data[x].attached_to_pr) === parseInt(pr_id)) arr.push(res.data[x])
+                }
+                setWMEquipmentList(res.data);
+                setAttachedWMEquipmentList(arr);
 
-            console.log(err);
-
-        }
-    );
+            }
+        ).catch(
+            err => {
+    
+                console.log(err);
+    
+            }
+        );
+    }else {
+        axios.post('/workshop/equipment-request/verified_list', {
+            company: company
+        })
+        .then(
+            res => 
+            {
+                setWMEquipmentList(res.data);
+            }
+        ).catch(
+            err => {
+    
+                console.log(err);
+    
+            }
+        );
+    }
 
 }
 
@@ -894,7 +920,7 @@ export const addRow = () => {
 
 }
 
-export const PRUpdate = ( e, RequestDetails, history, Data, specifications, Quotations, RemovedQuotations, Logs, Specifications ) => {
+export const PRUpdate = ( e, RequestDetails, history, Data, specifications, Quotations, RemovedQuotations, Logs, Specifications, AttachedWMEquipmentList ) => {
 
     e.preventDefault();
     const FormFields = new FormData();
@@ -902,6 +928,7 @@ export const PRUpdate = ( e, RequestDetails, history, Data, specifications, Quot
     addLogs(e.target['notes'].value, RequestDetails.note, logs);
 
     $('fieldset').prop('disabled', true);
+    FormFields.append( "wm_list", JSON.stringify(AttachedWMEquipmentList) );
     FormFields.append( "specifications", JSON.stringify(specifications) );
     FormFields.append( "prev_specifications", JSON.stringify(Specifications) );
     FormFields.append( "RemovedQuotations", JSON.stringify(RemovedQuotations) );
