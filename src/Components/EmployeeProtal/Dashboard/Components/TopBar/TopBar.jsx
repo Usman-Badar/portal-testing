@@ -33,7 +33,7 @@ const TopBar = () => {
 
     useEffect(
         () => {
-            loadAdminNotifications();
+            // loadAdminNotifications();
         }, []
     )
 

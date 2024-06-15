@@ -297,6 +297,12 @@ const App = () => {
                     
                     {/* FUEL MANAGEMENT */}
                     <Route exact path="/fuel-managent/company-equipment-setup-form" render={ () => <Sus content={ <Dashboard /> } /> } />
+
+                    {/* PUNJWANI FOUNDATION */}
+                    <Route exact path="/pf/rd/form" render={ () => <Sus content={ <Dashboard /> } /> } />
+                    <Route exact path="/pf/rd/users/registration" render={ () => <Sus content={ <Dashboard /> } /> } />
+                    <Route exact path="/pf/rd/locations" render={ () => <Sus content={ <Dashboard /> } /> } />
+                    <Route exact path="/pf/rd/biometric/registration" render={ () => <Sus content={ <Dashboard /> } /> } />
                 </Switch>
             </>
         )
