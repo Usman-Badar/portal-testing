@@ -1,3 +1,4 @@
+/* eslint-disable eqeqeq */
 import React, { useState } from 'react';
 import axios from '../../../../../../axios';
 import JSAlert from 'js-alert';

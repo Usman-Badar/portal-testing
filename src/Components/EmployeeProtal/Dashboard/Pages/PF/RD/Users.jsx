@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import axios from '../../../../../../axios';
 import $ from 'jquery';
@@ -106,7 +107,7 @@ const Users = () => {
                                 </div>
                                 <div className='col-md-6'>
                                     <label className='mb-0'><b>CNIC No</b></label>
-                                    <input type='text' className="form-control mb-3" name="cnic" required />
+                                    <input type='text' className="form-control mb-3" name="cnic" pattern="^[0-9]{5}-[0-9]{7}-[0-9]$" title="Please match the required format: XXXXX-XXXXXXX-X" maxLength={15} required />
                                 </div>
                                 <div className='col-md-6'>
                                     <label className='mb-0'><b>Number of Dependent</b></label>

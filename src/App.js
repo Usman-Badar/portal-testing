@@ -300,6 +300,7 @@ const App = () => {
 
                     {/* PUNJWANI FOUNDATION */}
                     <Route exact path="/pf/rd/form" render={ () => <Sus content={ <Dashboard /> } /> } />
+                    <Route exact path="/pf/rd/form-verification-first" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/pf/rd/users/registration" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/pf/rd/locations" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/pf/rd/biometric/registration" render={ () => <Sus content={ <Dashboard /> } /> } />

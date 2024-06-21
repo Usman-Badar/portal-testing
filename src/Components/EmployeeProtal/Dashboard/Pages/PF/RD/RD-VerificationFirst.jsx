@@ -21,15 +21,17 @@ const RD = () => {
   const [categories, setCategories] = useState([]);
   const [category, setCategory] = useState(1);
   const [searchedId, setSearchedId] = useState('');
+  const [cnic, setCNIC] = useState('');
   const [searchedObject, setSearchedObject] = useState(null);
   const [searchState, setSearchState] = useState('');
   const [DeliverConfirm, setDeliverConfirm] = useState(false);
   const [Template, setTemplate] = useState();
+  const [Method, setMethod] = useState();
 
   useEffect(
     () => {
       if (searchedObject) setSearchedObject(null);
-    }, [searchedId, category, location]
+    }, [searchedId, category, location, cnic]
   )
   useEffect(
     () => {
@@ -63,28 +65,77 @@ const RD = () => {
     });
   }
 
-  const verifyID = (e) => {
-    e.preventDefault();
+  const verifyID = () => {
+    const button = document.getElementById('confirmBtn');
     const fieldset = document.getElementById('verification-form-fieldset');
-    fieldset.disabled = true;
-    setSearchState("Verifying ID...");
-    setSearchedObject(null);
-
-    axios.get(`/pf/rd/verify?id=${searchedId}&&category=${category}`).then(
-      res => {
-        fieldset.disabled = false;
-        if (!res.data || res.data === '') {
-          setSearchState(`No User Found With ${(category == 1 ? 'Employee' : 'Registration')} ID: ${searchedId}`);
-        }else {
-          setSearchState("");
-          setSearchedObject(res.data);
-        }
+    function btnChange(fSet, btn, txt) {
+      fieldset.disabled = fSet;
+      button.disabled = btn;
+      button.innerText = txt;
+    }
+    const passcode = document.getElementById('passcode') ? document.getElementById('passcode').value : '';
+    if (!Template && passcode === '') {
+      if (parseInt(category) === 1) {
+        JSAlert.alert("Please enter the receiver's password or verify his biometric!!!");
+      }else {
+        JSAlert.alert("Please verify the receiver's biometric!!!");
       }
-    ).catch(err => {
-      setSearchState("Error Occurred!!");
-      console.log(err);
-      fieldset.disabled = false;
-    });
+    }else {
+      btnChange(true, true, 'Verifying...');
+      setSearchState("Verifying ID...");
+      setSearchedObject(null);
+  
+      axios.get(`/pf/rd/verify?id=${searchedId}&&category=${category}&&cnic=${cnic}`).then(
+        res => {
+          const data = res.data;
+          if (!data || data === '') {
+            btnChange(false, false, 'Confirm');
+            setSearchState(`No User Found With ${(cnic.length > 0 ? 'CNIC No' : category == 1 ? 'Employee ID' : 'Registration ID')}: ${cnic.length > 0 ? cnic : searchedId}`);
+            setDeliverConfirm(false);
+          }else {
+            button.innerText = 'Receiver Verification...';
+            setSearchState("Receiver Verification...");
+            axios.post('/pf/rd/receiver_verification', {
+              passcode: passcode,
+              category: category,
+              user_id: data.registration_id,
+              user_employee_id: data.employee_id,
+              emp_id: localStorage.getItem("EmpID"),
+              template: Template ? Template : 'null'
+            }).then(
+              res => {
+                btnChange(false, false, 'Confirm');
+                setSearchState("");
+                if (res?.data?.type && res?.data?.type === 'success') {
+                  setDeliverConfirm(false);
+                  setTemplate();
+                  setSearchedObject(data);
+                  setMethod(res?.data?.method);
+                  JSAlert.alert("Receiver has been verified!!").dismissIn(1500 * 1);
+                }else {
+                  if (res?.data?.type) {
+                    if (res?.data?.type === "pass_not_matched" || res?.data?.type === "biometric_not_found" || res?.data?.type === "biometric_not_matched") {
+                      JSAlert.alert(res?.data?.message, "Something went wrong!!!");
+                    }
+                  }else {
+                    console.log(res?.data);
+                    JSAlert.alert("Something went wrong!!!");
+                  }
+                }
+              }
+            ).catch(err => {
+              setSearchState("");
+              btnChange(false, false, 'Confirm');
+              console.log(err);
+            });
+          }
+        }
+      ).catch(err => {
+        setSearchState("Error Occurred!!");
+        console.log(err);
+        btnChange(false, false, 'Confirm');
+      });
+    }
   };
 
   const are30DaysPassed = (deliveryDate) => {
@@ -134,51 +185,44 @@ const RD = () => {
   }
 
   const confirmation = () => {
-    const button = document.getElementById('confirmBtn');
-    const passcode = document.getElementById('passcode') ? document.getElementById('passcode').value : '';
-    if (!Template && passcode === '') {
-      JSAlert.alert("Please enter the receiver's password or verify his biometric!!!");
-    } else {
-      button.disabled = true;
-      button.innerText = 'Verifying...';
-      axios.post('/pf/rd/delivery', {
-        passcode: passcode,
-        location: location,
-        category: category,
-        user_id: searchedObject.registration_id,
-        user_employee_id: searchedObject.employee_id,
-        emp_id: localStorage.getItem("EmpID"),
-        template: Template ? Template : 'null'
-      }).then(
-        res => {
-          button.disabled = false;
-          button.innerText = 'Confirm';
-          if (res.data && res.data?.rashan_distribution_id && res.data?.user_id) {
-            setDeliverConfirm(false);
-            setLocation('');
-            setCategory(1);
-            setSearchedId('');
-            setSearchedObject(null);
-            setSearchState('');
-            setTemplate();
-            JSAlert.alert("Rashan has been delivered successfully!!").dismissIn(1500 * 1);
-          }else {
-            if (res?.data?.type) {
-              if (res?.data?.type === "pass_not_matched" || res?.data?.type === "biometric_not_found" || res?.data?.type === "biometric_not_matched") {
-                JSAlert.alert(res?.data?.message, "Something went wrong!!!");
-              }
-            }else {
-              console.log(res?.data);
-              JSAlert.alert("Something went wrong!!!");
-            }
-          }
-        }
-      ).catch(err => {
+    const button = document.getElementById('deliverBtn');
+    button.disabled = true;
+    button.innerText = 'Verifying...';
+    axios.post('/pf/rd/delivery_after_verification', {
+      location: location,
+      user_id: searchedObject.registration_id,
+      emp_id: localStorage.getItem("EmpID"),
+      method: Method
+    }).then(
+      res => {
         button.disabled = false;
         button.innerText = 'Confirm';
-        console.log(err);
-      });
-    }
+        if (res.data && res.data?.rashan_distribution_id && res.data?.user_id) {
+          setDeliverConfirm(false);
+          setLocation('');
+          setCategory(1);
+          setSearchedId('');
+          setSearchedObject(null);
+          setCNIC('');
+          setSearchState('');
+          setTemplate();
+          JSAlert.alert("Rashan has been delivered successfully!!").dismissIn(1500 * 1);
+        }else {
+          if (res?.data?.type) {
+            if (res?.data?.type === "pass_not_matched" || res?.data?.type === "biometric_not_found" || res?.data?.type === "biometric_not_matched") {
+              JSAlert.alert(res?.data?.message, "Something went wrong!!!");
+            }
+          }else {
+            console.log(res?.data);
+            JSAlert.alert("Something went wrong!!!");
+          }
+        }
+      }
+    ).catch(err => {
+      button.disabled = false;
+      button.innerText = 'Confirm';
+      console.log(err);
+    });
   }
 
   return (
@@ -192,15 +236,15 @@ const RD = () => {
               <img width="20%" className='pointer' onClick={() => CallSGIFPGetData(SuccessFunc, ErrorFunc)} id="FPImage2" src={"https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Fingerprint_picture.svg/1413px-Fingerprint_picture.svg.png"} alt="fingerprints" />
             </div>
             {
-              searchedObject?.employee_id && (
+              parseInt(category) === 1 && (
                 <>
-                  <label className='mb-0'>{searchedObject?.name}'s Password</label>
+                  <label className='mb-0'>Employee's Password</label>
                   <input type='password' name="passcode" id="passcode" className='form-control' />
                 </>
               )
             }
             <br />
-            <button className='btn submit d-block ml-auto' id="confirmBtn" onClick={confirmation}>Confirm</button>
+            <button className='btn submit d-block ml-auto' id="confirmBtn" onClick={verifyID}>Confirm</button>
           </>
         } />
         <div className='page-content' style={{fontFamily: "Roboto-Light"}}>
@@ -214,7 +258,10 @@ const RD = () => {
             </h6>
           </div>
           <hr />
-          <form onSubmit={verifyID}>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            setDeliverConfirm(true);
+          }}>
             <fieldset id="verification-form-fieldset">
               <label className='mb-0'><b>Delivery Location</b></label>
               <select className="form-control mb-3" defaultValue={location} onChange={(e) => setLocation(e.target.value)} required>
@@ -234,7 +281,9 @@ const RD = () => {
                 }
               </select>
               <label className='mb-0'><b>{parseInt(category) === 1 ? 'Employee ID' : 'Registered ID'}</b></label>
-              <input type='number' className="form-control mb-3" value={searchedId} onChange={(e) => setSearchedId(e.target.value)} required />
+              <input type='number' className="form-control mb-3" value={searchedId} onChange={(e) => setSearchedId(e.target.value)} />
+              <label className='mb-0'><b>CNIC No</b></label>
+              <input type='text' className="form-control mb-3" value={cnic} onChange={(e) => setCNIC(e.target.value)} pattern="^[0-9]{5}-[0-9]{7}-[0-9]$" title="Please match the required format: XXXXX-XXXXXXX-X" maxLength={15} />
               <div className='d-flex justify-content-end'>
                 <button className='btn submit' id='verifyButton'>Verify</button>
               </div>
@@ -280,7 +329,7 @@ const RD = () => {
               </table>
               {are30DaysPassed(searchedObject.last_delivery_date) && (
                 <div className='d-flex justify-content-end mt-4'>
-                  <button type='button' className='btn submit' onClick={() => setDeliverConfirm(true)}>Deliver</button>
+                  <button type='button' className='btn submit' id='deliverBtn' onClick={confirmation}>Deliver</button>
                 </div>
               )}
             </div>
