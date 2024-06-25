@@ -276,13 +276,54 @@ const RD = () => {
                     <th>Last Delivery Date</th>
                     <td>{searchedObject.last_delivery_date ? new Date(searchedObject.last_delivery_date).toDateString() : "No Delivery Found"}</td>
                   </tr>
+                  <tr>
+                    <th>Rashan Distribution Category</th>
+                    <td>{searchedObject?.tbl_pf_rd_rashan_category?.rashan_category_name}</td>
+                  </tr>
                 </tbody>
               </table>
-              {are30DaysPassed(searchedObject.last_delivery_date) && (
-                <div className='d-flex justify-content-end mt-4'>
-                  <button type='button' className='btn submit' onClick={() => setDeliverConfirm(true)}>Deliver</button>
-                </div>
-              )}
+              {
+                searchedObject?.tbl_pf_rd_rashan_category?.tbl_pf_rd_items?.length === 0
+                ?
+                  <div className="alert alert-danger">
+                    <b>{searchedObject?.message?.title}</b><br />
+                    <span>{searchedObject?.message?.description}</span>
+                  </div>  
+                :
+                <>
+                  <div className="alert alert-secondary">
+                    <b>{searchedObject?.message?.title}</b><br />
+                    <span>{searchedObject?.message?.description}</span>
+                  </div>
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>Sr.No</th>
+                        <th>Item</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {
+                        searchedObject?.tbl_pf_rd_rashan_category?.tbl_pf_rd_items?.map(
+                          (val, index) => {
+                            return (
+                              <tr key={index}>
+                                <td>{index + 1}</td>
+                                <td>{val.item_name}</td>
+                              </tr>
+                            )
+                          }
+                        )
+                      }
+                    </tbody>
+                  </table>
+                  {are30DaysPassed(searchedObject.last_delivery_date) && (
+                    <div className='d-flex justify-content-end mt-4'>
+                      <button type='button' className='btn submit' onClick={() => setDeliverConfirm(true)}>Deliver</button>
+                    </div>
+                  )}
+                </>
+              }
             </div>
           )}
         </div>

@@ -77,14 +77,14 @@ const RD = () => {
     if (!Template && passcode === '') {
       if (parseInt(category) === 1) {
         JSAlert.alert("Please enter the receiver's password or verify his biometric!!!");
-      }else {
+      } else {
         JSAlert.alert("Please verify the receiver's biometric!!!");
       }
-    }else {
+    } else {
       btnChange(true, true, 'Verifying...');
       setSearchState("Verifying ID...");
       setSearchedObject(null);
-  
+
       axios.get(`/pf/rd/verify?id=${searchedId}&&category=${category}&&cnic=${cnic}`).then(
         res => {
           const data = res.data;
@@ -92,7 +92,7 @@ const RD = () => {
             btnChange(false, false, 'Confirm');
             setSearchState(`No User Found With ${(cnic.length > 0 ? 'CNIC No' : category == 1 ? 'Employee ID' : 'Registration ID')}: ${cnic.length > 0 ? cnic : searchedId}`);
             setDeliverConfirm(false);
-          }else {
+          } else {
             button.innerText = 'Receiver Verification...';
             setSearchState("Receiver Verification...");
             axios.post('/pf/rd/receiver_verification', {
@@ -112,12 +112,12 @@ const RD = () => {
                   setSearchedObject(data);
                   setMethod(res?.data?.method);
                   JSAlert.alert("Receiver has been verified!!").dismissIn(1500 * 1);
-                }else {
+                } else {
                   if (res?.data?.type) {
                     if (res?.data?.type === "pass_not_matched" || res?.data?.type === "biometric_not_found" || res?.data?.type === "biometric_not_matched") {
                       JSAlert.alert(res?.data?.message, "Something went wrong!!!");
                     }
-                  }else {
+                  } else {
                     console.log(res?.data);
                     JSAlert.alert("Something went wrong!!!");
                   }
@@ -144,7 +144,7 @@ const RD = () => {
       const b = moment(new Date());
       const diff = b.diff(a, 'days');
       return diff > 30;
-    }else {
+    } else {
       return true;
     }
   };
@@ -207,12 +207,12 @@ const RD = () => {
           setSearchState('');
           setTemplate();
           JSAlert.alert("Rashan has been delivered successfully!!").dismissIn(1500 * 1);
-        }else {
+        } else {
           if (res?.data?.type) {
             if (res?.data?.type === "pass_not_matched" || res?.data?.type === "biometric_not_found" || res?.data?.type === "biometric_not_matched") {
               JSAlert.alert(res?.data?.message, "Something went wrong!!!");
             }
-          }else {
+          } else {
             console.log(res?.data);
             JSAlert.alert("Something went wrong!!!");
           }
@@ -247,7 +247,7 @@ const RD = () => {
             <button className='btn submit d-block ml-auto' id="confirmBtn" onClick={verifyID}>Confirm</button>
           </>
         } />
-        <div className='page-content' style={{fontFamily: "Roboto-Light"}}>
+        <div className='page-content' style={{ fontFamily: "Roboto-Light" }}>
           <div className="d-flex align-items-center justify-content-between">
             <h3 className="heading">
               Rashan Distribution Form
@@ -325,13 +325,54 @@ const RD = () => {
                     <th>Last Delivery Date</th>
                     <td>{searchedObject.last_delivery_date ? new Date(searchedObject.last_delivery_date).toDateString() : "No Delivery Found"}</td>
                   </tr>
+                  <tr>
+                    <th>Rashan Distribution Category</th>
+                    <td>{searchedObject?.tbl_pf_rd_rashan_category?.rashan_category_name}</td>
+                  </tr>
                 </tbody>
               </table>
-              {are30DaysPassed(searchedObject.last_delivery_date) && (
-                <div className='d-flex justify-content-end mt-4'>
-                  <button type='button' className='btn submit' id='deliverBtn' onClick={confirmation}>Deliver</button>
-                </div>
-              )}
+              {
+                searchedObject?.tbl_pf_rd_rashan_category?.tbl_pf_rd_items?.length === 0
+                  ?
+                  <div className="alert alert-danger">
+                    <b>{searchedObject?.message?.title}</b><br />
+                    <span>{searchedObject?.message?.description}</span>
+                  </div>
+                  :
+                  <>
+                    <div className="alert alert-secondary">
+                      <b>{searchedObject?.message?.title}</b><br />
+                      <span>{searchedObject?.message?.description}</span>
+                    </div>
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th>Sr.No</th>
+                          <th>Item</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
+                          searchedObject?.tbl_pf_rd_rashan_category?.tbl_pf_rd_items?.map(
+                            (val, index) => {
+                              return (
+                                <tr key={index}>
+                                  <td>{index + 1}</td>
+                                  <td>{val.item_name}</td>
+                                </tr>
+                              )
+                            }
+                          )
+                        }
+                      </tbody>
+                    </table>
+                    {are30DaysPassed(searchedObject.last_delivery_date) && (
+                      <div className='d-flex justify-content-end mt-4'>
+                        <button type='button' className='btn submit' id='deliverBtn' onClick={confirmation}>Deliver</button>
+                      </div>
+                    )}
+                  </>
+              }
             </div>
           )}
         </div>

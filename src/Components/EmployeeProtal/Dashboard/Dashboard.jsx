@@ -135,6 +135,8 @@ const RDVerificationFirst = lazy( () => import('./Pages/PF/RD/RD-VerificationFir
 const Users = lazy( () => import('./Pages/PF/RD/Users') );
 const RDLocations = lazy( () => import('./Pages/PF/RD/Locations') );
 const RDBiometricRegistration = lazy( () => import('./Pages/PF/RD/BiometricRegistration') );
+const RDItems = lazy( () => import('./Pages/PF/RD/RDItems') );
+const RDRashanCategories = lazy( () => import('./Pages/PF/RD/RDRashanCategories') );
 
 const Dashboard = () => {
     
@@ -573,6 +575,8 @@ const Dashboard = () => {
                                 <Route exact path="/pf/rd/users/registration" render={ () => <Sus content={ <Users /> } /> } />
                                 <Route exact path="/pf/rd/locations" render={ () => <Sus content={ <RDLocations /> } /> } />
                                 <Route exact path="/pf/rd/biometric/registration" render={ () => <Sus content={ <RDBiometricRegistration /> } /> } />
+                                <Route exact path="/pf/rd/rashan_items" render={ () => <Sus content={ <RDItems /> } /> } />
+                                <Route exact path="/pf/rd/rashan_categories" render={ () => <Sus content={ <RDRashanCategories /> } /> } />
                             </div>
                         }
                     </div>
