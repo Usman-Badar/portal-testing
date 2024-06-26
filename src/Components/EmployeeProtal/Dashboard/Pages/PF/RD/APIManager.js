@@ -45,6 +45,22 @@ export const onCreateRashanCategory = async (formData) => {
     }
 }
 
+// TO LINK THE SELECTED ITEMS WITH A SPECIFIC RASHAN CATEGORY
+export const linkItemsToRashanCategory = async (rashan_category_id, items) => {
+    try {
+        const res = await axios.post(
+            '/pf/rd/rashan_category/link', {
+                rashan_category_id: rashan_category_id,
+                items: JSON.stringify(items),
+                emp_id: localStorage.getItem('EmpID')
+            }
+        );
+        return res.data;
+    } catch (err) {
+        errHandler(err);
+    }
+}
+
 
 // RASHAN ITEMS APIS
 // FETCH THE LIST OF ALL RASHAN ITEMS
@@ -63,6 +79,19 @@ export const onCreateRashanItem = async (formData) => {
     try {
         const res = await axios.post('/pf/rd/rashan_items/create', formData)
         return res.data;
+    } catch (err) {
+        errHandler(err);
+    }
+}
+
+// LOAD THE LINKED ITEMS TO A SPECIFIC CATEGORY
+// USED IN RASHAN CATEGORY PAGE WHEN CLICKED ON A SPECIFIC CATEGORY
+export const fetchRashanLinkedItems = async (rashan_category_id, setItems) => {
+    setItems();
+    try {
+        const res = await axios.get('/pf/rd/rashan_items/selected?rashan_category=' + rashan_category_id);
+        console.log(res.data);
+        setItems(res.data);
     } catch (err) {
         errHandler(err);
     }

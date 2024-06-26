@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import $ from 'jquery';
 import JSAlert from 'js-alert';
-import { fetchRashanItems, fetchRashanCategories, onCreateRashanItem } from './APIManager';
+import { fetchRashanItems, onCreateRashanItem } from './APIManager';
 import moment from 'moment';
 
 const RDItems = () => {
     const [items, setItems] = useState();
     const [form, setForm] = useState(false);
-    const [rashanCategories, setRashanCategories] = useState([]);
 
     useEffect(
         async () => {
@@ -15,18 +14,11 @@ const RDItems = () => {
         }, []
     )
 
-    useEffect(
-        async () => {
-            if (form && rashanCategories.length === 0) await fetchRashanCategories(setRashanCategories);
-        }, [form]
-    );
-
     const onCreate = async (e) => {
         e.preventDefault();
         $('fieldset').prop('disabled', true); 
         const formData = {
             name: e.target['name'].value,
-            rashan_category: e.target['rashan_category'].value,
             uom: e.target['uom'].value,
             emp_id: localStorage.getItem('EmpID')
         };
@@ -72,17 +64,6 @@ const RDItems = () => {
                                     <label className='mb-0'><b>Unit of Measurement</b></label>
                                     <input type='text' className="form-control mb-3" name="uom" placeholder='like: KG, PCS, LTR, ETC' required />
                                 </div>
-                                <div className='col-md-12'>
-                                    <label className='mb-0'><b>Rashan Category</b></label>
-                                    <select className="form-control" name="rashan_category" required>
-                                        <option value=''>Select Rashan Category</option>
-                                        {
-                                            rashanCategories.map((val, index) => {
-                                                return <option key={index} value={val.rashan_category_id}>{val.rashan_category_name}</option>
-                                            })
-                                        }
-                                    </select>
-                                </div>
                             </div>
                             <div className='d-flex justify-content-end rounded mt-3'>
                                 <button className='btn submit' id='createBtn'>Create</button>
@@ -119,6 +100,7 @@ const RDItems = () => {
                             <tr>
                                 <th className='border-top-0'>Sr.No</th>
                                 <th className='border-top-0'>Item Name</th>
+                                <th className='border-top-0'>Unit of Measurement</th>
                                 <th className='border-top-0'>Rashan Category</th>
                                 <th className='border-top-0'>Created At</th>
                             </tr>
@@ -129,8 +111,9 @@ const RDItems = () => {
                                     return (
                                         <tr key={val.registration_id} className='pointer pointer-hover'>
                                             <td>{i+1}</td>
-                                            <td>{val.item_name} ({val.uom})</td>
-                                            <td>{val.tbl_pf_rd_rashan_category?.rashan_category_name}</td>
+                                            <td>{val.item_name}</td>
+                                            <td>{val.uom}</td>
+                                            <td>{val.tbl_pf_rd_rashan_category ? val.tbl_pf_rd_rashan_category?.rashan_category_name : "No Category Linked"}</td>
                                             <td>{moment(val.createdAt).format('DD-MM-YYYY hh:mm A')}</td>
                                         </tr>
                                     )
