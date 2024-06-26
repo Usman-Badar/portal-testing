@@ -12,6 +12,7 @@ const RDRashanCategories = () => {
     const [selectedItems, setSelectedItems] = useState();
     const [form, setForm] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [searchItems, setSearchItems] = useState('');
 
     useEffect(
         async () => {
@@ -134,7 +135,7 @@ const RDRashanCategories = () => {
                         <>
                             <div>
                                 <label className='mb-0'><b>Search Items</b></label>
-                                <input type='search' className="form-control mb-3" name="search_items" required />
+                                <input type='search' onChange={(e) => setSearchItems(e.target.value)} className="form-control mb-3" name="search_items" required />
                             </div>
 
                             {/* LOADING THOSE ITEMS WHICH ARE ALREADY LINKED TO THE SELECTED CATEGORY */}
@@ -155,7 +156,7 @@ const RDRashanCategories = () => {
                                 </thead>
                                 <tbody>
                                     {
-                                        items.map((val, i) => {
+                                        items.filter(val => val.item_name.toLowerCase().includes(searchItems.toLowerCase())).map((val, i) => {
                                             const isSelected = selectedItems?.filter(value => value.item_id === val.item_id)[0];
                                             return (
                                                 <tr key={i}>
