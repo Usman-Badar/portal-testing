@@ -4,8 +4,6 @@ import './App.css';
 
 import { Switch, Route, Redirect } from 'react-router-dom';
 import Loading from './Components/UI/Loading/Loading';
-import POPrintUI from './Components/EmployeeProtal/Dashboard/Components/PO_PrintUI/PO_PrintUI';
-import PRprintUI from './Components/EmployeeProtal/Dashboard/Components/PR_printUI/PR_printUI';
 import Vouchers from './Components/EmployeeProtal/Dashboard/Components/Vouchers/Vouchers';
 import Quatation from './Components/EmployeeProtal/Dashboard/Components/Quatation/Quatation';
 import Bills from './Components/EmployeeProtal//Dashboard/Components/Bills/Bills';
@@ -287,6 +285,7 @@ const App = () => {
                     <Route exact path="/fuel-managent/fuel-receival-for-workshop" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/fuel-managent/equipment-fuel-entry" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/fuel-managent/equipment-trip-entry" render={ () => <Sus content={ <Dashboard /> } /> } />
+                    <Route exact path="/fuel-managent/equipment-trip-entry/v2" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/fuel-managent/equipment-trip-selection" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/fuel-managent/stock-at-workshop" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/fuel-managent/stock-at-station" render={ () => <Sus content={ <Dashboard /> } /> } />
@@ -298,6 +297,14 @@ const App = () => {
                     {/* FUEL MANAGEMENT */}
                     <Route exact path="/fuel-managent/company-equipment-setup-form" render={ () => <Sus content={ <Dashboard /> } /> } />
 
+                    {/* PUNJWANI FOUNDATION */}
+                    <Route exact path="/pf/rd/form" render={ () => <Sus content={ <Dashboard /> } /> } />
+                    <Route exact path="/pf/rd/form-verification-first" render={ () => <Sus content={ <Dashboard /> } /> } />
+                    <Route exact path="/pf/rd/users/registration" render={ () => <Sus content={ <Dashboard /> } /> } />
+                    <Route exact path="/pf/rd/locations" render={ () => <Sus content={ <Dashboard /> } /> } />
+                    <Route exact path="/pf/rd/biometric/registration" render={ () => <Sus content={ <Dashboard /> } /> } />
+                    <Route exact path="/pf/rd/rashan_items" render={ () => <Sus content={ <Dashboard /> } /> } />
+                    <Route exact path="/pf/rd/rashan_categories" render={ () => <Sus content={ <Dashboard /> } /> } />
 
                     {/* WORKSHOP */}
                     <Route exact path="/workshop" render={() => <Sus content={<Dashboard />} />} />

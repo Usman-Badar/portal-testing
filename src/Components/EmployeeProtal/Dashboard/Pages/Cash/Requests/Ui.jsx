@@ -379,6 +379,7 @@ function UI({ Admin, RequestType, ShipViewer, Range, ShowFilters, Status, Reques
                                                                     {val.receival_date ? <span className='text-success'>Cash Collected</span> : <span className='text-danger'>Cash Not Collected</span>}
                                                                     {val.pr_id !== null ? <div className='attached_pr'>PR</div> : null}
                                                                     {val.previous_slip !== null ? <div className='attached_slip'>Slip</div> : null}
+                                                                    {val.attached_to_po !== null ? <div className='attached_po'>PO</div> : null}
                                                                     {val.shp_line_adv === 'Y' ? <div className='attached_shp'>Shipping</div> : null}
                                                                 </td>
                                                             </tr>

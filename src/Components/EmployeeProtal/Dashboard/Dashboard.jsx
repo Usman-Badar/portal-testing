@@ -123,6 +123,7 @@ const FuelReceivedForm = lazy( () => import('./Pages/Forms/FuelManagementModule/
 const FuelRequest = lazy( () => import('./Pages/Forms/FuelManagementModule/FuelRequest/FuelRequest') );
 const EquipmentFuelEntry = lazy( () => import('./Pages/Forms/FuelManagementModule/EquipmentFuelEntry/EquipmentFuelEntry') );
 const TripEntry = lazy( () => import('./Pages/Forms/FuelManagementModule/TripEntry/TripEntry') );
+const TripEntryV2 = lazy( () => import('./Pages/Forms/FuelManagementModule/TripEntry/TripEntryV2-20240627') );
 const TripSelection = lazy( () => import('./Pages/Forms/FuelManagementModule/TripSelection/TripSelection') );
 const StockAtWorkshop = lazy( () => import('./Pages/Forms/FuelManagementModule/StockAtWorkshop/StockAtWorkshop') );
 const StockAtFuelingStation = lazy( () => import('./Pages/Forms/FuelManagementModule/StockAtFuelingStation/StockAtFuelingStation') );
@@ -131,6 +132,14 @@ const StockAtFuelingStation = lazy( () => import('./Pages/Forms/FuelManagementMo
 const BiometricRegistration = lazy( () => import('./Pages/BiometricRegistration/BiometricRegistration') );
 const WorkshopItemReuestForm = lazy( () => import('./Pages/WorkShop/WorkshopEquipment/WorkShopItemRequestForm') );
 const WorkshopItemReuestList = lazy( () => import('./Pages/WorkShop/WorkshopEquipment/Workshop') );
+
+const RD = lazy( () => import('./Pages/PF/RD/RD') );
+const RDVerificationFirst = lazy( () => import('./Pages/PF/RD/RD-VerificationFirst') );
+const Users = lazy( () => import('./Pages/PF/RD/Users') );
+const RDLocations = lazy( () => import('./Pages/PF/RD/Locations') );
+const RDBiometricRegistration = lazy( () => import('./Pages/PF/RD/BiometricRegistration') );
+const RDItems = lazy( () => import('./Pages/PF/RD/RDItems') );
+const RDRashanCategories = lazy( () => import('./Pages/PF/RD/RDRashanCategories') );
 
 const Dashboard = () => {
     
@@ -554,6 +563,7 @@ const Dashboard = () => {
                                 <Route exact path="/fuel-managent/fuel-request-for-station" render={ () => <Sus content={ <FuelRequest /> } /> } />
                                 <Route exact path="/fuel-managent/equipment-fuel-entry" render={ () => <Sus content={ <EquipmentFuelEntry /> } /> } />
                                 <Route exact path="/fuel-managent/equipment-trip-entry" render={ () => <Sus content={ <TripEntry /> } /> } />
+                                <Route exact path="/fuel-managent/equipment-trip-entry/v2" render={ () => <Sus content={ <TripEntryV2 /> } /> } />
                                 <Route exact path="/fuel-managent/equipment-trip-selection" render={ () => <Sus content={ <TripSelection /> } /> } />
                                 <Route exact path="/fuel-managent/stock-at-workshop" render={ () => <Sus content={ <StockAtWorkshop /> } /> } />
                                 <Route exact path="/fuel-managent/stock-at-station" render={ () => <Sus content={ <StockAtFuelingStation /> } /> } />
@@ -563,10 +573,19 @@ const Dashboard = () => {
                                 <Route exact path='/portal/issues/new' render={ () => <Sus content={ <PortalIssues /> } /> } />
                                 <Route exact path='/portal/issues/details/:id' render={ () => <Sus content={ <PortalIssues /> } /> } />
 
-
                                 {/* WORKSHOP */}
                                 <Route exact path='/workshop' render={() => <Sus content={<WorkshopItemReuestList />} />} />
                                 <Route exact path='/workshop_item_request' render={() => <Sus content={<WorkshopItemReuestForm />} />} />
+
+                                {/* PUNJWANI FOUNDATION */}
+                                <Route exact path="/pf/rd/form" render={ () => <Sus content={ <RD /> } /> } />
+                                <Route exact path="/pf/rd/form-verification-first" render={ () => <Sus content={ <RDVerificationFirst /> } /> } />
+                                <Route exact path="/pf/rd/users/registration" render={ () => <Sus content={ <Users /> } /> } />
+                                <Route exact path="/pf/rd/locations" render={ () => <Sus content={ <RDLocations /> } /> } />
+                                <Route exact path="/pf/rd/biometric/registration" render={ () => <Sus content={ <RDBiometricRegistration /> } /> } />
+                                <Route exact path="/pf/rd/rashan_items" render={ () => <Sus content={ <RDItems /> } /> } />
+                                <Route exact path="/pf/rd/rashan_categories" render={ () => <Sus content={ <RDRashanCategories /> } /> } />
+
                             </div>
                         }
                     </div>
