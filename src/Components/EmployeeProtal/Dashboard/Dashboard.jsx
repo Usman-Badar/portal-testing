@@ -130,6 +130,8 @@ const StockAtFuelingStation = lazy( () => import('./Pages/Forms/FuelManagementMo
 
 
 const BiometricRegistration = lazy( () => import('./Pages/BiometricRegistration/BiometricRegistration') );
+const WorkshopItemReuestForm = lazy( () => import('./Pages/WorkShop/WorkshopEquipment/WorkShopItemRequestForm') );
+const WorkshopItemReuestList = lazy( () => import('./Pages/WorkShop/WorkshopEquipment/Workshop') );
 
 const RD = lazy( () => import('./Pages/PF/RD/RD') );
 const RDVerificationFirst = lazy( () => import('./Pages/PF/RD/RD-VerificationFirst') );
@@ -571,6 +573,10 @@ const Dashboard = () => {
                                 <Route exact path='/portal/issues/new' render={ () => <Sus content={ <PortalIssues /> } /> } />
                                 <Route exact path='/portal/issues/details/:id' render={ () => <Sus content={ <PortalIssues /> } /> } />
 
+                                {/* WORKSHOP */}
+                                <Route exact path='/workshop' render={() => <Sus content={<WorkshopItemReuestList />} />} />
+                                <Route exact path='/workshop_item_request' render={() => <Sus content={<WorkshopItemReuestForm />} />} />
+
                                 {/* PUNJWANI FOUNDATION */}
                                 <Route exact path="/pf/rd/form" render={ () => <Sus content={ <RD /> } /> } />
                                 <Route exact path="/pf/rd/form-verification-first" render={ () => <Sus content={ <RDVerificationFirst /> } /> } />
@@ -579,6 +585,7 @@ const Dashboard = () => {
                                 <Route exact path="/pf/rd/biometric/registration" render={ () => <Sus content={ <RDBiometricRegistration /> } /> } />
                                 <Route exact path="/pf/rd/rashan_items" render={ () => <Sus content={ <RDItems /> } /> } />
                                 <Route exact path="/pf/rd/rashan_categories" render={ () => <Sus content={ <RDRashanCategories /> } /> } />
+
                             </div>
                         }
                     </div>
