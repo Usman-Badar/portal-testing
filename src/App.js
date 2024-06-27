@@ -287,6 +287,7 @@ const App = () => {
                     <Route exact path="/fuel-managent/fuel-receival-for-workshop" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/fuel-managent/equipment-fuel-entry" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/fuel-managent/equipment-trip-entry" render={ () => <Sus content={ <Dashboard /> } /> } />
+                    <Route exact path="/fuel-managent/equipment-trip-entry/v2" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/fuel-managent/equipment-trip-selection" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/fuel-managent/stock-at-workshop" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/fuel-managent/stock-at-station" render={ () => <Sus content={ <Dashboard /> } /> } />

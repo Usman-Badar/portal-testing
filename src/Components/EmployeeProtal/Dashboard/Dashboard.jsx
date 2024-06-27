@@ -123,6 +123,7 @@ const FuelReceivedForm = lazy( () => import('./Pages/Forms/FuelManagementModule/
 const FuelRequest = lazy( () => import('./Pages/Forms/FuelManagementModule/FuelRequest/FuelRequest') );
 const EquipmentFuelEntry = lazy( () => import('./Pages/Forms/FuelManagementModule/EquipmentFuelEntry/EquipmentFuelEntry') );
 const TripEntry = lazy( () => import('./Pages/Forms/FuelManagementModule/TripEntry/TripEntry') );
+const TripEntryV2 = lazy( () => import('./Pages/Forms/FuelManagementModule/TripEntry/TripEntryV2-20240627') );
 const TripSelection = lazy( () => import('./Pages/Forms/FuelManagementModule/TripSelection/TripSelection') );
 const StockAtWorkshop = lazy( () => import('./Pages/Forms/FuelManagementModule/StockAtWorkshop/StockAtWorkshop') );
 const StockAtFuelingStation = lazy( () => import('./Pages/Forms/FuelManagementModule/StockAtFuelingStation/StockAtFuelingStation') );
@@ -552,6 +553,7 @@ const Dashboard = () => {
                                 <Route exact path="/fuel-managent/fuel-request-for-station" render={ () => <Sus content={ <FuelRequest /> } /> } />
                                 <Route exact path="/fuel-managent/equipment-fuel-entry" render={ () => <Sus content={ <EquipmentFuelEntry /> } /> } />
                                 <Route exact path="/fuel-managent/equipment-trip-entry" render={ () => <Sus content={ <TripEntry /> } /> } />
+                                <Route exact path="/fuel-managent/equipment-trip-entry/v2" render={ () => <Sus content={ <TripEntryV2 /> } /> } />
                                 <Route exact path="/fuel-managent/equipment-trip-selection" render={ () => <Sus content={ <TripSelection /> } /> } />
                                 <Route exact path="/fuel-managent/stock-at-workshop" render={ () => <Sus content={ <StockAtWorkshop /> } /> } />
                                 <Route exact path="/fuel-managent/stock-at-station" render={ () => <Sus content={ <StockAtFuelingStation /> } /> } />

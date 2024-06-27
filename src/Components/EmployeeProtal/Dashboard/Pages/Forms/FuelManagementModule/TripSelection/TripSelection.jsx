@@ -84,7 +84,7 @@ const TripSelection = () => {
     }
     const GetTripEntries = (value) => {
         setTripEntries([]);
-        axios.post('/fuel-managent/trip-entries/equipment-numbers', {number: value}).then(
+        axios.post('/fuel-managent/trip-entries/equipment-numbers/v2', {company: companyRef.current.value, location: value}).then(
             res => {
                 setTripEntries(res.data);
                 setSelectedTrips([]);
@@ -159,7 +159,6 @@ const TripSelection = () => {
             formRef.current.reset();
             setNew(false);
             setAdditionalFuel(0);
-            setTripEntries([]);
             setSelectedTrips([]);
             setEquipmentNumbers([]);
             loadRequests(true);
@@ -342,7 +341,7 @@ const TripSelection = () => {
                                         </td>
                                         <td className='border-top-0'>
                                             <label className='font-weight-bold mb-0'>Equipment Number</label>
-                                            <select onChange={(e) => GetTripEntries(e.target.value)} className="form-control" ref={numberRef}>
+                                            <select className="form-control" ref={numberRef}>
                                                 <option value=''>Select the option</option>
                                                 {EquipmentNumbers.map(val => <option key={val.id} value={val.id}> {val.equipment_number}</option>)}
                                             </select>
@@ -372,7 +371,7 @@ const TripSelection = () => {
                                         </td>
                                         <td className='border-top-0'>
                                             <label className='font-weight-bold mb-0'>Location</label>
-                                            <select className="form-control" name='location' ref={locationRef} required>
+                                            <select className="form-control" name='location' ref={locationRef} onChange={(e) => GetTripEntries(e.target.value)} required>
                                                 <option value=''>Select the option</option>
                                                 {
                                                     Locations.map(
@@ -428,7 +427,7 @@ const TripSelection = () => {
                                             <label className='font-weight-bold mb-0'>Trip List</label>
                                             <select onChange={(e) => addTrips(e.target.value)} className="form-control" ref={tripListRef}>
                                                 <option value=''>Select a trip</option>
-                                                {TripEntries.map(val => <option key={val.id} value={JSON.stringify(val)}>{val.trip_from} to {val.trip_to}</option>)}
+                                                {TripEntries.map(val => <option key={val.id} value={JSON.stringify(val)}>{val.trip_from} to {val.trip_to} ({val.fuel_to_issue} ltr.)</option>)}
                                             </select>
                                         </td>
                                     </tr>
