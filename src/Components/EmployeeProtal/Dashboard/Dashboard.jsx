@@ -131,6 +131,14 @@ const StockAtFuelingStation = lazy( () => import('./Pages/Forms/FuelManagementMo
 
 const BiometricRegistration = lazy( () => import('./Pages/BiometricRegistration/BiometricRegistration') );
 
+const RD = lazy( () => import('./Pages/PF/RD/RD') );
+const RDVerificationFirst = lazy( () => import('./Pages/PF/RD/RD-VerificationFirst') );
+const Users = lazy( () => import('./Pages/PF/RD/Users') );
+const RDLocations = lazy( () => import('./Pages/PF/RD/Locations') );
+const RDBiometricRegistration = lazy( () => import('./Pages/PF/RD/BiometricRegistration') );
+const RDItems = lazy( () => import('./Pages/PF/RD/RDItems') );
+const RDRashanCategories = lazy( () => import('./Pages/PF/RD/RDRashanCategories') );
+
 const Dashboard = () => {
     
     const AccessControls = useSelector( ( state ) => state.EmpAuth.EmployeeData );
@@ -562,6 +570,15 @@ const Dashboard = () => {
                                 <Route exact path='/portal/issues' render={ () => <Sus content={ <PortalIssues /> } /> } />
                                 <Route exact path='/portal/issues/new' render={ () => <Sus content={ <PortalIssues /> } /> } />
                                 <Route exact path='/portal/issues/details/:id' render={ () => <Sus content={ <PortalIssues /> } /> } />
+
+                                {/* PUNJWANI FOUNDATION */}
+                                <Route exact path="/pf/rd/form" render={ () => <Sus content={ <RD /> } /> } />
+                                <Route exact path="/pf/rd/form-verification-first" render={ () => <Sus content={ <RDVerificationFirst /> } /> } />
+                                <Route exact path="/pf/rd/users/registration" render={ () => <Sus content={ <Users /> } /> } />
+                                <Route exact path="/pf/rd/locations" render={ () => <Sus content={ <RDLocations /> } /> } />
+                                <Route exact path="/pf/rd/biometric/registration" render={ () => <Sus content={ <RDBiometricRegistration /> } /> } />
+                                <Route exact path="/pf/rd/rashan_items" render={ () => <Sus content={ <RDItems /> } /> } />
+                                <Route exact path="/pf/rd/rashan_categories" render={ () => <Sus content={ <RDRashanCategories /> } /> } />
                             </div>
                         }
                     </div>
