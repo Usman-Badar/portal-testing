@@ -101,7 +101,6 @@ const RDItems = () => {
                                 <th className='border-top-0'>Sr.No</th>
                                 <th className='border-top-0'>Item Name</th>
                                 <th className='border-top-0'>Unit of Measurement</th>
-                                <th className='border-top-0'>Rashan Category</th>
                                 <th className='border-top-0'>Created At</th>
                             </tr>
                         </thead>
@@ -113,7 +112,6 @@ const RDItems = () => {
                                             <td>{i+1}</td>
                                             <td>{val.item_name}</td>
                                             <td>{val.uom}</td>
-                                            <td>{val.tbl_pf_rd_rashan_category ? val.tbl_pf_rd_rashan_category?.rashan_category_name : "No Category Linked"}</td>
                                             <td>{moment(val.createdAt).format('DD-MM-YYYY hh:mm A')}</td>
                                         </tr>
                                     )
