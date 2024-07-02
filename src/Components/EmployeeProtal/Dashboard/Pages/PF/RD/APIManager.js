@@ -96,3 +96,42 @@ export const fetchRashanLinkedItems = async (rashan_category_id, setItems) => {
         errHandler(err);
     }
 }
+
+
+// USER CATEGORIES APIS
+// TO FETCH USER CATEGORIES
+export const fetchUserCategories = async (setCategories) => {
+    setCategories([]);
+    try {
+        const res = await axios.get('/pf/rd/categories')
+        setCategories(res.data);
+    } catch (err) {
+        errHandler(err);
+    }
+}
+
+
+// USERS APIS
+// FETCH USERS WHO ALREADY COLLECTED THEIR MONTHLY RASHAN IN A DATE RANGE
+// REPORT 1
+export const fetchUsersCollectedRashan = async (startDate, endDate, setUsers) => {
+    setUsers([]);
+    try {
+        const res = await axios.get(`/pf/reports/rd/1?startDate=${startDate}&&endDate=${endDate}`)
+        setUsers(res.data);
+    } catch (err) {
+        errHandler(err);
+    }
+}
+
+// FETCH USERS WHO DID NOT COLLECTED THEIR MONTHLY RASHAN IN A DATE RANGE
+// REPORT 2
+export const fetchUsersNotCollectedRashan = async (startDate, endDate, setUsers) => {
+    setUsers([]);
+    try {
+        const res = await axios.get(`/pf/reports/rd/2?startDate=${startDate}&&endDate=${endDate}`)
+        setUsers(res.data);
+    } catch (err) {
+        errHandler(err);
+    }
+}

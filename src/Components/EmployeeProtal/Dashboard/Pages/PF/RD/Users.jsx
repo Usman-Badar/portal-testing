@@ -184,7 +184,6 @@ const Users = () => {
                                 <th className='border-top-0'>CNIC No</th>
                                 <th className='border-top-0'>No. of Dependents</th>
                                 <th className='border-top-0'>User Category</th>
-                                {/* <th className='border-top-0'>Authorized By</th> */}
                             </tr>
                         </thead>
                         <tbody>
@@ -200,7 +199,6 @@ const Users = () => {
                                             <td>{val.cnic}</td>
                                             <td>{val.no_of_dependents}</td>
                                             <td>{val?.tbl_pf_rd_category?.category_name}</td>
-                                            {/* <td>Abdul Rasheed Kath</td> */}
                                         </tr>
                                     )
                                 })

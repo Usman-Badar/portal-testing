@@ -22,7 +22,11 @@ const RDRashanCategories = () => {
 
     useEffect(
         async () => {
-            if (isCategorySelected) await fetchRashanItems(setItems);
+            if (isCategorySelected) {
+                await fetchRashanItems(setItems);
+            }else {
+                setSelectedItems();
+            }
         }, [isCategorySelected] // CLICKED ON A CATEGORY
     );
 

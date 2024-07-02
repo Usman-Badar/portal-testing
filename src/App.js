@@ -305,6 +305,8 @@ const App = () => {
                     <Route exact path="/pf/rd/biometric/registration" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/pf/rd/rashan_items" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/pf/rd/rashan_categories" render={ () => <Sus content={ <Dashboard /> } /> } />
+                    <Route exact path="/pf/reports/rd/1" render={ () => <Sus content={ <Dashboard /> } /> } />
+                    <Route exact path="/pf/reports/rd/2" render={ () => <Sus content={ <Dashboard /> } /> } />
 
                     {/* WORKSHOP */}
                     <Route exact path="/workshop" render={() => <Sus content={<Dashboard />} />} />
