@@ -5,7 +5,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import $ from 'jquery';
-import { addRow, ApproveRequisition, RejectRequisition, CancelRequisition, openRequestDetails, loadRequests, GetLocations, PRSubmittion, SubmitPR, onAttachQuotations, GetCompanies, onContentInput, onContentEdit, onSearchEmployees, loadHods, sendForApproveRequisition, InvRejectRequisition, updatePR, PRUpdate, TotalCostCalculation, overrideRequisition, SiteManagerApprovalConfirm, SiteManagerRejectionConfirm } from './Functions';
+import { addRow, ApproveRequisition, RejectRequisition, CancelRequisition, openRequestDetails, loadRequests, GetLocations, PRSubmittion, SubmitPR, onAttachQuotations, GetCompanies, onContentInput, onContentEdit, onSearchEmployees, loadHods, sendForApproveRequisition, InvRejectRequisition, updatePR, PRUpdate, TotalCostCalculation, overrideRequisition, SiteManagerApprovalConfirm, SiteManagerRejectionConfirm, loadWMEquipmentRequests } from './Functions';
 import { useSelector } from 'react-redux';
 const UI = lazy( () => import('./UI') );
 
@@ -41,6 +41,9 @@ function PurchaseRequisition() {
     const [ Status, setStatus ] = useState('');
     const [ RequestStatuses, setRequestStatuses ] = useState([]);
     const [ Logs, setLogs ] = useState([]);
+    const [ WMEquipmentList, setWMEquipmentList ] = useState([]);
+    const [ AttachedWMEquipmentList, setAttachedWMEquipmentList ] = useState([]);
+    const [ AttachedWMERequests, setAttachedWMERequests ] = useState([]);
 
     useEffect(
         () => {
@@ -164,7 +167,13 @@ function PurchaseRequisition() {
                     RequestStatuses={ RequestStatuses }
                     Logs={ Logs }
                     CompanyViewer={ CompanyViewer }
+                    WMEquipmentList={WMEquipmentList}
+                    AttachedWMEquipmentList={AttachedWMEquipmentList}
+                    AttachedWMERequests={AttachedWMERequests}
                     
+                    setAttachedWMEquipmentList={setAttachedWMEquipmentList}
+                    setWMEquipmentList={setWMEquipmentList}
+                    loadWMEquipmentRequests={ (company, pr_id) => loadWMEquipmentRequests(company, pr_id, setWMEquipmentList, setAttachedWMEquipmentList) }
                     SiteManagerRejectionConfirm={ ( e, pr_id, requested_by, Specifications ) => SiteManagerRejectionConfirm( e, pr_id, requested_by, Specifications, history, (RequestDetails?.company_short_code + '-' + RequestDetails?.series_year + '-' + RequestDetails?.series_code) ) }
                     SiteManagerApprovalConfirm={ ( e, pr_id, requested_by, Specifications ) => SiteManagerApprovalConfirm( e, pr_id, requested_by, Specifications, history, (RequestDetails?.company_short_code + '-' + RequestDetails?.series_year + '-' + RequestDetails?.series_code) ) }
                     overrideRequisition={ (e, type) => overrideRequisition( e, type, RequestDetails, history ) }
@@ -180,9 +189,9 @@ function PurchaseRequisition() {
                     setFilterAmount={ (val) => { setFilterAmount(val); sessionStorage.setItem('PR_FilterAmount', val) } }
                     setFilterCompany={ (val) => { setFilterCompany(val); sessionStorage.setItem('PR_FilterCompany', val) } }
                     addRow={ addRow }
-                    openRequestDetails={ ( pr_id ) => openRequestDetails( AccessControls, pr_id, setRequestDetails, setSpecifications, setAttachedQuotations, setQuotations, setLogs ) }
-                    PRSubmittion={ ( e ) => PRSubmittion( e, history, toast, Quotations, Data, Employee, AccessControls ) }
-                    PRUpdate={ ( e ) => PRUpdate( e, RequestDetails, history, Data, EditedSpecifications, Quotations, RemovedQuotations, Logs, Specifications ) }
+                    openRequestDetails={ ( pr_id ) => openRequestDetails( AccessControls, pr_id, setRequestDetails, setSpecifications, setAttachedQuotations, setQuotations, setLogs, setAttachedWMERequests ) }
+                    PRSubmittion={ ( e ) => PRSubmittion( e, history, toast, Quotations, Data, Employee, AccessControls, AttachedWMEquipmentList ) }
+                    PRUpdate={ ( e ) => PRUpdate( e, RequestDetails, history, Data, EditedSpecifications, Quotations, RemovedQuotations, Logs, Specifications, AttachedWMEquipmentList ) }
                     updatePR={ ( e ) => updatePR( e, RequestDetails, setData, setEditConfirmation, setEditedSpecifications, setLogs ) }
                     SubmitPR={ ( e ) => SubmitPR( e, setData, setSubmitConfirmation ) }
                     setSubmitConfirmation={ setSubmitConfirmation }

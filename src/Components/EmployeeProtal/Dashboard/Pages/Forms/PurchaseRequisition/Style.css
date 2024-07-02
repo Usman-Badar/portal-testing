@@ -1,3 +1,9 @@
+.pr-grid {
+    display: grid;
+    grid-template-columns: 50fr 50fr;
+    grid-gap: 20px;
+}
+
 .purchase_requisition {
     padding: 0 20px;
     font-family: Poppins;
