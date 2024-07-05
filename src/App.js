@@ -304,6 +304,9 @@ const App = () => {
                     <Route exact path="/pf/rd/biometric/registration" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/pf/rd/rashan_items" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/pf/rd/rashan_categories" render={ () => <Sus content={ <Dashboard /> } /> } />
+                    <Route exact path="/pf/rd/item_received" render={ () => <Sus content={ <Dashboard /> } /> } />
+
+                    {/* PF REPORTING MODULE */}
                     <Route exact path="/pf/reports/rd/1" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/pf/reports/rd/2" render={ () => <Sus content={ <Dashboard /> } /> } />
                 </Switch>

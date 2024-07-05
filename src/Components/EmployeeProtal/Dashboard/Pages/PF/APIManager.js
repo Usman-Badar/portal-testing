@@ -1,4 +1,4 @@
-import axios from '../../../../../../axios';
+import axios from '../../../../../axios';
 
 // CREATED ON 25/06/2024
 // THAT'S WHY ALL THE FUNCTIONS ARE NOT INCLUDED IN THIS FILE
@@ -10,6 +10,18 @@ import axios from '../../../../../../axios';
 const errHandler = (err) => {
     console.log(err);
 }
+
+// RASHAN DISTRIBUTION LOCATIONS APIS
+// TO FETCH THE LIST OF DISTRIBUTION LOCATIONS
+export const fetchDistributionLocations = async (setLocations) => {
+    try {
+        const res = await axios.get('/pf/rd/locations');
+        setLocations(res.data);
+    } catch (err) {
+        errHandler(err);
+    }
+}
+
 
 // RASHAN DISTRIBUTION CATEGORIES APIS
 // TO FETCH THE LIST OF RASHAN CATEGORIES
@@ -111,7 +123,7 @@ export const fetchUserCategories = async (setCategories) => {
 }
 
 
-// USERS APIS
+// REPORTS USERS APIS
 // FETCH USERS WHO ALREADY COLLECTED THEIR MONTHLY RASHAN IN A DATE RANGE
 // REPORT 1
 export const fetchUsersCollectedRashan = async (startDate, endDate, setUsers) => {

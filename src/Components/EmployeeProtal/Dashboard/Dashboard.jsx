@@ -137,6 +137,7 @@ const RDLocations = lazy( () => import('./Pages/PF/RD/Locations') );
 const RDBiometricRegistration = lazy( () => import('./Pages/PF/RD/BiometricRegistration') );
 const RDItems = lazy( () => import('./Pages/PF/RD/RDItems') );
 const RDRashanCategories = lazy( () => import('./Pages/PF/RD/RDRashanCategories') );
+const RDItemReceived = lazy( () => import('./Pages/PF/RD/RDItemReceived') );
 const RDReport1 = lazy( () => import('./Pages/PF/Reports/Report1') );
 const RDReport2 = lazy( () => import('./Pages/PF/Reports/Report2') );
 
@@ -579,6 +580,9 @@ const Dashboard = () => {
                                 <Route exact path="/pf/rd/biometric/registration" render={ () => <Sus content={ <RDBiometricRegistration /> } /> } />
                                 <Route exact path="/pf/rd/rashan_items" render={ () => <Sus content={ <RDItems /> } /> } />
                                 <Route exact path="/pf/rd/rashan_categories" render={ () => <Sus content={ <RDRashanCategories /> } /> } />
+                                <Route exact path="/pf/rd/item_received" render={ () => <Sus content={ <RDItemReceived /> } /> } />
+
+                                {/* PF REPORTING MODULE */}
                                 <Route exact path="/pf/reports/rd/1" render={ () => <Sus content={ <RDReport1 /> } /> } />
                                 <Route exact path="/pf/reports/rd/2" render={ () => <Sus content={ <RDReport2 /> } /> } />
                             </div>

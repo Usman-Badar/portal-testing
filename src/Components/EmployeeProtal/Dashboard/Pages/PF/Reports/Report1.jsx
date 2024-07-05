@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
 import moment from 'moment';
-import { fetchUserCategories, fetchUsersCollectedRashan } from '../RD/APIManager';
+import { fetchUserCategories, fetchUsersCollectedRashan } from '../APIManager';
 
 const Report1 = () => {
     const [ users, setUsers ] = useState();                     // USERS LIST

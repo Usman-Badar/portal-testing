@@ -3,7 +3,7 @@ import $ from 'jquery';
 import JSAlert from 'js-alert';
 import moment from 'moment';
 import Modal from '../../../../../UI/Modal/Modal';
-import { fetchRashanCategoryList, fetchRashanItems, fetchRashanLinkedItems, linkItemsToRashanCategory, onCreateRashanCategory } from './APIManager';
+import { fetchRashanCategoryList, fetchRashanItems, fetchRashanLinkedItems, linkItemsToRashanCategory, onCreateRashanCategory } from '../APIManager';
 
 const RDRashanCategories = () => {
     const [items, setItems] = useState();

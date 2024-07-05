@@ -5,6 +5,7 @@ import axios from '../../../../../../axios';
 import moment from 'moment';
 import Modal from '../../../../../UI/Modal/Modal';
 import JSAlert from 'js-alert';
+import { fetchDistributionLocations, fetchUserCategories } from '../APIManager';
 
 const RD = () => {
   const d = new Date();
@@ -37,31 +38,11 @@ const RD = () => {
     }, [category, location]
   )
   useEffect(
-    () => {
-      fetchLocations();
+    async () => {
+      await fetchUserCategories(setCategories);
+      await fetchDistributionLocations(setLocations);
     }, []
   )
-
-  const fetchCategories = () => {
-    axios.get('/pf/rd/categories').then(
-      res => {
-        setCategories(res.data);
-      }
-    ).catch(err => {
-      console.log(err);
-    });
-  };
-
-  const fetchLocations = () => {
-    axios.get('/pf/rd/locations').then(
-      res => {
-        setLocations(res.data);
-        fetchCategories();
-      }
-    ).catch(err => {
-      console.log(err);
-    });
-  }
 
   const verifyID = (e) => {
     e.preventDefault();
@@ -148,7 +129,8 @@ const RD = () => {
         user_id: searchedObject.registration_id,
         user_employee_id: searchedObject.employee_id,
         emp_id: localStorage.getItem("EmpID"),
-        template: Template ? Template : 'null'
+        template: Template ? Template : 'null',
+        items: JSON.stringify(searchedObject?.tbl_pf_rd_rashan_category?.tbl_pf_rd_items)
       }).then(
         res => {
           button.disabled = false;

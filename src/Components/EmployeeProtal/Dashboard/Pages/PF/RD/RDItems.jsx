@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import $ from 'jquery';
 import JSAlert from 'js-alert';
-import { fetchRashanItems, onCreateRashanItem } from './APIManager';
+import { fetchRashanItems, onCreateRashanItem } from '../APIManager';
 import moment from 'moment';
 
 const RDItems = () => {

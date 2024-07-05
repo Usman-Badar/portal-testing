@@ -5,6 +5,7 @@ import axios from '../../../../../../axios';
 import moment from 'moment';
 import Modal from '../../../../../UI/Modal/Modal';
 import JSAlert from 'js-alert';
+import { fetchDistributionLocations, fetchUserCategories } from '../APIManager';
 
 const RD = () => {
   const d = new Date();
@@ -39,31 +40,11 @@ const RD = () => {
     }, [category, location]
   )
   useEffect(
-    () => {
-      fetchLocations();
+    async () => {
+      await fetchUserCategories(setCategories);
+      await fetchDistributionLocations(setLocations);
     }, []
   )
-
-  const fetchCategories = () => {
-    axios.get('/pf/rd/categories').then(
-      res => {
-        setCategories(res.data);
-      }
-    ).catch(err => {
-      console.log(err);
-    });
-  };
-
-  const fetchLocations = () => {
-    axios.get('/pf/rd/locations').then(
-      res => {
-        setLocations(res.data);
-        fetchCategories();
-      }
-    ).catch(err => {
-      console.log(err);
-    });
-  }
 
   const verifyID = () => {
     const button = document.getElementById('confirmBtn');
