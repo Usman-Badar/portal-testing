@@ -285,6 +285,7 @@ const App = () => {
                     <Route exact path="/fuel-managent/fuel-receival-for-workshop" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/fuel-managent/equipment-fuel-entry" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/fuel-managent/equipment-trip-entry" render={ () => <Sus content={ <Dashboard /> } /> } />
+                    <Route exact path="/fuel-managent/equipment-trip-entry/v2" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/fuel-managent/equipment-trip-selection" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/fuel-managent/stock-at-workshop" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/fuel-managent/stock-at-station" render={ () => <Sus content={ <Dashboard /> } /> } />
@@ -309,6 +310,10 @@ const App = () => {
                     {/* PF REPORTING MODULE */}
                     <Route exact path="/pf/reports/rd/1" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/pf/reports/rd/2" render={ () => <Sus content={ <Dashboard /> } /> } />
+
+                    {/* WORKSHOP */}
+                    <Route exact path="/workshop" render={() => <Sus content={<Dashboard />} />} />
+                    <Route exact path="/workshop_item_request" render={() => <Sus content={<Dashboard />} />} />
                 </Switch>
             </>
         )

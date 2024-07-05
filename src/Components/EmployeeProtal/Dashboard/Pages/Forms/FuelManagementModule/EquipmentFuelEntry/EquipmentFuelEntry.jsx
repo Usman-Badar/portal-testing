@@ -94,7 +94,7 @@ function EquipmentFuelEntry() {
     }
     const GetTripEntries = (value) => {
         setTripEntries([]);
-        axios.post('/fuel-managent/trip-entries/equipment-numbers', {number: value}).then(
+        axios.post('/fuel-managent/trip-entries/equipment-numbers/v2', {company: companyRef.current.value, location: value}).then(
             res => {
                 setTripEntries(res.data);
                 setSelectedTrips([]);
@@ -248,7 +248,7 @@ function EquipmentFuelEntry() {
                                 <label className='mb-0'>
                                     <b>Equipment Number</b>
                                 </label>
-                                <select onChange={(e) => GetTripEntries(e.target.value)} className="form-control" ref={numberRef} required>
+                                <select className="form-control" ref={numberRef} required>
                                     <option value=''>Select the option</option>
                                     {
                                         EquipmentNumbers.map(
@@ -296,7 +296,7 @@ function EquipmentFuelEntry() {
                                 <label className='mb-0'>
                                     <b>Location</b>
                                 </label>
-                                <select className="form-control" name='location' ref={locationRef} required>
+                                <select className="form-control" name='location' ref={locationRef} onChange={(e) => GetTripEntries(e.target.value)} required>
                                     <option value=''>Select the option</option>
                                     {
                                         Locations.map(
@@ -382,7 +382,7 @@ function EquipmentFuelEntry() {
                                 </label>
                                 <select onChange={(e) => addTrips(e.target.value)} className="form-control" ref={tripListRef}>
                                     <option value=''>Select a trip</option>
-                                    {TripEntries.map(val => <option key={val.id} value={JSON.stringify(val)}>{val.trip_from} to {val.trip_to}</option>)}
+                                    {TripEntries.map(val => <option key={val.id} value={JSON.stringify(val)}>{val.trip_from} to {val.trip_to} ({val.fuel_to_issue} ltr.)</option>)}
                                 </select>
                             </div>
                         }
@@ -673,7 +673,7 @@ const ReceivalDetails = ({ AccessControls, Details, setDetails, loadRequests }) 
                                 JSON.parse(AccessControls.access).includes(92) 
                                 ?<button className="btn submit" onClick={issueFuel}>Issue Fuel</button>
                                 :
-                                JSON.parse(AccessControls.access).includes(111) &&
+                                (JSON.parse(AccessControls.access).includes(111) || JSON.parse(AccessControls.access).includes(0)) &&
                                 (Details.status === "Verified" || Details.status === "issued")
                                 ?<button className="btn submit" onClick={confirmReceivingFuel}>Confirm</button>
                                 :null
