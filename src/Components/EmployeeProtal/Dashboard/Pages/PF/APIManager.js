@@ -80,7 +80,15 @@ export const fetchRashanItems = async (setItems) => {
     setItems();
     try {
         const res = await axios.get('/pf/rd/rashan_items');
-        setItems(res.data);
+        const arr = [];
+        for (let x = 0; x < res.data.length; x++) {
+            let obj = res.data[x];
+            if (!obj.quantity || obj.quantity === 0) {
+                obj.quantity = 1;
+            }
+            arr.push(obj);
+        }
+        setItems(arr);
     } catch (err) {
         errHandler(err);
     }
@@ -102,8 +110,15 @@ export const fetchRashanLinkedItems = async (rashan_category_id, setItems) => {
     setItems();
     try {
         const res = await axios.get('/pf/rd/rashan_items/selected?rashan_category=' + rashan_category_id);
-        console.log(res.data);
-        setItems(res.data);
+        const arr = [];
+        for (let x = 0; x < res.data.length; x++) {
+            let obj = res.data[x];
+            if (!obj.quantity || obj.quantity === 0) {
+                obj.quantity = 1;
+            }
+            arr.push(obj);
+        }
+        setItems(arr);
     } catch (err) {
         errHandler(err);
     }
@@ -143,6 +158,32 @@ export const fetchUsersNotCollectedRashan = async (startDate, endDate, setUsers)
     try {
         const res = await axios.get(`/pf/reports/rd/2?startDate=${startDate}&&endDate=${endDate}`)
         setUsers(res.data);
+    } catch (err) {
+        errHandler(err);
+    }
+}
+
+// FETCH ITEMS RECEIVED DURING THE PERIOD
+// GROUP SUM QUANTITY
+// REPORT 3
+export const fetchItemsReceivedinPeriod = async (startDate, endDate, setState) => {
+    setState([]);
+    try {
+        const res = await axios.get(`/pf/reports/3/items_received?startDate=${startDate}&&endDate=${endDate}`);
+        setState(res.data);
+    } catch (err) {
+        errHandler(err);
+    }
+}
+
+// FETCH ITEMS RECEIVED DURING THE PERIOD
+// COMPLETE AND TOTAL ENTRIES
+// REPORT 3
+export const fetchItemsReceivedList = async (location_code, item_id, startDate, endDate, setState) => {
+    setState();
+    try {
+        const res = await axios.get(`/pf/reports/3/sub_entries/items_received?location_code=${location_code}&&item_id=${item_id}&&startDate=${startDate}&&endDate=${endDate}`);
+        setState(res.data);
     } catch (err) {
         errHandler(err);
     }

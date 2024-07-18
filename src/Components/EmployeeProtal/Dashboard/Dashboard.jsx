@@ -143,6 +143,7 @@ const RDRashanCategories = lazy( () => import('./Pages/PF/RD/RDRashanCategories'
 const RDItemReceived = lazy( () => import('./Pages/PF/RD/RDItemReceived') );
 const RDReport1 = lazy( () => import('./Pages/PF/Reports/Report1') );
 const RDReport2 = lazy( () => import('./Pages/PF/Reports/Report2') );
+const ItemReceived = lazy( () => import('./Pages/PF/Reports/ItemReceived') );
 
 const Dashboard = () => {
     
@@ -593,6 +594,7 @@ const Dashboard = () => {
                                 {/* PF REPORTING MODULE */}
                                 <Route exact path="/pf/reports/rd/1" render={ () => <Sus content={ <RDReport1 /> } /> } />
                                 <Route exact path="/pf/reports/rd/2" render={ () => <Sus content={ <RDReport2 /> } /> } />
+                                <Route exact path="/pf/reports/items_received" render={ () => <Sus content={ <ItemReceived /> } /> } />
                             </div>
                         }
                     </div>

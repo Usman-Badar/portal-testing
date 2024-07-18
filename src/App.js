@@ -310,6 +310,7 @@ const App = () => {
                     {/* PF REPORTING MODULE */}
                     <Route exact path="/pf/reports/rd/1" render={ () => <Sus content={ <Dashboard /> } /> } />
                     <Route exact path="/pf/reports/rd/2" render={ () => <Sus content={ <Dashboard /> } /> } />
+                    <Route exact path="/pf/reports/items_received" render={ () => <Sus content={ <Dashboard /> } /> } />
 
                     {/* WORKSHOP */}
                     <Route exact path="/workshop" render={() => <Sus content={<Dashboard />} />} />

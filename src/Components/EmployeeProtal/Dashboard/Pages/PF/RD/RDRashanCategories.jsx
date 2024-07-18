@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import $ from 'jquery';
 import JSAlert from 'js-alert';
 import moment from 'moment';
@@ -98,6 +98,53 @@ const RDRashanCategories = () => {
         }
     }
 
+    const onQuantityChange = (index) => {
+        const textContent = document.getElementById(`itemQuantity${index}`).textContent;
+        let arr = selectedItems?.slice();
+        for (let x = 0; x < arr.length; x++) {
+            if (arr[x].item_id === items[index].item_id) {
+                arr[x].quantity = textContent;
+                return;
+            }
+        }
+        setSelectedItems(arr);
+    }
+
+    // RENDER THE ITEMS LIST TO LINK WITH THE RASHAN CATEGORY
+    // LINK WITH THE SELECTED RASHAN CATEGORY
+    const itemsListRender = useMemo(
+        () => {
+            return (
+                <table className="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Sr.No</th>
+                            <th>Item Name</th>
+                            <th colSpan={2}>Quantity</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            items?.filter(val => val.item_name.toLowerCase().includes(searchItems.toLowerCase()))?.map((val, i) => {
+                                const isSelected = selectedItems?.filter(value => value.item_id === val.item_id)[0];
+                                return (
+                                    <tr key={i}>
+                                        <td>{i+1}</td>
+                                        <td>{val.item_name}</td>
+                                        <td id={`itemQuantity${i}`} onInput={() => onQuantityChange(i)} contentEditable={isSelected ? true : false}>{isSelected?.quantity || '1'}</td>
+                                        <td>
+                                            <input type="checkbox" checked={isSelected} onChange={(e) => onSelectItem(e, val)} />
+                                        </td>
+                                    </tr>
+                                )
+                            })
+                        }
+                    </tbody>
+                </table>
+            )
+        }, [items, searchItems, selectedItems]
+    );
+
     // IF CATEGORY IS SELECTED
     if (isCategorySelected) {
         return (
@@ -119,7 +166,7 @@ const RDRashanCategories = () => {
                         <div>
                             <button className='btn light' onClick={() => setIsCategorySelected()}>Back</button>
                             {
-                                selectedItems?.length > 0 && (<button className='btn submit ml-2' onClick={() => setShowModal(true)}>Link</button>)
+                                selectedItems?.length > 0 && (<button className='btn submit ml-2' onClick={() => setShowModal(true)}>Update Links</button>)
                             }
                         </div>
                     </div>
@@ -150,31 +197,7 @@ const RDRashanCategories = () => {
                                     </div>
                                 )
                             }
-
-                            <table className="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Sr.No</th>
-                                        <th colSpan={2}>Item Name</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {
-                                        items.filter(val => val.item_name.toLowerCase().includes(searchItems.toLowerCase())).map((val, i) => {
-                                            const isSelected = selectedItems?.filter(value => value.item_id === val.item_id)[0];
-                                            return (
-                                                <tr key={i}>
-                                                    <td>{i+1}</td>
-                                                    <td>{val.item_name}</td>
-                                                    <td>
-                                                        <input type="checkbox" checked={isSelected} onChange={(e) => onSelectItem(e, val)} />
-                                                    </td>
-                                                </tr>
-                                            )
-                                        })
-                                    }
-                                </tbody>
-                            </table>
+                            {itemsListRender}
                         </>
                     }
                 </div>

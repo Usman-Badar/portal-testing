@@ -97,7 +97,7 @@ const RD = () => {
     params += "&templateFormat=ISO";
     xmlhttp.open("POST", uri, true);
     xmlhttp.send(params);
-  }
+  };
 
   function SuccessFunc(result) {
     if (result.ErrorCode == 0) {
@@ -108,11 +108,11 @@ const RD = () => {
     } else {
       JSAlert.alert("Description: " + (result.ErrorCode) + ".", "Fingerprint Capture Error Code:  " + result.ErrorCode);
     }
-  }
+  };
 
   function ErrorFunc(status) {
     JSAlert.alert("Check if SGIBIOSRV is running; status = " + status + ":");
-  }
+  };
 
   const confirmation = () => {
     const button = document.getElementById('confirmBtn');
@@ -130,7 +130,7 @@ const RD = () => {
         user_employee_id: searchedObject.employee_id,
         emp_id: localStorage.getItem("EmpID"),
         template: Template ? Template : 'null',
-        items: JSON.stringify(searchedObject?.tbl_pf_rd_rashan_category?.tbl_pf_rd_items)
+        rashan_category_id: searchedObject?.tbl_pf_rd_rashan_category?.rashan_category_id
       }).then(
         res => {
           button.disabled = false;
@@ -143,7 +143,7 @@ const RD = () => {
             setSearchedObject(null);
             setSearchState('');
             setTemplate();
-            JSAlert.alert("Rashan has been delivered successfully!!").dismissIn(1500 * 1);
+            JSAlert.alert(res.data?.msg).dismissIn(1500 * 1);
           }else {
             if (res?.data?.type) {
               if (res?.data?.type === "pass_not_matched" || res?.data?.type === "biometric_not_found" || res?.data?.type === "biometric_not_matched") {
@@ -161,7 +161,7 @@ const RD = () => {
         console.log(err);
       });
     }
-  }
+  };
 
   return (
     <>
@@ -282,16 +282,19 @@ const RD = () => {
                       <tr>
                         <th>Sr.No</th>
                         <th>Item</th>
+                        <th>Quantity</th>
                       </tr>
                     </thead>
                     <tbody>
                       {
                         searchedObject?.tbl_pf_rd_rashan_category?.tbl_pf_rd_items?.map(
                           (val, index) => {
+                            const quantity = val.tbl_pf_rd_item_category_link?.quantity;
                             return (
                               <tr key={index}>
                                 <td>{index + 1}</td>
                                 <td>{val.item_name}</td>
+                                <td>{quantity}</td>
                               </tr>
                             )
                           }

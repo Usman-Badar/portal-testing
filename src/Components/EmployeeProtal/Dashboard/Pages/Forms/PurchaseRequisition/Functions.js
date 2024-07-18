@@ -146,7 +146,6 @@ export const GetCompanies = ( setCompanies ) => {
 
 export const loadWMEquipmentRequests = ( company, pr_id, setWMEquipmentList, setAttachedWMEquipmentList ) => {
     setWMEquipmentList([]);
-    console.log(pr_id)
     if (pr_id) {
         axios.post('/workshop/equipment-request/edit/verified_list', {
             company: company,

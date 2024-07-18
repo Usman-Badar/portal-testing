@@ -1,9 +1,16 @@
+// Rashan not collected during the period
 import React, { useEffect, useState } from 'react';
 import ReactTooltip from 'react-tooltip';
 import moment from 'moment';
 import { fetchUserCategories, fetchUsersNotCollectedRashan } from '../APIManager';
 
 const Report2 = () => {
+
+    const types = {
+        location_name: 'location_name',
+        name: 'name'
+    };
+
     const [ users, setUsers ] = useState();                     // USERS LIST
     const [ ShowFilters, setShowFilters ] = useState(false);    // SHOW FILTERS FORM TRUE/FALSE
     const [ categories, setCategories ] = useState([]);         // USER CATEGORIES LIST
@@ -99,6 +106,62 @@ const Report2 = () => {
         setCategory("");
         setCompany("");
         setLocation("");
+    }
+    
+
+    const sortArray = ( type, in_de, dataType ) => {
+        const sortProperty = types[type];
+        let sorted = sort( sortProperty, in_de, dataType );
+        setUsers(sorted);
+    };
+
+    const sort = ( property, in_de, dataType ) => {
+        const result =
+        dataType === "number"
+        ? sortNumber(property, in_de)
+        : dataType === "string"
+        ? sortString(property, in_de)
+        : dataType === 'date'
+        ? sortDate(property, in_de)
+        : [];
+
+        return result;
+    }
+
+    const sortNumber = ( property, in_de ) => {
+        let sorted;
+        if ( in_de > 0 )
+        {
+            sorted = [...users].sort((a, b) => b[property] - a[property]);
+        }else
+        {
+            sorted = [...users].sort((a, b) => a[property] - b[property]);
+        }
+        return sorted;
+    }
+
+    const sortString = ( property, in_de ) => {
+        let sorted;
+        if ( in_de > 0 )
+        {
+            sorted = [...users].sort((a, b) => b[property].localeCompare(a[property]));
+        }else
+        {
+            sorted = [...users].sort((a, b) => a[property].localeCompare(b[property]));
+        }
+        return sorted;
+    }
+
+    const sortDate = ( property, in_de ) => {
+        let sorted;
+        if ( in_de > 0 )
+        {
+            sorted = [...users].sort((a, b) => new Date(b[property]) - new Date(a[property]));
+        }else
+        {
+            sorted = [...users].sort((a, b) => new Date(a[property]) - new Date(b[property]));
+        }
+        return sorted;
     }
 
     return (
@@ -232,10 +295,26 @@ const Report2 = () => {
                             <tr>
                                 <th className='border-top-0'>Sr.No</th>
                                 <th className='border-top-0'>Registration ID</th>
-                                <th className='border-top-0'>User Name</th>
+                                <th className='border-top-0'>
+                                    <div className='d-flex align-items-center'>
+                                        User Name
+                                        <div className='ml-2'>
+                                            <i onClick={ () => sortArray('name', 0, 'string') } className="las la-chevron-up d-block" style={{ cursor: 'pointer' }}></i>
+                                            <i onClick={ () => sortArray('name', 1, 'string') } className="las la-chevron-down d-block" style={{ cursor: 'pointer' }}></i>
+                                        </div>
+                                    </div>
+                                </th>
                                 <th className='border-top-0'>User Category</th>
                                 <th className='border-top-0'>Company Name</th>
-                                <th className='border-top-0'>Location Name</th>
+                                <th className='border-top-0'>
+                                    <div className='d-flex align-items-center'>
+                                        Location Name
+                                        <div className='ml-2'>
+                                            <i onClick={ () => sortArray('location_name', 0, 'string') } className="las la-chevron-up d-block" style={{ cursor: 'pointer' }}></i>
+                                            <i onClick={ () => sortArray('location_name', 1, 'string') } className="las la-chevron-down d-block" style={{ cursor: 'pointer' }}></i>
+                                        </div>
+                                    </div>
+                                </th>
                                 <th className='border-top-0'>Last Delivery Date</th>
                             </tr>
                         </thead>
