@@ -13,7 +13,6 @@ import loading from '../../../../../images/loadingIcons/icons8-iphone-spinner.gi
 // import weathericon from '../../../../../images/weather-icon.png';
 
 import Modal from '../../../../UI/Modal/Modal';
-import LoadingImg from '../../../../../images/loadingIcons/icons8-iphone-spinner.gif';
 
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -42,6 +41,8 @@ const UI = ({ getAbsentsOfEmployees, Absents, AdvanceCashData, Vendors, Purchase
     };
     const monthNames = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const history = useHistory();
+    const key = 'real secret keys should be long and random';
+    const encryptor = require('simple-encryptor')(key);
     const CanvasJSChart = CanvasJSReact.CanvasJSChart;
     let height = 0;
     let Admin = false;
@@ -57,14 +58,7 @@ const UI = ({ getAbsentsOfEmployees, Absents, AdvanceCashData, Vendors, Purchase
 
     if ( !DataLoaded || !AdvanceCashData || !AttendanceSummery )
     {
-        return (
-            <div className='page'>
-                <div className="page-content text-center">
-                    <img src={LoadingImg} width='50' height='50' alt='loading...' />
-                    <h6 className="mb-0 mt-2">Loading Content....</h6>
-                </div>
-            </div>
-        );
+        return <>Please Wait....</>;
     }
 
     const options = {
@@ -326,60 +320,12 @@ const UI = ({ getAbsentsOfEmployees, Absents, AdvanceCashData, Vendors, Purchase
         return null;
     };
 
-    // const data = [
-    //     {
-    //         "name": "Page A",
-    //         "uv": 4000,
-    //         "pv": 2400,
-    //         "amt": 2400
-    //     },
-    //     {
-    //         "name": "Page B",
-    //         "uv": 3000,
-    //         "pv": 1398,
-    //         "amt": 2210
-    //     },
-    //     {
-    //         "name": "Page C",
-    //         "uv": 2000,
-    //         "pv": 9800,
-    //         "amt": 2290
-    //     },
-    //     {
-    //         "name": "Page D",
-    //         "uv": 2780,
-    //         "pv": 3908,
-    //         "amt": 2000
-    //     },
-    //     {
-    //         "name": "Page E",
-    //         "uv": 1890,
-    //         "pv": 4800,
-    //         "amt": 2181
-    //     },
-    //     {
-    //         "name": "Page F",
-    //         "uv": 2390,
-    //         "pv": 3800,
-    //         "amt": 2500
-    //     },
-    //     {
-    //         "name": "Page G",
-    //         "uv": 3490,
-    //         "pv": 4300,
-    //         "amt": 2100
-    //     }
-    // ]
-    // console.log(Purchases)
-
     return (
         <>
             <div className='page homepage'>
                 <Modal show={ ShowACDetails } Hide={ () => setShowACDetails( !ShowACDetails ) } content={ <ACContent history={ history } Employee={ Employee } Requests={ Requests } /> } />
                 {
-                    AccessControls.access && Admin
-                    ?
-                    <>
+                    AccessControls.access && Admin && (
                         <div className='mb-4 grid grid-gap-3 grid-4-6 popUps'>
                             <div className='page-content'>
                                 <div className='d-flex align-items-center justify-content-between'>
@@ -497,6 +443,10 @@ const UI = ({ getAbsentsOfEmployees, Absents, AdvanceCashData, Vendors, Purchase
                                 </div>
                             </div>
                         </div>
+                    )
+                }
+                {
+                    AccessControls.access && Admin && (
                         <div className='page-content mb-4'>
                             <div className='d-flex justify-content-between align-items-center'>
                                 <h5 className='mb-0 font-weight-bold text-capitalize'>Attendance Summary ({new Date().getFullYear()})</h5>
@@ -537,7 +487,11 @@ const UI = ({ getAbsentsOfEmployees, Absents, AdvanceCashData, Vendors, Purchase
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
-                        <div className='mb-4 grid grid-gap-3 grid-2-2 popUps'>
+                    )
+                }
+                {
+                    AccessControls.access && (Admin || JSON.parse(AccessControls.access).includes(121)) && (
+                        <div className={!Admin ? 'popUps mb-4' : 'mb-4 grid grid-gap-3 grid-2-2 popUps'}>
                             <div className='page-content'>
                                 <div className='d-flex justify-content-between align-items-center'>
                                     <h5 className='mb-0 font-weight-bold text-capitalize'>employees having zero lates <sup>({ZeroLatesEmps.length})</sup></h5>
@@ -560,6 +514,7 @@ const UI = ({ getAbsentsOfEmployees, Absents, AdvanceCashData, Vendors, Purchase
                                                     <th className='border-top-0'>Employee Code</th>
                                                     <th className='border-top-0'>Employee</th>
                                                     <th className='border-top-0'>Company</th>
+                                                    <th className='border-top-0'>Location</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -572,6 +527,7 @@ const UI = ({ getAbsentsOfEmployees, Absents, AdvanceCashData, Vendors, Purchase
                                                                     <td>{ val.emp_id }</td>
                                                                     <td>{ val.name }</td>
                                                                     <td>{ val.company_name }</td>
+                                                                    <td>{ val.location_name }</td>
                                                                 </tr>
                                                             )
                                                         }
@@ -582,53 +538,61 @@ const UI = ({ getAbsentsOfEmployees, Absents, AdvanceCashData, Vendors, Purchase
                                     }
                                 </div>
                             </div>
-                            <div className='page-content'>
-                                <div className='d-flex justify-content-between align-items-center'>
-                                    <h5 className='mb-0 font-weight-bold text-capitalize'>employees having absents <sup>({Absents.length})</sup></h5>
-                                    <div>
-                                        <label className='mb-0 label-small font-weight-bold'>Month</label>
-                                        <input type='month' onChange={ (e) => getAbsentsOfEmployees( e.target.value ) } defaultValue={moment(moment()).format('YYYY-MM')} className='form-control form-control-small' />
+                            {
+                                Admin && (
+                                    <div className='page-content'>
+                                        <div className='d-flex justify-content-between align-items-center'>
+                                            <h5 className='mb-0 font-weight-bold text-capitalize'>employees having absents <sup>({Absents.length})</sup></h5>
+                                            <div>
+                                                <label className='mb-0 label-small font-weight-bold'>Month</label>
+                                                <input type='month' onChange={ (e) => getAbsentsOfEmployees( e.target.value ) } defaultValue={moment(moment()).format('YYYY-MM')} className='form-control form-control-small' />
+                                            </div>
+                                        </div>
+                                        <hr />
+                                        <div className='records-container' style={{ maxHeight: '250px' }}>
+                                            {
+                                                Absents.length === 0
+                                                ?
+                                                <h6 className='text-center'>No Employee Found</h6>
+                                                :
+                                                <table className='table table-sm mb-0'>
+                                                    <thead>
+                                                        <tr>
+                                                            <th className='border-top-0'>Sr.No</th>
+                                                            <th className='border-top-0'>Employee Code</th>
+                                                            <th className='border-top-0'>Employee</th>
+                                                            <th className='border-top-0'>Company</th>
+                                                            <th className='border-top-0'>Absent(s)</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {
+                                                            Absents.sort(function(a, b){return b.absents - a.absents}).map(
+                                                                ( val, index ) => {
+                                                                    return (
+                                                                        <tr key={index} className='clickable pointer' onClick={ () => history.push('/hr/employee/details/' + val.emp_id) }>
+                                                                            <td>{ index + 1 }</td>
+                                                                            <td>{ val.emp_id }</td>
+                                                                            <td>{ val.name }</td>
+                                                                            <td>{ val.code }</td>
+                                                                            <td>{ val.absents }</td>
+                                                                        </tr>
+                                                                    )
+                                                                }
+                                                            )
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            }
+                                        </div>
                                     </div>
-                                </div>
-                                <hr />
-                                <div className='records-container' style={{ maxHeight: '250px' }}>
-                                    {
-                                        Absents.length === 0
-                                        ?
-                                        <h6 className='text-center'>No Employee Found</h6>
-                                        :
-                                        <table className='table table-sm mb-0'>
-                                            <thead>
-                                                <tr>
-                                                    <th className='border-top-0'>Sr.No</th>
-                                                    <th className='border-top-0'>Employee Code</th>
-                                                    <th className='border-top-0'>Employee</th>
-                                                    <th className='border-top-0'>Company</th>
-                                                    <th className='border-top-0'>Absent(s)</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {
-                                                    Absents.sort(function(a, b){return b.absents - a.absents}).map(
-                                                        ( val, index ) => {
-                                                            return (
-                                                                <tr key={index} className='clickable pointer' onClick={ () => history.push('/hr/employee/details/' + val.emp_id) }>
-                                                                    <td>{ index + 1 }</td>
-                                                                    <td>{ val.emp_id }</td>
-                                                                    <td>{ val.name }</td>
-                                                                    <td>{ val.code }</td>
-                                                                    <td>{ val.absents }</td>
-                                                                </tr>
-                                                            )
-                                                        }
-                                                    )
-                                                }
-                                            </tbody>
-                                        </table>
-                                    }
-                                </div>
-                            </div>
+                                )
+                            }
                         </div>
+                    )
+                }
+                {
+                    AccessControls.access && Admin && (
                         <div className='mb-4 grid grid-gap-3 grid-7-3 popUps'>
                             <div className='page-content'>
                                 <div className='d-flex justify-content-between align-items-center'>
@@ -677,6 +641,12 @@ const UI = ({ getAbsentsOfEmployees, Absents, AdvanceCashData, Vendors, Purchase
                                 <CanvasJSChart options={option5} />
                             </div>
                         </div>
+                    )
+                }
+                {
+                    AccessControls.access && Admin
+                    ?
+                    <>
                         {/* <div className='mb-4 grid grid-gap-3 grid-2-2 popUps'>
                             <div className='page-content'>
                                 <h6 className='mb-0 font-weight-bold text-capitalize'>list of employees have issued tickets recently</h6>

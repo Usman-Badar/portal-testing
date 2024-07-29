@@ -5,22 +5,34 @@ import $ from 'jquery';
 import JSAlert from 'js-alert';
 
 const Users = () => {
+    const [user, setUser] = useState();
     const [users, setUsers] = useState();
     const [form, setForm] = useState(false);
     const [categories, setCategories] = useState([]);
     const [rashanCategories, setRashanCategories] = useState([]);
     const [category, setCategory] = useState('');
+    const [registrationId, setRegistrationId] = useState();
 
     useEffect(
         () => {
-            if (form && categories.length === 0) fetchCategories();
-        }, [form]
+            if (categories.length === 0) fetchCategories();
+        }, []
     );
     useEffect(
         () => {
             if (!form && !users) fetchUsers();
         }, [form]
     );
+    useEffect(
+        () => {
+            if (registrationId) fetchUserDetails();
+        }, [registrationId]
+    );
+    useEffect(
+        () => {
+            if (user) setCategory(parseInt(user?.category_id));
+        }, [user]
+    )
 
     const fetchCategories = () => {
         axios.get('/pf/rd/categories').then(
@@ -51,6 +63,16 @@ const Users = () => {
             console.log(err);
         });
     };
+    const fetchUserDetails = () => {
+        setUser();
+        axios.get('/pf/rd/users/details?registration_id=' + registrationId).then(
+            res => {
+                setUser(res.data);
+            }
+        ).catch(err => {
+            console.log(err);
+        });
+    };
     const onCreateUser = (e) => {
         e.preventDefault();
         $('fieldset').prop('disabled', true);
@@ -70,6 +92,38 @@ const Users = () => {
                 fetchUsers();
                 if (res.data && res.data?.registration_id) {
                     JSAlert.alert("User has been created successfully!!").dismissIn(1500 * 1);
+                } else {
+                    console.log(res?.data);
+                    JSAlert.alert("Something went wrong!!!");
+                }
+            }
+        ).catch(err => {
+            $('fieldset').prop('disabled', false);
+            console.log(err);
+        });
+    }
+    const onUpdateUser = (e) => {
+        e.preventDefault();
+        $('fieldset').prop('disabled', true);
+        axios.put('/pf/rd/users/update', {
+            registration_id: registrationId,
+            name: e.target['name'].value,
+            father_name: e.target['father_name'].value,
+            cnic: e.target['cnic'].value,
+            no_of_dependents: e.target['no_of_dependents'].value,
+            rashan_category: e.target['rashan_category'].value,
+            user_category: e.target['user_category'].value,
+            user_employee_id: e.target['employee_id'] ? e.target['employee_id'].value : '',
+            emp_id: localStorage.getItem('EmpID')
+        }).then(
+            res => {
+                $('fieldset').prop('disabled', false);
+                setUser();
+                setCategory();
+                setRegistrationId();
+                fetchUsers();
+                if (res.data && res.data?.registration_id) {
+                    JSAlert.alert("User has been updated successfully!!").dismissIn(1500 * 1);
                 } else {
                     console.log(res?.data);
                     JSAlert.alert("Something went wrong!!!");
@@ -153,6 +207,81 @@ const Users = () => {
             </div>
         )
     }
+    if (user) {
+        return (
+            <div className="page">
+                <div className="page-content">
+                    <div className="d-flex align-items-center justify-content-between">
+                        <h3 className="heading">
+                            Users Edit Profile
+                            <sub>Edit User Details</sub>
+                        </h3>
+                        <button className='btn light' onClick={() => {
+                            setUser();
+                            setRegistrationId();
+                        }}>Back</button>
+                    </div>
+                    <hr />
+                    <form onSubmit={onUpdateUser}>
+                        <fieldset>
+                            <div className='row'>
+                                <div className='col-md-6'>
+                                    <label className='mb-0'><b>Name</b></label>
+                                    <input type='text' defaultValue={user?.name} className="form-control mb-3" name="name" required />
+
+                                </div>
+                                <div className='col-md-6'>
+                                    <label className='mb-0'><b>Father Name</b></label>
+                                    <input type='text' defaultValue={user?.father_name} className="form-control mb-3" name="father_name" required />
+                                </div>
+                                <div className='col-md-6'>
+                                    <label className='mb-0'><b>CNIC No</b></label>
+                                    <input type='text' defaultValue={user?.cnic} className="form-control mb-3" name="cnic" pattern="^[0-9]{5}-[0-9]{7}-[0-9]$" title="Please match the required format: XXXXX-XXXXXXX-X" maxLength={15} required />
+                                </div>
+                                <div className='col-md-6'>
+                                    <label className='mb-0'><b>Number of Dependent</b></label>
+                                    <input type='number' defaultValue={user?.no_of_dependents} className="form-control mb-3" name="no_of_dependents" required />
+                                </div>
+                                <div className='col-md-6'>
+                                    <label className='mb-0'><b>Rashan Category</b></label>
+                                    <select className="form-control" name="rashan_category" defaultValue={user?.rashan_category_id} required>
+                                        <option value=''>Select Rashan Category</option>
+                                        {
+                                            rashanCategories.map((val, index) => {
+                                                return <option key={index} value={val.rashan_category_id} selected={parseInt(val.registration_id) === parseInt(user?.rashan_category_id)}>{val.rashan_category_name}</option>
+                                            })
+                                        }
+                                    </select>
+                                </div>
+                                <div className='col-md-6'>
+                                    <label className='mb-0'><b>User Category</b></label>
+                                    <select className="form-control mb-3" name="user_category" defaultValue={user?.category_id} onChange={(e) => setCategory(e.target.value)} required>
+                                        <option value=''>Select User Category</option>
+                                        {
+                                            categories.map((val, index) => {
+                                                return <option key={index} value={val.category_id} selected={parseInt(val.category_id) === parseInt(user?.category_id)}>{val.category_name}</option>
+                                            })
+                                        }
+                                    </select>
+                                </div>
+                                {
+                                    parseInt(category) === 1 && (
+                                        <div className='col-md-12'>
+                                            <label className='mb-0'><b>Employee Code</b></label>
+                                            <input type='number' className="form-control mb-1" name="employee_id" defaultValue={user?.employee_id} required />
+                                        </div>
+                                    )
+                                }
+                            </div>
+                            <div className='d-flex justify-content-end rounded mt-3'>
+                                <button className='btn submit' id='createBtn'>Update</button>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        )
+    }
     return (
         <div className='page'>
             <div className="page-content">
@@ -190,7 +319,7 @@ const Users = () => {
                             {
                                 users.map((val, i) => {
                                     return (
-                                        <tr key={val.registration_id} className='pointer pointer-hover'>
+                                        <tr key={val.registration_id} onClick={() => setRegistrationId(val.registration_id)} className='pointer pointer-hover'>
                                             <td>{i+1}</td>
                                             <td>{val.registration_id}</td>
                                             <td>{new Date(val.createdAt).toDateString()}</td>
